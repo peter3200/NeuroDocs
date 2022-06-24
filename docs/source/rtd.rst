@@ -18,13 +18,20 @@ Basic Editing Process
 Once you understand the gist of how RTD projects work, go ahead and edit the files to create your own documentation!
 
 1. Start with the /docs/source/index.rst file. This file acts as the table of contents for your project. Add a new page to the toctree list: newpage
+
+
 2. Create 'newpage':
 
 .. code-block:: console
 
 	$ touch newpage.rst
 
+
+
+
 3. Edit 'newpage': You'll want to add a title in the first line, followed by '=' in the second line (these must be under each character in your title). Subheadings work the same way but with '*' as underlines.
+
+
 
 4. Build the new page:
 
@@ -32,7 +39,11 @@ Once you understand the gist of how RTD projects work, go ahead and edit the fil
 
 	$ sphinx-build -b html sourcedir builddir
 
+
+
 5. Upload your files to Github using the same filestructure on your local drive, or commit your repo
+
+
 
 6. If your repo is successfully linked to your RTD account, any changes made in Github will result in automatic updates to your documentation.
 

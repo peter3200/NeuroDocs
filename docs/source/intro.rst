@@ -13,5 +13,7 @@ Limitations
 
 Neuroimaging analyses continue to evolve as new methods and best practices are developed. Thus, it is ultimately up to the reader to explore all of the available options and find the best pipelines and options for their data. Additionally, as amateur coders, we may not have the most efficient or concise code available.
 
+.. note
+
 This resource is continually evolving, so check for updates as additional pages are added!
 
