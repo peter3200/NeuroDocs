@@ -4,4 +4,6 @@ Additional Resources
 General Resources
 *****************************
 
-For general neuroimaging guides, we recommend Andy's Brain Book.    
+For a general neuroimaging guide, we highly recommend Andy's Brain Book: https://andysbrainbook.readthedocs.io
+
+    

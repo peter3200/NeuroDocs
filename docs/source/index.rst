@@ -11,5 +11,6 @@ Welcome to NeuroDocs!
    :caption: Contents
    
    intro
-   simpleble
    examples
+   rtd
+   simpleble
