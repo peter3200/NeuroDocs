@@ -5,8 +5,10 @@ This section is dedicated to the odds and ends that come up during imaging analy
 
 .. _reorient:
 
-Reorient a Nifti Image
+
+Reorient a Nifti Image 
 **********************
+Updated: 220623
 
 1. Check the current orientation of your image using fslorient:
 
@@ -19,4 +21,6 @@ Reorient a Nifti Image
 .. code-block:: console
 
    $ fslorient -forceneurological image.nii
+
+
 

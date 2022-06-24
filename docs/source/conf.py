@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../../simpleble/'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'simpleble'
+project = 'NeuroDocs'
 copyright = '2022, M. Peterson'
 author = 'Peterson'
 
@@ -104,7 +104,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'simplebledoc'
+htmlhelp_basename = 'neurodoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -130,20 +130,12 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, 'simpleble.tex', 'simpleble Documentation',
-     'Lyudmil Vladimirov', 'manual'),
-]
 
 
 # -- Options for manual page output ------------------------------------------
 
 # One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'simpleble', 'simpleble Documentation',
-     [author], 1)
-]
+# (source start file, name, description, authors, manual section)
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -151,11 +143,7 @@ man_pages = [
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'simpleble', 'simpleble Documentation',
-     author, 'simpleble', 'One line description of project.',
-     'Miscellaneous'),
-]
+
 
 
 # -- Extension configuration -------------------------------------------------
