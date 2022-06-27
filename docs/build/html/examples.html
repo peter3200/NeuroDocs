@@ -19,7 +19,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="Additional Resources" href="simpleble.html" /> 
+    <link rel="next" title="Read The Docs" href="rtd.html" />
+    <link rel="prev" title="Introduction" href="intro.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -40,13 +41,13 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="intro.html#our-goal">Our Goal</a></li>
-<li class="toctree-l1"><a class="reference internal" href="intro.html#limitations">Limitations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="simpleble.html">Additional Resources</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Miscellaneous</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#reorient-a-nifti-image">Reorient a Nifti Image</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download-a-dataset-from-openneuro">Download a Dataset from OpenNeuro</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="rtd.html">Read The Docs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simpleble.html">Additional Resources</a></li>
 </ul>
 
         </div>
@@ -78,7 +79,6 @@
 <p>This section is dedicated to the odds and ends that come up during imaging analyses.</p>
 <section id="reorient-a-nifti-image">
 <span id="reorient"></span><h2>Reorient a Nifti Image<a class="headerlink" href="#reorient-a-nifti-image" title="Permalink to this heading"></a></h2>
-<p>Updated: 220623</p>
 <ol class="arabic simple">
 <li><p>Check the current orientation of your image using fslorient:</p></li>
 </ol>
@@ -92,13 +92,39 @@
 </pre></div>
 </div>
 </section>
+<section id="download-a-dataset-from-openneuro">
+<h2>Download a Dataset from OpenNeuro<a class="headerlink" href="#download-a-dataset-from-openneuro" title="Permalink to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p>Load python:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ml python/3.6
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Install the openneuro python package:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip install openneuro-py
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Identify the OpenNeuro accession number for your dataset. This can be found at the top of the webpage for a given dataset. Ex: ds000224 for the MSC dataset</p></li>
+<li><p>Download the dataset using the accession number:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>openneuro-py download --dataset<span class="o">=</span>ds000224
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Your download will begin. Files will be stored in the folder named after the dataset accession number.</p></li>
+</ol>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="simpleble.html" class="btn btn-neutral float-left" title="Additional Resources" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rtd.html" class="btn btn-neutral float-right" title="Read The Docs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
