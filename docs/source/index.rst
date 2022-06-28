@@ -20,7 +20,7 @@ Welcome to NeuroDocs!
    task/task1
 
 
-.. toctree: 
+.. toctree:: 
    :maxdepth: 1
    :caption: Odds and Ends
 
