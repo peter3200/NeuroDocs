@@ -7,10 +7,24 @@ Welcome to NeuroDocs!
 ========================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents
+   :maxdepth: 1
+   :caption: Getting Started
    
-   intro
-   examples
-   rtd
-   simpleble
+   intro/intro
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Task Analysis (FSL)
+
+   task/task1
+
+
+.. toctree: 
+   :maxdepth: 1
+   :caption: Odds and Ends
+
+   misc/reorient
+   misc/openneuro
+   misc/rtd
+   misc/simpleble
