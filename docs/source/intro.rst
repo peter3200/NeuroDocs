@@ -1,6 +1,8 @@
 Introduction
 ============
 
+.. figure:: 01_NeuroDocs.png
+
 NeuroDocs are simple tutorials for the beginning neuroimaging researcher and are meant to act as a guide to navigating basic analyses. These (will) range from preprocessing and task-based analysis to resting-state analyses and statistical comparisons. 
 
 Our Goal
