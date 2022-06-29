@@ -21,7 +21,7 @@ We will create these timing files for two different tasks using two different ap
 
 
 MATLAB timing files
-******************************
+********************
 
 1. Load MATLAB, claim an `salloc` job, and launch MATLAB
 
@@ -31,4 +31,53 @@ MATLAB timing files
     $ salloc --mem-per-cpu 15G --time 24:00:00 --x11
     $ LD_PRELOAD= matlab
 
-2. In MATLAB, view our example .mat task output file. 
+2. In MATLAB, view our example .mat task output file, which you can download on `Github <https://github.com/peter3200/NeuroDocs/blob/main/example_data/kan_langloc_ses-1_run-1_set1.mat>`__.
+
+.. code-block:: console
+
+    $ load('kan_langloc_ses-1_run-1_set1.mat')
+
+Within the `subj_data` structure, there are a few variables:
+
+.. image:: t1.png 
+
+
+Here is what each variable means
+- id, set, run: these are defined when the task is run in the scanner
+- run_onset: the beginning of the timer for this run
+- fix_onsets: the value of the timer at the beginnig of each fixation block
+- i_trial_onsets: used to store the expected length of trials
+- trial_onsets: the actual individual trial onset times
+- did_respond: if thte subject actually pressed a key during the attention probe
+- probe_onset: when the participant responds to the attention probe
+- runtime: end time minus start time
+- rt: probe_response minus probe_onset
+
+.. note:: Also important to know, when time is recorded for this task, it is absolute relative to the internal computer clock, so to get the relative time of trial_onset with respect to run_onset we'll need to calculate trial_onset - run_onset to get a more interpretable value.
+
+
+3. Create two timing files (EV1 and Ev2). The script is available to lab members on `Github <https://github.com/Nielsen-Brain-and-Behavior-Lab/AutismHemisphericSpecialization/blob/main/activation_maps/timing_files/make_langloc_timing_220407.m>`__.
+
+The first step is to set up paths and basic variables:
+
+.. image:: t2.png
+
+
+Next, we will load the .mat file and create more variables:
+
+.. image:: t3.png
+
+
+Now we are ready to create different timing files depending on the set. For this task, the trials are presented in a different order depending on if the set is 1 or 2.
+
+.. image:: t4.png
+
+
+If it is the second set (run), then we will create the timing files using this code:
+
+.. image:: t5.png
+
+
+4. Look for and view the output EV files (found in your out_dir, which in this case is the fmriprep results folder)
+
+
