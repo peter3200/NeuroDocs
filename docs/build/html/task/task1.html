@@ -55,6 +55,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#what-are-timing-files">What are timing files?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#creating-timing-files">Creating timing files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#matlab-timing-files">MATLAB timing files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-timing-files">Python Timing Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-examples-of-timing-files">Other Examples of Timing Files</a></li>
 </ul>
 </li>
 </ul>
@@ -95,7 +97,7 @@
 <section id="what-are-timing-files">
 <h2>What are timing files?<a class="headerlink" href="#what-are-timing-files" title="Permalink to this heading"></a></h2>
 <p>Timing files are simple text files that contain the start time of a task trial, the duration of that trial, and the task contrast.</p>
-<p>For example, let’s use a language localizer task. For this task, participants read sentences with words and strings of nonwords. So, our trial onset times will be whenever the sentences or nonwords are shown on the screen, the trial durations are the length of time the sentence or nonwords blocks are shown, and the task contrast label will indicate if it is a sentence or nonwords trial.</p>
+<p>For example, let’s use a language localizer task. For this task, participants read sentences with words and strings of nonwords. So, our trial onset times will be whenever the sentences or nonwords are shown on the screen, the trial durations are the length of time the sentence or nonwords blocks are shown, and the task contrast label will indicate if it is a sentence or nonwords trial. This task can be downloaded from the EvLab <a class="reference external" href="https://evlab.mit.edu/funcloc/">website</a>.</p>
 </section>
 <section id="creating-timing-files">
 <h2>Creating timing files<a class="headerlink" href="#creating-timing-files" title="Permalink to this heading"></a></h2>
@@ -125,19 +127,23 @@
 </div>
 <p>Within the <cite>subj_data</cite> structure, there are a few variables:</p>
 <img alt="../_images/t1.png" src="../_images/t1.png" />
-<p>Here is what each variable means
-- id, set, run: these are defined when the task is run in the scanner
-- run_onset: the beginning of the timer for this run
-- fix_onsets: the value of the timer at the beginnig of each fixation block
-- i_trial_onsets: used to store the expected length of trials
-- trial_onsets: the actual individual trial onset times
-- did_respond: if thte subject actually pressed a key during the attention probe
-- probe_onset: when the participant responds to the attention probe
-- runtime: end time minus start time
-- rt: probe_response minus probe_onset</p>
+<dl class="simple">
+<dt>Here is what each variable means in the context of the language localizer task</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id,</span> <span class="pre">set,</span> <span class="pre">run:</span> <span class="pre">these</span> <span class="pre">are</span> <span class="pre">defined</span> <span class="pre">when</span> <span class="pre">the</span> <span class="pre">task</span> <span class="pre">is</span> <span class="pre">run</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">scanner</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">run_onset:</span> <span class="pre">the</span> <span class="pre">beginning</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">timer</span> <span class="pre">for</span> <span class="pre">this</span> <span class="pre">run</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fix_onsets:</span> <span class="pre">the</span> <span class="pre">value</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">timer</span> <span class="pre">at</span> <span class="pre">the</span> <span class="pre">beginnig</span> <span class="pre">of</span> <span class="pre">each</span> <span class="pre">fixation</span> <span class="pre">block</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">i_trial_onsets:</span> <span class="pre">used</span> <span class="pre">to</span> <span class="pre">store</span> <span class="pre">the</span> <span class="pre">expected</span> <span class="pre">length</span> <span class="pre">of</span> <span class="pre">trials</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trial_onsets:</span> <span class="pre">the</span> <span class="pre">actual</span> <span class="pre">individual</span> <span class="pre">trial</span> <span class="pre">onset</span> <span class="pre">times</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">did_respond:</span> <span class="pre">if</span> <span class="pre">thte</span> <span class="pre">subject</span> <span class="pre">actually</span> <span class="pre">pressed</span> <span class="pre">a</span> <span class="pre">key</span> <span class="pre">during</span> <span class="pre">the</span> <span class="pre">attention</span> <span class="pre">probe</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">probe_onset:</span> <span class="pre">when</span> <span class="pre">the</span> <span class="pre">participant</span> <span class="pre">responds</span> <span class="pre">to</span> <span class="pre">the</span> <span class="pre">attention</span> <span class="pre">probe</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">runtime:</span> <span class="pre">end</span> <span class="pre">time</span> <span class="pre">minus</span> <span class="pre">start</span> <span class="pre">time</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rt:</span> <span class="pre">probe_response</span> <span class="pre">minus</span> <span class="pre">probe_onset</span></code></p></li>
+</ul>
+</dd>
+</dl>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Also important to know, when time is recorded for this task, it is absolute relative to the internal computer clock, so to get the relative time of trial_onset with respect to run_onset we’ll need to calculate trial_onset - run_onset to get a more interpretable value.</p>
+<p>When time is recorded for this task, it is absolute relative to the internal computer clock, so to get the relative time of trial_onset with respect to run_onset we’ll need to calculate trial_onset - run_onset to get a more interpretable value.</p>
 </div>
 <ol class="arabic simple" start="3">
 <li><p>Create two timing files (EV1 and Ev2). The script is available to lab members on <a class="reference external" href="https://github.com/Nielsen-Brain-and-Behavior-Lab/AutismHemisphericSpecialization/blob/main/activation_maps/timing_files/make_langloc_timing_220407.m">Github</a>.</p></li>
@@ -153,6 +159,45 @@
 <ol class="arabic simple" start="4">
 <li><p>Look for and view the output EV files (found in your out_dir, which in this case is the fmriprep results folder)</p></li>
 </ol>
+<img alt="../_images/t6.png" src="../_images/t6.png" />
+</section>
+<section id="python-timing-files">
+<h2>Python Timing Files<a class="headerlink" href="#python-timing-files" title="Permalink to this heading"></a></h2>
+<p>We are going to use a different task and a different language to approach timing files! Some background: this “linetask” is a line bisection task, for which participants view a vertical line bisected by a horizontal line. For LENGTH trials, they are asked to select if the top or bottom section of the vertical line is longer. For COLOR trials, they determine if the top or bottom of the vertical line is brighter. Unlike the language task, trial durations are determined by the participant’s response speed.</p>
+<ol class="arabic simple" start="0">
+<li><p>The raw output for this task is in EPrime format. These EPrime files were first converted to .excel files using EPrime and then to .csv files using Excel. You can download an example .csv output file to use with this script from <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/main/example_data/LineTask_ses-1_run-2.csv">Github</a>.</p></li>
+<li><p>Load python</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ml python/3.6
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Run our script! Lab members can access this script on <a class="reference external" href="https://github.com/Nielsen-Brain-and-Behavior-Lab/AutismHemisphericSpecialization/blob/main/activation_maps/timing_files/make_landmark_timing_x2_220408.py">Github</a>.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>python make_landmark_timing_x2_220408.py
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Check for output in your output directory (here specified as input folder). There should be two EV files for each run.</p></li>
+</ol>
+<img alt="../_images/t7.png" src="../_images/t7.png" />
+<p><em>What did the python script do?</em></p>
+<ul class="simple">
+<li><p>First, we set up our environment, loading the needed modules and setting our input directory</p></li>
+</ul>
+<img alt="../_images/t8.png" src="../_images/t8.png" />
+<ul class="simple">
+<li><p>Next, we set up our <cite>for loops</cite> to loop through each subject and then each landmark task output file within that subject directory. Then we went to work grabbing our timing file components.</p></li>
+</ul>
+<img alt="../_images/t9.png" src="../_images/t9.png" />
+<ul class="simple">
+<li><p>After that, we created two EV files – one for the LEN trials and one for the COL trials and then saved them in the input directory.</p></li>
+</ul>
+<img alt="../_images/t10.png" src="../_images/t10.png" />
+</section>
+<section id="other-examples-of-timing-files">
+<h2>Other Examples of Timing Files<a class="headerlink" href="#other-examples-of-timing-files" title="Permalink to this heading"></a></h2>
+<p>As a primer with a simplified example, we highly recommend Andy’s Brain Book! Check out <a class="reference external" href="https://andysbrainbook.readthedocs.io/en/latest/fMRI_Short_Course/Statistics/05_Creating_Timing_Files.html">Chapter 5</a>.</p>
 </section>
 </section>
 
