@@ -16,3 +16,4 @@ Neuroimaging analyses continue to evolve as new methods and best practices are d
 .. note:: This resource is continually evolving, so check for updates as additional pages are added!
 
 .. figure:: 02_NeuroDocs.png
+   :align: center
