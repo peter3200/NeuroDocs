@@ -1,15 +1,15 @@
-Read The Docs
-=============
+Read The Docs Documentation
+===========================
 
 Background
 **********
 
-Thorough documentation is really important to moving open science forward. This page is a basic guide to getting started with Github and ReadTheDocs. Github is wonderful for storing and sharing code and ReadTheDocs integrates with Github and Sphinx to generate automatically updating documentation for that code. Convinced?
+Thorough documentation is really important to moving open science forward. This page is a basic guide to getting started with ReadTheDocs. ReadTheDocs integrates with Github (storing and sharing code) and Sphinx to generate automatically updating documentation for code. 
 
 Learn by Doing 
 **************
 
-The most helpful tutorial for getting started came from Sphinx: https://sphinx-rtd-tutorial.readthedocs.io/en/latest/install.html This tutorial walks you through the installation of sphinx, project setup and configuration, populating documentation, and publishing your docs. From there, we advise copying the simpleble project and editing the files to make your own docs! The simpleble files are fairly simple (!) to understand and act as a great templates for formulating your own project. The reader is also welcome to do something similar with the code used for NeuroDocs (https://github.com/peter3200/NeuroDocs).
+The most helpful tutorial for getting started came from Sphinx: https://sphinx-rtd-tutorial.readthedocs.io/en/latest/install.html This tutorial walks you through the installation of sphinx, project setup and configuration, populating documentation, and publishing your docs. From there, we advise copying the simpleble project and editing the files to make your own docs! The simpleble files are fairly simple (!) to understand and act as a great template for formulating your own project. The reader is also welcome to do something similar with the code used for `NeuroDocs <https://github.com/peter3200/NeuroDocs>`__.
 
 
 Basic Editing Process
