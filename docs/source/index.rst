@@ -15,6 +15,16 @@ Welcome to NeuroDocs!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Preprocessing (fMRIprep)
+
+   preproc/prep_ov
+   preproc/prep1
+   preproc/prep2
+   preproc/prep3   
+
+
+.. toctree::
+   :maxdepth: 1
    :caption: Task Analysis (FSL)
 
    task/task1
@@ -27,4 +37,4 @@ Welcome to NeuroDocs!
    misc/reorient
    misc/openneuro
    misc/rtd
-   misc/simpleble
+   misc/addresources
