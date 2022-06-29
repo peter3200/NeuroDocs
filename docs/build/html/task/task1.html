@@ -19,7 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Introduction" href="../intro/intro.html" /> 
+    <link rel="next" title="Reorient a Nifti Image" href="../misc/reorient.html" />
+    <link rel="prev" title="Preproc Step 3: Brain Extraction" href="../preproc/prep3.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -41,6 +42,13 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">Introduction</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (fMRIprep)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep_ov.html">Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep1.html">Preproc Step 1: Data Organization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep2.html">Preproc Step 2: fMRIprep</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep3.html">Preproc Step 3: Brain Extraction</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Task Analysis (FSL)</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Task Analysis Step 1: Timing Files</a><ul>
@@ -49,6 +57,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#matlab-timing-files">MATLAB timing files</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/addresources.html">Additional Resources</a></li>
 </ul>
 
         </div>
@@ -103,7 +118,40 @@
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>In MATLAB, view our example .mat task output file.</p></li>
+<li><p>In MATLAB, view our example .mat task output file, which you can download on <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/main/example_data/kan_langloc_ses-1_run-1_set1.mat">Github</a>.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>load<span class="o">(</span><span class="s1">&#39;kan_langloc_ses-1_run-1_set1.mat&#39;</span><span class="o">)</span>
+</pre></div>
+</div>
+<p>Within the <cite>subj_data</cite> structure, there are a few variables:</p>
+<img alt="../_images/t1.png" src="../_images/t1.png" />
+<p>Here is what each variable means
+- id, set, run: these are defined when the task is run in the scanner
+- run_onset: the beginning of the timer for this run
+- fix_onsets: the value of the timer at the beginnig of each fixation block
+- i_trial_onsets: used to store the expected length of trials
+- trial_onsets: the actual individual trial onset times
+- did_respond: if thte subject actually pressed a key during the attention probe
+- probe_onset: when the participant responds to the attention probe
+- runtime: end time minus start time
+- rt: probe_response minus probe_onset</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Also important to know, when time is recorded for this task, it is absolute relative to the internal computer clock, so to get the relative time of trial_onset with respect to run_onset we’ll need to calculate trial_onset - run_onset to get a more interpretable value.</p>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Create two timing files (EV1 and Ev2). The script is available to lab members on <a class="reference external" href="https://github.com/Nielsen-Brain-and-Behavior-Lab/AutismHemisphericSpecialization/blob/main/activation_maps/timing_files/make_langloc_timing_220407.m">Github</a>.</p></li>
+</ol>
+<p>The first step is to set up paths and basic variables:</p>
+<img alt="../_images/t2.png" src="../_images/t2.png" />
+<p>Next, we will load the .mat file and create more variables:</p>
+<img alt="../_images/t3.png" src="../_images/t3.png" />
+<p>Now we are ready to create different timing files depending on the set. For this task, the trials are presented in a different order depending on if the set is 1 or 2.</p>
+<img alt="../_images/t4.png" src="../_images/t4.png" />
+<p>If it is the second set (run), then we will create the timing files using this code:</p>
+<img alt="../_images/t5.png" src="../_images/t5.png" />
+<ol class="arabic simple" start="4">
+<li><p>Look for and view the output EV files (found in your out_dir, which in this case is the fmriprep results folder)</p></li>
 </ol>
 </section>
 </section>
@@ -112,7 +160,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../intro/intro.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../preproc/prep3.html" class="btn btn-neutral float-left" title="Preproc Step 3: Brain Extraction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../misc/reorient.html" class="btn btn-neutral float-right" title="Reorient a Nifti Image" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
