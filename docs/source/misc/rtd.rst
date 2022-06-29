@@ -47,4 +47,7 @@ Once you understand the gist of how RTD projects work, go ahead and edit the fil
 
 6. If your repo is successfully linked to your RTD account, any changes made in Github will result in automatic updates to your documentation.
 
+RST Markup
+**********
 
+The reStructuredText markup can be tricky to get used to. Here is a handy `cheatsheet <https://bashtage.github.io/sphinx-material/rst-cheatsheet/rst-cheatsheet.html>`__.
