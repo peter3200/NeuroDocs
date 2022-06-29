@@ -50,6 +50,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#what-are-some-general-components-of-preprocessing">What are some general components of preprocessing?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#what-preprocessing-pipelines-are-available">What preprocessing pipelines are available?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-do-i-choose-a-preprocessing-pipeline">How do I choose a preprocessing pipeline?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#where-can-i-go-to-learn-more-about-preprocessing">Where can I go to learn more about preprocessing?</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="prep1.html">Preproc Step 1: Data Organization</a></li>
@@ -96,18 +97,37 @@
 <h1>Preprocessing Overview<a class="headerlink" href="#preprocessing-overview" title="Permalink to this heading"></a></h1>
 <section id="what-is-preprocessing">
 <h2>What is preprocessing?<a class="headerlink" href="#what-is-preprocessing" title="Permalink to this heading"></a></h2>
+<p>“Preprocessing” in the context of neuroimaging analyses refers to the set of steps taken prior to model setup and analysis.</p>
 </section>
 <section id="why-preprocess-neuroimaging-data">
 <h2>Why preprocess neuroimaging data?<a class="headerlink" href="#why-preprocess-neuroimaging-data" title="Permalink to this heading"></a></h2>
+<p>Neuroimaging data is very noisy–that is, it can be difficult to separate out BOLD signal from artifacts resulting from inhomogeneities in the scanner’s magnetic field, physiological signal (heartbeat, respiration), and other issues such as head motion. Thus, the purpose of preprocessing is to remove or ameliorate noise and increase the signal-to-noise ratio.</p>
 </section>
 <section id="what-are-some-general-components-of-preprocessing">
 <h2>What are some general components of preprocessing?<a class="headerlink" href="#what-are-some-general-components-of-preprocessing" title="Permalink to this heading"></a></h2>
+<p>Preprocessing is performed for both anatomical and functional images, and each pipeline is slightly different. Anatomical processing can include bias field correction, skull-striping, segmentation, surface reconstruction, creation of a brain mask, and spatial normalization among others. On the functional processing side, there is registration to a reference T1w image, slice-timing correction, resampling to a standard space (such as fsaverage), head motion correction, physiological regression, component-based noise correction, high-pass filtering, and mask creation. Many of these steps are visually depicted in the fMRIprep <a class="reference external" href="https://fmriprep.org/en/stable/index.html">documentation</a>.</p>
 </section>
 <section id="what-preprocessing-pipelines-are-available">
 <h2>What preprocessing pipelines are available?<a class="headerlink" href="#what-preprocessing-pipelines-are-available" title="Permalink to this heading"></a></h2>
+<p>At this point in neuroimaging method development, there are many good preprocessing pipelines available. Here are a few options:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://fmriprep.org/en/stable/index.html">fMRIprep</a></p></li>
+<li><p><a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/preprocessing/CBIG_fMRI_Preproc2016">CBIG2016</a></p></li>
+<li><p><a class="reference external" href="https://github.com/DCAN-Labs/abcd-hcp-pipeline">ABCD-HCP BIDS</a></p></li>
+<li><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S2095927316305394?via?3Dihub">CCS</a></p></li>
+</ol>
 </section>
 <section id="how-do-i-choose-a-preprocessing-pipeline">
 <h2>How do I choose a preprocessing pipeline?<a class="headerlink" href="#how-do-i-choose-a-preprocessing-pipeline" title="Permalink to this heading"></a></h2>
+<p>To make this choice, we recommend considering your data and your eventual analysis–what forms of noise are most salient? Also, you might consider how much you value transparency and reproducibility in science–would you rather select a pipeline that is automated and well-documented or one that is more customizable to better fit the needs of your data?</p>
+<p>You might also consider reading <cite>Moving beyond processing and analysis-related variation in neuroscience</cite> which directly compares the performance of several preprocessing pipelines. <a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.12.01.470790v1.abstract">Table 1</a> is very instructive!</p>
+</section>
+<section id="where-can-i-go-to-learn-more-about-preprocessing">
+<h2>Where can I go to learn more about preprocessing?<a class="headerlink" href="#where-can-i-go-to-learn-more-about-preprocessing" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>We highly recommend the 2011 Handbook of Functional MRI Data Analysis by Russell A. Poldrack and others. From this handbook, Chapter 3 will be particularly relevant for preprocessing.</p></li>
+<li><p>Andy’s Brain Book is another excellent resource. See <a class="reference external" href="https://andysbrainbook.readthedocs.io/en/latest/fMRI_Short_Course/fMRI_04_Preprocessing.html">#4</a></p></li>
+</ul>
 </section>
 </section>
 
