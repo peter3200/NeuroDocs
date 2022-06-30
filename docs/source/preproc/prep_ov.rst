@@ -6,12 +6,10 @@ What is preprocessing?
 
 "Preprocessing" in the context of neuroimaging analyses refers to the set of steps taken prior to model setup and analysis.
 
-
 Why preprocess neuroimaging data?
 *********************************
 
 Neuroimaging data is very noisy--that is, it can be difficult to separate out BOLD signal from artifacts resulting from inhomogeneities in the scanner's magnetic field, physiological signal (heartbeat, respiration), and other issues such as head motion. Thus, the purpose of preprocessing is to remove or ameliorate noise and increase the signal-to-noise ratio. 
-
 
 What are some general components of preprocessing?
 **************************************************
@@ -31,8 +29,6 @@ At this point in neuroimaging method development, there are many good preprocess
 
 4. `CCS <https://www.sciencedirect.com/science/article/pii/S2095927316305394?via?3Dihub>`__
 
-
-
 How do I choose a preprocessing pipeline?
 *****************************************
 
@@ -40,10 +36,9 @@ To make this choice, we recommend considering your data and your eventual analys
 
 You might also consider reading `Moving beyond processing and analysis-related variation in neuroscience` which directly compares the performance of several preprocessing pipelines. `Table 1 <https://www.biorxiv.org/content/10.1101/2021.12.01.470790v1.abstract>`__ is very instructive!
 
-
 Where can I go to learn more about preprocessing?
 *************************************************
 
 * We highly recommend the 2011 Handbook of Functional MRI Data Analysis by Russell A. Poldrack and others. From this handbook, Chapter 3 will be particularly relevant for preprocessing.
 
-* Andy's Brain Book is another excellent resource. See `#4 <https://andysbrainbook.readthedocs.io/en/latest/fMRI_Short_Course/fMRI_04_Preprocessing.html>`__
+* Andy's Brain Book is another excellent resource. See `section #4 <https://andysbrainbook.readthedocs.io/en/latest/fMRI_Short_Course/fMRI_04_Preprocessing.html>`__.
