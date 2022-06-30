@@ -47,9 +47,9 @@
 <li class="toctree-l1"><a class="reference internal" href="prep_ov.html">Preprocessing Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Preproc Step 1: Data Organization</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-dcm2niix">Installing dcm2niix</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#dicoms-to-niftis">Dicoms to Niftis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dicoms-to-niftis">Dicoms to NIFTIs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#bids-formatting">BIDS Formatting</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#going-from-dicom-to-bids">Going from Dicom to BIDS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#going-from-dicoms-to-bids">Going from Dicoms to BIDS</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="prep2.html">Preproc Step 2: fMRIprep</a></li>
@@ -93,17 +93,223 @@
              
   <section id="preproc-step-1-data-organization">
 <h1>Preproc Step 1: Data Organization<a class="headerlink" href="#preproc-step-1-data-organization" title="Permalink to this heading"></a></h1>
+<p>For our first step of preprocessing, we are going to take our raw MRI files (dicoms) and turn these into a more usable format (NIFTI or .nii). From here, we will organize our data into the standardized BIDS format.</p>
 <section id="installing-dcm2niix">
 <h2>Installing dcm2niix<a class="headerlink" href="#installing-dcm2niix" title="Permalink to this heading"></a></h2>
+<p><strong>Overview</strong>
+Installing software on the supercomputer involves three basic steps: 1) getting the software, 2) configuring the software, and 3) updating the environment. This piece of software, dcm2niix, will take our raw dicoms and convert them into NIFTI files.</p>
+<ol class="arabic simple">
+<li><p>Create our software folder.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>mkdir research_bin
+<span class="gp">$ </span><span class="nb">cd</span> research_bin
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Load modules.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>module load cmake/3.14
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Clone a copy of dcm2niix software from Github</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>git clone https://github.com/rordenlab/dcm2niix.git
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Create a “build” directory</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> dcm2niix
+<span class="gp">$ </span>mkdir build <span class="o">&amp;&amp;</span> <span class="nb">cd</span> build
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>Configure dcm2niix for installation</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>ccmake ..
+</pre></div>
+</div>
+<p>A screen will take over the terminal and show a list of options. Press “c” for configure.</p>
+<img alt="../_images/p1_1.png" src="../_images/p1_1.png" />
+<ol class="arabic simple" start="6">
+<li><p>From here, ccmake will attempt the configuration but throw an error. Press “e” to exit to an option screen.</p></li>
+<li><p>Use the arrow keeys to navigate to USE_STATIC_RUNTIME and use “return” to toggle ON to OFF.</p></li>
+<li><p>Now that USE_STATIC_RUNTIME is set to OFF, we can configure by pressing “c” multiple times until the option “generate” appears. Press “g” to generate and exit.</p></li>
+<li><p>With the configuration complete, we can now install it. Do this by entering:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>make
+</pre></div>
+</div>
+<p>The installation is complete once you receive a 100% report: [100%] Built target console</p>
+<ol class="arabic simple" start="10">
+<li><p>The final step is to add the software to the environmental PATH by editing the ~/.bash_profile:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>nano ~/.bash_profile
+</pre></div>
+</div>
+<p>In the ~/.bash_profile, add the following path:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># dcm2niix path</span>
+<span class="nv">PATH</span><span class="o">=</span><span class="si">${</span><span class="nv">PATH</span><span class="si">}</span>:<span class="se">\</span>
+~/research_bin/dcm2niix/build/bin
+</pre></div>
+</div>
+<p>Save your work and update the environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span> ~/.bash_profile
+</pre></div>
+</div>
+<ol class="arabic simple" start="11">
+<li><p>Test the installation</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>dcm2niix
+</pre></div>
+</div>
+<img alt="../_images/p1_2.png" src="../_images/p1_2.png" />
 </section>
 <section id="dicoms-to-niftis">
-<h2>Dicoms to Niftis<a class="headerlink" href="#dicoms-to-niftis" title="Permalink to this heading"></a></h2>
+<h2>Dicoms to NIFTIs<a class="headerlink" href="#dicoms-to-niftis" title="Permalink to this heading"></a></h2>
+<p>Using dcm2niix is pretty straightforward! For example, we point it to an output directory, specify any special flags, and indicate a folder containing dicoms!</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>~/research_bin/dcm2niix/build/bin/dcm2niix -o <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/anat/ -f t1 -x y <span class="si">${</span><span class="nv">INPUTDIR</span><span class="si">}</span>
+</pre></div>
+</div>
 </section>
 <section id="bids-formatting">
 <h2>BIDS Formatting<a class="headerlink" href="#bids-formatting" title="Permalink to this heading"></a></h2>
+<p>The Brain Imaging Data Structure (BIDS) is a convention for standardizing file structures and naming conventions for datasets. This makes it much easier to share data and navigate shared data! The formal documentation for BIDS can be found <a class="reference external" href="https://bids-specification.readthedocs.io/en/stable/index.html">online</a>. BIDS formatting is required for fMRIprep, a preprocessing pipeline.</p>
+<p>Using the <code class="docutils literal notranslate"><span class="pre">tree</span></code> command, we can view the file structure for a subject that is already in BIDS format:</p>
+<img alt="../_images/p1_3.png" src="../_images/p1_3.png" />
+<p>A few things to note from this image:</p>
+<ul class="simple">
+<li><p>Subject-level directories are named “sub-XXXX”</p></li>
+<li><p>Within each subject’s directory, there are sessions. If you only have one session per participant, then all of your imaging data will fall within “ses-1”</p></li>
+<li><p>Within each session, there are folders containing specific data types. For example, the “anat” folder contains structural images, such as T1w and T2w images. A “dti” folder will contain dti images, etc.</p></li>
+<li><p>Files are named: sub-SUBJECT_ses-SES#_</p></li>
+<li><p>For functional files, particularly where there are multiple runs for each task, the task name and run number must be specified.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are unsure how to name your files, consult the <a class="reference external" href="https://bids-specification.readthedocs.io/en/stable/index.html">BIDS guide</a>.</p>
+</div>
 </section>
-<section id="going-from-dicom-to-bids">
-<h2>Going from Dicom to BIDS<a class="headerlink" href="#going-from-dicom-to-bids" title="Permalink to this heading"></a></h2>
+<section id="going-from-dicoms-to-bids">
+<h2>Going from Dicoms to BIDS<a class="headerlink" href="#going-from-dicoms-to-bids" title="Permalink to this heading"></a></h2>
+<p>Using some for loops, we can take our dicom files directly to BIDS-formatted NIFTI files! Job script is available for lab members on <a class="reference external" href="https://github.com/Nielsen-Brain-and-Behavior-Lab/AutismHemisphericSpecialization/blob/main/preproc/dcm2nii_job.sh">Github</a>.</p>
+<p>To do this for each subject simultaneously, we are going to use a job script and a wrapper script. The wrapper script can be thought of as an outer layer that submits a supercomputing job for each subject.</p>
+<ol class="arabic simple">
+<li><p>Wrapper script: We first call on bash and set our paths. Then, we loop through each subject found in the subject directory and submit a job (as well as create output and error files for each job).</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">code_dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/data_org
+<span class="nv">log_dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/data_org/logfiles
+mkdir -p <span class="si">${</span><span class="nv">log_dir</span><span class="si">}</span>
+<span class="nv">subj_dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/data/data_dump
+
+
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>ls <span class="si">${</span><span class="nv">subj_dir</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+        sbatch <span class="se">\</span>
+        -o <span class="si">${</span><span class="nv">log_dir</span><span class="si">}</span>/output_<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>.txt <span class="se">\</span>
+        -e <span class="si">${</span><span class="nv">log_dir</span><span class="si">}</span>/error_<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>.txt <span class="se">\</span>
+        <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/job_dcm2nii.sh <span class="si">${</span><span class="nv">sub</span><span class="si">}</span>
+        sleep <span class="m">1</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Job script: We first call on bash and setup our job information. Then, we are going to loop through each directory within each subject to find any dicoms and convert those to NIFTIs. The output will be in BIDS format.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --time=01:00:00   # walltime</span>
+<span class="c1">#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)</span>
+<span class="c1">#SBATCH --nodes=1   # number of nodes</span>
+<span class="c1">#SBATCH --mem-per-cpu=30720M   # memory per CPU core</span>
+<span class="c1">#SBATCH -J &quot;dcm2niix&quot;   # job name</span>
+
+<span class="c1"># Set the max number of threads to use for programs using OpenMP. Should be &lt;= ppn. Does nothing if the program doesn&#39;t use OpenMP.</span>
+<span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_ON_NODE</span>
+
+<span class="c1"># dcm2BIDS</span>
+<span class="nv">sub</span><span class="o">=</span><span class="si">${</span><span class="nv">1</span><span class="si">}</span>
+<span class="nv">sub_dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/data/data_dump/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/source_data
+
+<span class="nv">number_ses</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span> ses <span class="k">in</span> <span class="sb">`</span>ls <span class="si">${</span><span class="nv">sub_dir</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+        <span class="nv">number_ses</span><span class="o">=</span><span class="k">$((</span>number_ses+1<span class="k">))</span>
+
+        <span class="c1">#Do not change these paths!</span>
+        <span class="nv">home_dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/data
+        <span class="nb">cd</span> <span class="si">${</span><span class="nv">home_dir</span><span class="si">}</span>/data_dump/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/source_data/<span class="si">${</span><span class="nv">ses</span><span class="si">}</span>
+        mv Research_Nielsen<span class="se">\ </span>-<span class="se">\ </span><span class="m">1</span>/ Research_Nielsen
+        <span class="nb">cd</span> /fslgroup/fslg_spec_networks/compute/code/data_org
+        <span class="nv">dicom_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">home_dir</span><span class="si">}</span>/data_dump/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/source_data/<span class="si">${</span><span class="nv">ses</span><span class="si">}</span>/Research_Nielsen
+        <span class="nv">out_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">home_dir</span><span class="si">}</span>/BIDS_compliant/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/ses-<span class="si">${</span><span class="nv">number_ses</span><span class="si">}</span>
+        mkdir -p <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>
+        <span class="nv">anat_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/anat
+        <span class="nv">func_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/func
+        <span class="nv">fmap_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/fmap
+
+        <span class="c1">#Set output string</span>
+        <span class="nv">name_string</span><span class="o">=</span>sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_ses-<span class="si">${</span><span class="nv">number_ses</span><span class="si">}</span>
+
+        <span class="c1">#Make output directories</span>
+        mkdir -p <span class="si">${</span><span class="nv">anat_dir</span><span class="si">}</span> <span class="si">${</span><span class="nv">fmap_dir</span><span class="si">}</span> <span class="si">${</span><span class="nv">func_dir</span><span class="si">}</span>
+
+        <span class="c1">#Remove unnecessary folders</span>
+        rm -r <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/PhoenixZIPReport*
+
+        <span class="c1">#Construct T1 NIFTI files (08mm)</span>
+        <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="sb">`</span>ls -d <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/t1_mprage_Amish_08mm*<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+            dcm2niix -b y -ba y -z y -w <span class="m">0</span> -o <span class="si">${</span><span class="nv">anat_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_T1w <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
+    <span class="k">done</span>
+
+        <span class="c1">#Construct T2 NIFTI files</span>
+        <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="sb">`</span>ls -d <span class="o">{</span>dicom_dir<span class="o">}</span>/t2*<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+            dcm2niix -b y -ba y-z y -o <span class="si">${</span><span class="nv">anat_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_T2w <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
+        <span class="k">done</span>
+
+        <span class="c1">#Construct Inscapes</span>
+        <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="sb">`</span>ls -d <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/Inscapes*<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+            dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">func_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_task-inscapes_run-<span class="si">${</span><span class="nv">count</span><span class="si">}</span>_bold <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
+        <span class="k">done</span>
+
+
+        <span class="c1">#Construct LangLoc</span>
+        <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="sb">`</span>ls -d <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/LangLoc*<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+                <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+                dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">func_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_task-langloc_run-<span class="si">${</span><span class="nv">count</span><span class="si">}</span>_bold <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
+        <span class="k">done</span>
+
+        <span class="c1">#Construct Landmark</span>
+        <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="sb">`</span>ls -d <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/LineTask*<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+                <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+                dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">func_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_task-landmark_run-<span class="si">${</span><span class="nv">count</span><span class="si">}</span>_bold <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
+        <span class="k">done</span>
+
+        <span class="c1">#Construct Fieldmap - ap</span>
+        dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">fmap_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_dir-AP_epi <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/mbep2d_spinecho_fieldmap_ap*/
+
+    <span class="c1">#Construct Fieldmap - pa</span>
+        dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">fmap_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_dir-PA_epi <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/mbep2d_spinecho_fieldmap_pa*/
+
+        <span class="c1">#Construct Localizers</span>
+        <span class="c1">#dcm2niix -b y -ba y -z y -o ${anat_dir} -f ${name_string}_localizer ${dicom_dir}/Localizers_1/</span>
+
+<span class="k">done</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There is an alternative to this particular scripting approach: <a class="reference external" href="https://pypi.org/project/dcm2bids">dcm2bids</a>. This python project is designed to reorganize NIFTI files from dcm2niix into BIDS format.</p>
+</div>
 </section>
 </section>
 
