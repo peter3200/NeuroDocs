@@ -19,7 +19,6 @@ It is best to design your experiment with your first-level model in mind (and he
 
 We will create these timing files for two different tasks using two different approaches: MATLAB and Python
 
-
 MATLAB timing files
 ********************
 
@@ -40,7 +39,6 @@ MATLAB timing files
 Within the `subj_data` structure, there are a few variables:
 
 .. image:: t1.png 
-
 
 Here is what each variable means in the context of the language localizer task
    * ``id, set, run``: these are defined when the task is run in the scanner
@@ -215,7 +213,7 @@ We are going to use a different task and a different language to approach timing
 0. The raw output for this task is in EPrime format. These EPrime files were first converted to .excel files using EPrime and then to .csv files using Excel. You can download an example .csv output file to use with this script from `Github <https://github.com/peter3200/NeuroDocs/blob/main/example_data/LineTask_ses-1_run-2.csv>`__.
 
 
-1. Load python
+1. Load python.
 
 .. code-block:: console
    
@@ -236,7 +234,7 @@ We are going to use a different task and a different language to approach timing
 
 **What did the python script do?**
 
-- First, we set up our environment, loading the needed modules and setting our input directory
+- First, we set up our environment, loading the needed modules and setting our input directory.
 
 .. code-block:: python
 
@@ -286,7 +284,7 @@ We are going to use a different task and a different language to approach timing
 
 .. code-block:: python
 
-   #Create EV1 dataset and timing file (LEN trials)
+	#Create EV1 dataset and timing file (LEN trials)
 		EV1_df = gold_df.copy(deep=True)
 		EV1_df.drop(EV1_df.index[EV1_df['value'] == "1"], inplace=True) #drop all ColTrials==1
 		EV1_df['value'] = EV1_df['value'].apply(lambda x: '1' if x == "2" else '1')  #replace 2 with 1
