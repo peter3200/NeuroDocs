@@ -190,24 +190,23 @@ To do this for each subject simultaneously, we are going to use a job script and
 	    #Construct T1 NIFTI files (08mm)
 	    count=0
 	    for i in `ls -d ${dicom_dir}/t1_mprage_Amish_08mm*`; do
-    		count=$((count+1))
-    		dcm2niix -b y -ba y -z y -w 0 -o ${anat_dir} -f ${name_string}_T1w ${i}/
-    	done
+		count=$((count+1))
+		dcm2niix -b y -ba y -z y -w 0 -o ${anat_dir} -f ${name_string}_T1w ${i}/	
+	    done
 
 	    #Construct T2 NIFTI files
 	    count=0
 	    for i in `ls -d {dicom_dir}/t2*`; do
-    		count=$((count+1))
-	    	dcm2niix -b y -ba y-z y -o ${anat_dir} -f ${name_string}_T2w ${i}/
+		count=$((count+1))
+		dcm2niix -b y -ba y-z y -o ${anat_dir} -f ${name_string}_T2w ${i}/
 	    done
 
 	    #Construct Inscapes
 	    count=0
 	    for i in `ls -d ${dicom_dir}/Inscapes*`; do
-    		count=$((count+1))
-	    	dcm2niix -b y -ba y -z y -o ${func_dir} -f ${name_string}_task-inscapes_run-${count}_bold ${i}/
+		count=$((count+1))
+		dcm2niix -b y -ba y -z y -o ${func_dir} -f ${name_string}_task-inscapes_run-${count}_bold ${i}/
 	    done
-
 
 	    #Construct LangLoc
 	    count=0
@@ -226,7 +225,7 @@ To do this for each subject simultaneously, we are going to use a job script and
 	    #Construct Fieldmap - ap
 	    dcm2niix -b y -ba y -z y -o ${fmap_dir} -f ${name_string}_dir-AP_epi ${dicom_dir}/mbep2d_spinecho_fieldmap_ap*/
 
-    	#Construct Fieldmap - pa
+	    #Construct Fieldmap - pa
 	    dcm2niix -b y -ba y -z y -o ${fmap_dir} -f ${name_string}_dir-PA_epi ${dicom_dir}/mbep2d_spinecho_fieldmap_pa*/
 
 	    #Construct Localizers
