@@ -263,7 +263,7 @@ mkdir -p <span class="si">${</span><span class="nv">log_dir</span><span class="s
         <span class="k">for</span> i <span class="k">in</span> <span class="sb">`</span>ls -d <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/t1_mprage_Amish_08mm*<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
             <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
             dcm2niix -b y -ba y -z y -w <span class="m">0</span> -o <span class="si">${</span><span class="nv">anat_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_T1w <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
-    <span class="k">done</span>
+        <span class="k">done</span>
 
         <span class="c1">#Construct T2 NIFTI files</span>
         <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
@@ -278,7 +278,6 @@ mkdir -p <span class="si">${</span><span class="nv">log_dir</span><span class="s
             <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
             dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">func_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_task-inscapes_run-<span class="si">${</span><span class="nv">count</span><span class="si">}</span>_bold <span class="si">${</span><span class="nv">i</span><span class="si">}</span>/
         <span class="k">done</span>
-
 
         <span class="c1">#Construct LangLoc</span>
         <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
@@ -297,7 +296,7 @@ mkdir -p <span class="si">${</span><span class="nv">log_dir</span><span class="s
         <span class="c1">#Construct Fieldmap - ap</span>
         dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">fmap_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_dir-AP_epi <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/mbep2d_spinecho_fieldmap_ap*/
 
-    <span class="c1">#Construct Fieldmap - pa</span>
+        <span class="c1">#Construct Fieldmap - pa</span>
         dcm2niix -b y -ba y -z y -o <span class="si">${</span><span class="nv">fmap_dir</span><span class="si">}</span> -f <span class="si">${</span><span class="nv">name_string</span><span class="si">}</span>_dir-PA_epi <span class="si">${</span><span class="nv">dicom_dir</span><span class="si">}</span>/mbep2d_spinecho_fieldmap_pa*/
 
         <span class="c1">#Construct Localizers</span>
