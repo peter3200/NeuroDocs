@@ -48,8 +48,12 @@
 <li class="toctree-l1"><a class="reference internal" href="prep1.html">Preproc Step 1: Data Organization</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Preproc Step 2: fMRIprep</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#installing-fmriprep">Installing fMRIprep</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fmriprep-job">fMRIprep Job</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fmriprep-wrapper">fMRIprep Wrapper</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#template-download-error">Template Download Error</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#error">Error</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#solution">Solution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#calling-fmriprep">Calling fMRIprep</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#fmriprep-output">fMRIprep Output</a></li>
 </ul>
 </li>
@@ -93,17 +97,111 @@
              
   <section id="preproc-step-2-fmriprep">
 <h1>Preproc Step 2: fMRIprep<a class="headerlink" href="#preproc-step-2-fmriprep" title="Permalink to this heading"></a></h1>
+<p>The automated preprocessing pipeline fMRIprep includes both structural and functional processing components. For an overview, we recommend that you visit the <a class="reference external" href="https://fmriprep.org/en/stable/">documentation</a>.</p>
 <section id="installing-fmriprep">
 <h2>Installing fMRIprep<a class="headerlink" href="#installing-fmriprep" title="Permalink to this heading"></a></h2>
+<p>The installation of fMRIprep on the supercomputer is fairly simple. We will be using a docker container version of fMRIprep, so we won’t need to configure and build the software like we did with dcm2niix. However, we will need to transfer the container from Box to the supercomputer as well as a several templates.</p>
+<ol class="arabic simple">
+<li><p>Install Rclone. Rclone allows us to move files and directories to and from cloud storage. Follow the instructions listed on the Office of Research Computing <a class="reference external" href="https://rc.byu.edu/wiki/?id=Rclone">website</a>. If you run into any issues, don’t hesitate to open a support ticket!</p></li>
+</ol>
+<p>Rclone is very useful for transferring files and backing them up, but if you need a quick alternative, you can download any files from Box to your local computer and use the <code class="docutils literal notranslate"><span class="pre">scp</span></code> command to transfer them to your supercomputing account (instructions <a class="reference external" href="https://rc.byu.edu/wiki/?id=Transferring+Files">here</a>).</p>
+<ol class="arabic simple" start="2">
+<li><p>Copy the container folder from Box to the supercomputer.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> research_bin
+<span class="gp">$ </span>ml rclone <span class="c1">#load rclone</span>
+<span class="gp">$ </span>rclone copy Box:/Lab_Tutorials/fMRIprep_tutorial/fmriprep_container ./
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Initialize fMRIprep</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> fmriprep_container
+<span class="gp">$ </span>./fmriprep
+</pre></div>
+</div>
 </section>
-<section id="fmriprep-job">
-<h2>fMRIprep Job<a class="headerlink" href="#fmriprep-job" title="Permalink to this heading"></a></h2>
+<section id="template-download-error">
+<h2>Template Download Error<a class="headerlink" href="#template-download-error" title="Permalink to this heading"></a></h2>
+<section id="error">
+<h3>Error<a class="headerlink" href="#error" title="Permalink to this heading"></a></h3>
+<p>When using fMRIprep, you may receive an error such as the following:</p>
+<p>“Downloading <a class="reference external" href="https://templateflow.s3.amazonaws.com/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_atlas-HCP_dseg.nii.gz">https://templateflow.s3.amazonaws.com/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_atlas-HCP_dseg.nii.gz</a>
+Sentry is attempting to send 0 pending error messages
+Waiting up to 2 seconds
+Press Ctrl-C to quit”</p>
+<p>Explanation: During a job, fMRIprep cannot access the internet and download any needed templates from TemplateFlow, so it throws this error.</p>
 </section>
-<section id="fmriprep-wrapper">
-<h2>fMRIprep Wrapper<a class="headerlink" href="#fmriprep-wrapper" title="Permalink to this heading"></a></h2>
+<section id="solution">
+<h3>Solution<a class="headerlink" href="#solution" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Identify which templates are missing.</p></li>
+</ol>
+<p>Check <code class="docutils literal notranslate"><span class="pre">$TEMPLATEFLOW_HOME</span></code> which is usually in <code class="docutils literal notranslate"><span class="pre">~/.cache</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> .cache/templateflow
+<span class="gp">$ </span><span class="nb">cd</span> tpl-MNI152NLin6Asym <span class="c1">#the folder with the missing template(s) indicated in the error message</span>
+<span class="gp">$ </span>ls -l <span class="c1">#check if the templates are empty (will show up as zeroes in the column to the right of your netid instead of random numbers)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p>Download a single missing template</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> tpl-MNI152NLin6Asym
+<span class="gp">$ </span>wget <span class="s2">&quot;https://templateflow.s3.amazonaws.com/tpl-MNI152NLin6Asym/tpl-MNI152NLin6Asym_res-02_atlas-HCP_dseg.nii.gz&quot;</span>
+<span class="gp">$ </span>mv tpl-MNI152NLin6Asym_res-02_atlas-HCP_dseg.nii.gz.1 tpl-MNI152NLin6Asym_res-02_atlas-HCP_dseg.nii.gz <span class="c1">#This step will replace the empty template with the newly downloaded one</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Download multiple templates (if you notice that all of the templates in the folder are empty)</p></li>
+</ol>
+<p>All of the templates for the following folder have been uploaded to Box: tpl-MNI152NLin6Asym. We will copy these files to templateflow.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> ..
+<span class="gp">$ </span>rm -r tpl-MNI152NLin6Asym <span class="c1">#delete the folder containing empty files</span>
+<span class="gp">$ </span>ml rclone
+<span class="gp">$ </span>rclone copy box:/Lab_Tutorials/fMRIprep_tutorial/fmriprep_troubleshooting/templateflow/tpl-MNI152NLin6Asym ./
+<span class="gp">$ </span><span class="nb">cd</span> tpl-MNI152NLin6Asym <span class="c1">#check the download</span>
+<span class="gp">$ </span>ls -l <span class="c1">#you should see random number values in the column that follows your netid (if you see zeroes, you&#39;ve still got empty templates)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="calling-fmriprep">
+<h2>Calling fMRIprep<a class="headerlink" href="#calling-fmriprep" title="Permalink to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#Set variables</span>
+<span class="nv">SUB</span><span class="o">=</span>sub-Pilot002
+<span class="nv">RESULTS_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/results/fmriprep_native
+
+<span class="c1">#Make the results folder</span>
+mkdir -p <span class="si">${</span><span class="nv">RESULTS_DIR</span><span class="si">}</span>
+
+<span class="c1">#Call fMRIprep</span>
+/fslgroup/fslg_spec_networks/compute/research_bin/fmriprep/fmriprep /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span> <span class="si">${</span><span class="nv">RESULTS_DIR</span><span class="si">}</span> participant --fs-license-file /fslgroup/fslg_spec_networks/compute/research_bin/freesurfer/license.txt --skip-bids-validation --cifti-output 91k --output-space fsnative
+</pre></div>
+</div>
+<p>#Explanation of arguments
+#1. Full pathway to setup script for fmriprep package
+#2. Full pathway to subject folder in BIDs-compliant format. Change subject to relevant subject.
+#3. Full pathway to output folder
+#4. Full pathway to freesurfer license text file
+#5. Skip BIDS validation process (assuming data structure is not perfectly BIDs compliant)
+#6. Provide CIFTI output (input for workbench connectivity maps)
+#7. Output in fsnative space (warning: this will not output any nifti files for the functional runs; remove this flag and the output will default to MNI space)</p>
+<p>This will need to run within a job script and the following parameters for optimal results:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#SBATCH --time=72:00:00      #walltime 160:00:00 for 4 sessions</span>
+<span class="c1">#SBATCH --ntasks=4  #number of processor cores</span>
+<span class="c1">#SBATCH --mem-per-cpu=150G  #memory per CPU core 81920</span>
+<span class="c1">#SBATCH -J &#39;fmriprep&#39;       #job name</span>
+</pre></div>
+</div>
 </section>
 <section id="fmriprep-output">
 <h2>fMRIprep Output<a class="headerlink" href="#fmriprep-output" title="Permalink to this heading"></a></h2>
+<p>There are two main components of the fMRIprep output: fmriprep and freesurfer.</p>
+<p>Within the fmriprep folder:</p>
+<img alt="../_images/p2_1.png" src="../_images/p2_1.png" />
+<p>The fMRIprep results are organized in BIDS format: within each subject folder are session folders and within each session are the anat/ and func/ folders.</p>
+<p>Within the freesurfer folder are the standard recon-all outputs:</p>
+<img alt="../_images/p2_2.png" src="../_images/p2_2.png" />
 </section>
 </section>
 
