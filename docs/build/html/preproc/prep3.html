@@ -50,7 +50,11 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Preproc Step 3: Brain Extraction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-fsl">Installing FSL</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#fslmaths">fslmaths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fslmaths">fslmaths</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scripting">Scripting</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#notes-on-the-script">Notes on the Script</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -94,12 +98,98 @@
 <h1>Preproc Step 3: Brain Extraction<a class="headerlink" href="#preproc-step-3-brain-extraction" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>Now that fMRIprep preprocessing is complete, there is one more step before we can use the images in our task analysis: skullstripping. The <code class="docutils literal notranslate"><span class="pre">*preproc_bold.nii.gz</span></code> files appear to contain the skull, which we will want to remove. This is because we do not want our task analysis to identify voxels containing skull, meninges, or extra-axial CSF as being “active” during the task.</p>
+<figure class="align-center">
+<img alt="../_images/p3_1.png" src="../_images/p3_1.png" />
+</figure>
+<p><em>Above:</em> Before (left) and after (right) skullstripping.</p>
 </section>
 <section id="installing-fsl">
 <h2>Installing FSL<a class="headerlink" href="#installing-fsl" title="Permalink to this heading"></a></h2>
+<p>To perform skullstripping and our task analysis, we will be using FSL, which contains a suite of neuroimaging tools.</p>
+<ol class="arabic simple">
+<li><p>Fill out the form on the FSL download <a class="reference external" href="https://fsl.fmrib.ox.ac.uk/fsldownloads_registration">website</a>. Be sure to select “Linux-Centos 7” as the operating system.</p></li>
+<li><p>Click on the link to download <code class="docutils literal notranslate"><span class="pre">fslinstaller.py</span></code> which is the isntaller script.</p></li>
+<li><p>Send the FSL installer script to your supercomputing account:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> Downloads
+<span class="gp">$ </span>scp fslinstaller.py NETID@ssh.rc.byu.edu:/fslhome/NETID/research_bin
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>Run the installer script on your supercomputing account.</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> research_bin
+<span class="gp">$ </span>ml python/2.7 <span class="c1">#load python version 2.7</span>
+<span class="gp">$ </span>python fslinstaller.py <span class="c1">#to run any python script, the command is ``python script.py``</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="5">
+<li><p>You will be asked to choose an installation location. Type the absolute path to the research_bin and the new directory that will be created:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>/fslhome/NETID/research_bin/FSL
+</pre></div>
+</div>
+<p>The script will then begin downloading and installing FSL. This will take ~30 minutes.</p>
+<ol class="arabic simple" start="6">
+<li><p>Verify download. To check if the download was successful, enter the following commands:</p></li>
+</ol>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">$FSLDIR</span> <span class="c1">#this should point somewhere</span>
+<span class="gp">$ </span>flirt-version <span class="c1">#this should print something out</span>
+</pre></div>
+</div>
 </section>
 <section id="fslmaths">
 <h2>fslmaths<a class="headerlink" href="#fslmaths" title="Permalink to this heading"></a></h2>
+<p>With FSL successfully installed, we are now ready to perform our brain extraction! We will be using fslmaths to subtract the brainmask from the preprocessing preproc_bold.nii.gz image. The brainmask comes from the fMRIprep output and will look something like the following:</p>
+<img alt="../_images/p3_2.png" class="align-center" src="../_images/p3_2.png" />
+<section id="scripting">
+<h3>Scripting<a class="headerlink" href="#scripting" title="Permalink to this heading"></a></h3>
+<p>Here is the script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#Purpose: Create the brain extracted bold image</span>
+<span class="c1">#Inputs: fMRIprep output</span>
+<span class="c1">#Outputs: Brain extracted bold image</span>
+<span class="c1">#Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022</span>
+
+
+<span class="c1">#SET SUBJECT NUMBER</span>
+<span class="nv">SUBJ</span><span class="o">=</span>sub-Pilot002
+
+
+<span class="c1">### Brain Extract ###</span>
+
+<span class="c1">#Set paths</span>
+<span class="nv">HOME</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute
+<span class="nv">BIDSDIR</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/data/BIDS_compliant
+<span class="nv">OUTDIR</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/fmriprep_results/fmriprep
+
+
+<span class="k">for</span> SUB <span class="k">in</span> <span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> ses <span class="k">in</span> <span class="si">${</span><span class="nv">BIDSDIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/*/<span class="p">;</span> <span class="k">do</span>
+                    <span class="nv">SES</span><span class="o">=</span><span class="sb">`</span>basename <span class="s2">&quot;</span><span class="nv">$ses</span><span class="s2">&quot;</span><span class="sb">`</span>
+                    <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+                <span class="k">for</span> run <span class="k">in</span> <span class="sb">`</span>ls <span class="si">${</span><span class="nv">BIDSDIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>/func/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>_task-langloc*.nii.gz<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+                        <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+                        <span class="nv">RUN</span><span class="o">=</span>run-<span class="si">${</span><span class="nv">count</span><span class="si">}</span>
+                        <span class="nv">TASK</span><span class="o">=</span>langloc
+                        <span class="nv">BRAINMASK</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/fmriprep_results/fmriprep/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>/func/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>_task-<span class="si">${</span><span class="nv">TASK</span><span class="si">}</span>_<span class="si">${</span><span class="nv">RUN</span><span class="si">}</span>_space-MNI152NLin2009cAsym_desc-brain_mask.nii.gz
+                        <span class="nv">PREPROC</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/fmriprep_results/fmriprep/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>/func/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>_task-<span class="si">${</span><span class="nv">TASK</span><span class="si">}</span>_<span class="si">${</span><span class="nv">RUN</span><span class="si">}</span>_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz
+                        <span class="nv">OUTPUT</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/fmriprep_results/fmriprep/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>/func
+
+                        <span class="c1"># Subtract brainmask using fslmaths</span>
+                        fslmaths <span class="si">${</span><span class="nv">PREPROC</span><span class="si">}</span> -mas <span class="si">${</span><span class="nv">BRAINMASK</span><span class="si">}</span> <span class="si">${</span><span class="nv">OUTPUT</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>_<span class="si">${</span><span class="nv">RUN</span><span class="si">}</span>_task-<span class="si">${</span><span class="nv">TASK</span><span class="si">}</span>_FEAT_ready
+<span class="k">done</span>
+<span class="k">done</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+<section id="notes-on-the-script">
+<h3>Notes on the Script<a class="headerlink" href="#notes-on-the-script" title="Permalink to this heading"></a></h3>
+<img alt="../_images/p3_3.png" src="../_images/p3_3.png" />
+</section>
 </section>
 </section>
 

@@ -178,14 +178,14 @@ mkdir -p <span class="si">${</span><span class="nv">RESULTS_DIR</span><span clas
 /fslgroup/fslg_spec_networks/compute/research_bin/fmriprep/fmriprep /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span> <span class="si">${</span><span class="nv">RESULTS_DIR</span><span class="si">}</span> participant --fs-license-file /fslgroup/fslg_spec_networks/compute/research_bin/freesurfer/license.txt --skip-bids-validation --cifti-output 91k --output-space fsnative
 </pre></div>
 </div>
-<p>#Explanation of arguments
-#1. Full pathway to setup script for fmriprep package
-#2. Full pathway to subject folder in BIDs-compliant format. Change subject to relevant subject.
-#3. Full pathway to output folder
-#4. Full pathway to freesurfer license text file
-#5. Skip BIDS validation process (assuming data structure is not perfectly BIDs compliant)
-#6. Provide CIFTI output (input for workbench connectivity maps)
-#7. Output in fsnative space (warning: this will not output any nifti files for the functional runs; remove this flag and the output will default to MNI space)</p>
+<p>#Explanation of arguments</p>
+<p>#1. Full pathway to setup script for fmriprep package</p>
+<p>#2. Full pathway to subject folder in BIDs-compliant format. Change subject to relevant subject.</p>
+<p>#3. Full pathway to output folder</p>
+<p>#4. Full pathway to freesurfer license text file</p>
+<p>#5. Skip BIDS validation process (assuming data structure is not perfectly BIDs compliant)</p>
+<p>#6. Provide CIFTI output (input for workbench connectivity maps)</p>
+<p>#7. Output in fsnative space (warning: this will not output any nifti files for the functional runs; remove this flag and the output will default to MNI space)</p>
 <p>This will need to run within a job script and the following parameters for optimal results:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#SBATCH --time=72:00:00      #walltime 160:00:00 for 4 sessions</span>
 <span class="c1">#SBATCH --ntasks=4  #number of processor cores</span>
