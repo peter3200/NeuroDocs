@@ -92,12 +92,19 @@ Calling fMRIprep
     /fslgroup/fslg_spec_networks/compute/research_bin/fmriprep/fmriprep /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/${SUB} ${RESULTS_DIR} participant --fs-license-file /fslgroup/fslg_spec_networks/compute/research_bin/freesurfer/license.txt --skip-bids-validation --cifti-output 91k --output-space fsnative
 
 #Explanation of arguments
+
 #1. Full pathway to setup script for fmriprep package
+
 #2. Full pathway to subject folder in BIDs-compliant format. Change subject to relevant subject.
+
 #3. Full pathway to output folder
+
 #4. Full pathway to freesurfer license text file
+
 #5. Skip BIDS validation process (assuming data structure is not perfectly BIDs compliant)
+
 #6. Provide CIFTI output (input for workbench connectivity maps)
+
 #7. Output in fsnative space (warning: this will not output any nifti files for the functional runs; remove this flag and the output will default to MNI space)
 
 This will need to run within a job script and the following parameters for optimal results:
