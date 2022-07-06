@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rclone &mdash; NeuroDocs 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reorient a Nifti Image" href="reorient.html" />
+    <link rel="prev" title="Download a Dataset from OpenNeuro" href="openneuro.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> NeuroDocs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (fMRIprep)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep_ov.html">Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep1.html">Preproc Step 1: Data Organization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep2.html">Preproc Step 2: fMRIprep</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep3.html">Preproc Step 3: Brain Extraction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Task Analysis (FSL)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task/task1.html">Task Analysis Step 1: Timing Files</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="openneuro.html">Download a Dataset from OpenNeuro</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rclone</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-syntax">Basic Syntax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transfer-files-to-box">Transfer Files to Box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transfer-files-from-box">Transfer Files from Box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sync">Sync</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#transfer">Transfer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#automatic-backup">Automatic Backup</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="reorient.html">Reorient a Nifti Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="addresources.html">Additional Resources</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NeuroDocs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Rclone</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/misc/rclone.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="rclone">
+<h1>Rclone<a class="headerlink" href="#rclone" title="Permalink to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>The primary purpose of rclone is to transfer files between the supercomputer and the cloud (Box in this case). Rclone is really simple to use and setup, and can make your life much easier. Furthermore, there are settings to automatically backup files on the supercomputer to the cloud, which will ensure that you never lose files in a supercomputer outage again!</p>
+</section>
+<section id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this heading"></a></h2>
+<p>To get setup, follow the instructions on the Office of Research Computing <a class="reference external" href="https://rc.byu.edu/wiki/?id=Rclone">website</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you run into problems, don’t hesitate to open a support ticket!</p>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
+<p>Once you’ve got rclone setup, you can start enjoying its many functions! Full usage notes can be found with the rclone <a class="reference external" href="https://rclone.org/docs/">documentation</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The rclone module will need to be loaded before use on the superocmputer: <code class="docutils literal notranslate"><span class="pre">ml</span> <span class="pre">rclone`</span></code>.</p>
+</div>
+<section id="basic-syntax">
+<h3>Basic Syntax<a class="headerlink" href="#basic-syntax" title="Permalink to this heading"></a></h3>
+<p>Rclone commands follow a basic structure:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="o">[</span>options<span class="o">]</span> subcommand &lt;parameters&gt; &lt;parameters...&gt;
+</pre></div>
+</div>
+</section>
+<section id="transfer-files-to-box">
+<h3>Transfer Files to Box<a class="headerlink" href="#transfer-files-to-box" title="Permalink to this heading"></a></h3>
+<p>To copy files from the supercomputer to Box, use:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rclone copy ./file.txt box:/Full/Path/To/Folder  <span class="c1">#order of paths is ./origin ./destination</span>
+</pre></div>
+</div>
+<p>The same command structure is used to copy over directories.</p>
+</section>
+<section id="transfer-files-from-box">
+<h3>Transfer Files from Box<a class="headerlink" href="#transfer-files-from-box" title="Permalink to this heading"></a></h3>
+<p>To copy files from Box to the supercomputer, the syntax is very similar with a reversal in paths:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rclone copy box:/Full/Path/To/Folder/file.txt ./ <span class="c1">#order of paths is ./origin ./destination</span>
+</pre></div>
+</div>
+</section>
+<section id="sync">
+<h3>Sync<a class="headerlink" href="#sync" title="Permalink to this heading"></a></h3>
+<p>If you’ve copied over most of a directory to the cloud but have since added additional files, rather than copying over every file, you can <code class="docutils literal notranslate"><span class="pre">sync</span></code> the directory. This is particularly useful for backing up folders with thousands of files.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rclone sync ./folder box:/folder
+</pre></div>
+</div>
+</section>
+<section id="transfer">
+<h3>Transfer<a class="headerlink" href="#transfer" title="Permalink to this heading"></a></h3>
+<p>If you are done working with a dataset on the supercomputer and are running out of disk space, you can transfer your dataset to Box:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>tar -czf dataset.tar.gz ~/compute/dataset <span class="c1">#compress dataset</span>
+<span class="gp">$ </span>rclone move dataset.tar.gz box:mydir/dataset.tar.gz <span class="c1">#transfer dataset</span>
+</pre></div>
+</div>
+</section>
+<section id="automatic-backup">
+<h3>Automatic Backup<a class="headerlink" href="#automatic-backup" title="Permalink to this heading"></a></h3>
+<p>To set up automatic backups, you can create an rclone script and use <code class="docutils literal notranslate"><span class="pre">cron</span></code> to run it on a regular basis (weekly, daily, monthly, etc.)</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#Example rclone script</span>
+module load rclone
+<span class="nv">PRIMARY</span><span class="o">=</span><span class="s2">&quot;box:backup/dataset/primary&quot;</span>
+<span class="nv">OLD</span><span class="o">=</span><span class="s2">&quot;backup/dataset/old/dataset-</span><span class="k">$(</span>date +%F_%H-%M<span class="k">)</span><span class="s2">&quot;</span>
+rclone sync <span class="s2">&quot;</span><span class="nv">$HOME</span><span class="s2">/compute/dataset&quot;</span> <span class="s2">&quot;</span><span class="nv">$PRIMARY</span><span class="s2">&quot;</span> --backup-dir <span class="s2">&quot;</span><span class="nv">$OLD</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>We can now implement <code class="docutils literal notranslate"><span class="pre">cron</span></code> to run this script on a regular basis:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">#Edit crontab</span>
+$ crontab -e
+
+<span class="c1">#Now enter something along the lines of:</span>
+$ <span class="m">0</span> X * * Y bash /path/to/do_rclone_backup.sh
+<span class="c1">#(replacing X with an hour, 0-24, and Y with a day of the week, 0-6)</span>
+</pre></div>
+</div>
+<p>For a more detailed crontab tutorial, please see this <a class="reference external" href="https://www.cyberciti.biz/faq/how-do-i-add-jobs-to-cron-under-linux-or-unix-oses/">guide</a>.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="openneuro.html" class="btn btn-neutral float-left" title="Download a Dataset from OpenNeuro" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="reorient.html" class="btn btn-neutral float-right" title="Reorient a Nifti Image" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, M. Peterson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
