@@ -18,7 +18,7 @@ Usage
 
 Once you've got rclone setup, you can start enjoying its many functions! Full usage notes can be found with the rclone `documentation <https://rclone.org/docs/>`__.
 
-.. note:: The rclone module will need to be loaded before use on the superocmputer: ``ml rclone```.
+.. note:: The rclone module will need to be loaded before use on the superocmputer: ``ml rclone``.
 
 Basic Syntax
 ~~~~~~~~~~~~
@@ -29,7 +29,7 @@ Rclone commands follow a basic structure:
     
     $ [options] subcommand <parameters> <parameters...>
 
-Transfer Files to Box
+Copy Files to Box
 ~~~~~~~~~~~~~~~~~~~~~
 
 To copy files from the supercomputer to Box, use:
@@ -40,7 +40,7 @@ To copy files from the supercomputer to Box, use:
 
 The same command structure is used to copy over directories. 
 
-Transfer Files from Box
+Copy Files from Box
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 To copy files from Box to the supercomputer, the syntax is very similar with a reversal in paths:
