@@ -34,7 +34,8 @@ Welcome to NeuroDocs!
    :maxdepth: 1
    :caption: Odds and Ends
 
-   misc/reorient
    misc/openneuro
+   misc/rclone
+   misc/reorient
    misc/rtd
    misc/addresources
