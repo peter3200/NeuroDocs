@@ -61,8 +61,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#setup">Setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#basic-syntax">Basic Syntax</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#transfer-files-to-box">Transfer Files to Box</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#transfer-files-from-box">Transfer Files from Box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#copy-files-to-box">Copy Files to Box</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#copy-files-from-box">Copy Files from Box</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#sync">Sync</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#transfer">Transfer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#automatic-backup">Automatic Backup</a></li>
@@ -118,7 +118,7 @@
 <p>Once you’ve got rclone setup, you can start enjoying its many functions! Full usage notes can be found with the rclone <a class="reference external" href="https://rclone.org/docs/">documentation</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The rclone module will need to be loaded before use on the superocmputer: <code class="docutils literal notranslate"><span class="pre">ml</span> <span class="pre">rclone`</span></code>.</p>
+<p>The rclone module will need to be loaded before use on the superocmputer: <code class="docutils literal notranslate"><span class="pre">ml</span> <span class="pre">rclone</span></code>.</p>
 </div>
 <section id="basic-syntax">
 <h3>Basic Syntax<a class="headerlink" href="#basic-syntax" title="Permalink to this heading"></a></h3>
@@ -127,16 +127,16 @@
 </pre></div>
 </div>
 </section>
-<section id="transfer-files-to-box">
-<h3>Transfer Files to Box<a class="headerlink" href="#transfer-files-to-box" title="Permalink to this heading"></a></h3>
+<section id="copy-files-to-box">
+<h3>Copy Files to Box<a class="headerlink" href="#copy-files-to-box" title="Permalink to this heading"></a></h3>
 <p>To copy files from the supercomputer to Box, use:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rclone copy ./file.txt box:/Full/Path/To/Folder  <span class="c1">#order of paths is ./origin ./destination</span>
 </pre></div>
 </div>
 <p>The same command structure is used to copy over directories.</p>
 </section>
-<section id="transfer-files-from-box">
-<h3>Transfer Files from Box<a class="headerlink" href="#transfer-files-from-box" title="Permalink to this heading"></a></h3>
+<section id="copy-files-from-box">
+<h3>Copy Files from Box<a class="headerlink" href="#copy-files-from-box" title="Permalink to this heading"></a></h3>
 <p>To copy files from Box to the supercomputer, the syntax is very similar with a reversal in paths:</p>
 <div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>rclone copy box:/Full/Path/To/Folder/file.txt ./ <span class="c1">#order of paths is ./origin ./destination</span>
 </pre></div>
