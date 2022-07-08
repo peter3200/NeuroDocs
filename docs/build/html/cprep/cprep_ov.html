@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CBIG2016 Preprocessing Overview &mdash; NeuroDocs 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CBIG2016 Preproc: Step 0" href="cprep_0.html" />
+    <link rel="prev" title="Task Analysis Step 1: Timing Files" href="../task/task1.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> NeuroDocs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (fMRIprep)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep_ov.html">Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep1.html">Preproc Step 1: Data Organization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep2.html">Preproc Step 2: fMRIprep</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep3.html">Preproc Step 3: Brain Extraction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Task Analysis (FSL)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task/task1.html">Task Analysis Step 1: Timing Files</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (CBIG2016)</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CBIG2016 Preprocessing Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-preprocessing">What is preprocessing?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-preprocess-neuroimaging-data">Why preprocess neuroimaging data?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-use-the-cbig2016-pipline">Why Use the CBIG2016 Pipline?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cbig2016-preprocessing-pipeline-steps">CBIG2016 Preprocessing Pipeline Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites-for-the-cbig2016-pipeline">Prerequisites for the CBIG2016 Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_0.html">CBIG2016 Preproc: Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc: Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_2.html">CBIG2016 Preproc: Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_3.html">CBIG2016 Preproc: Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_4.html">CBIG2016 Preproc: Tedana Integration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/addresources.html">Additional Resources</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NeuroDocs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>CBIG2016 Preprocessing Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/cprep/cprep_ov.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cbig2016-preprocessing-overview">
+<h1>CBIG2016 Preprocessing Overview<a class="headerlink" href="#cbig2016-preprocessing-overview" title="Permalink to this heading"></a></h1>
+<section id="what-is-preprocessing">
+<h2>What is preprocessing?<a class="headerlink" href="#what-is-preprocessing" title="Permalink to this heading"></a></h2>
+<p>“Preprocessing” in the context of neuroimaging analyses refers to the set of steps taken prior to model setup and analysis.</p>
+</section>
+<section id="why-preprocess-neuroimaging-data">
+<h2>Why preprocess neuroimaging data?<a class="headerlink" href="#why-preprocess-neuroimaging-data" title="Permalink to this heading"></a></h2>
+<p>Neuroimaging data is very noisy–that is, it can be difficult to separate out BOLD signal from artifacts resulting from inhomogeneities in the scanner’s magnetic field, physiological signal (heartbeat, respiration), and other issues such as head motion. Thus, the purpose of preprocessing is to remove or ameliorate noise and increase the signal-to-noise ratio.</p>
+</section>
+<section id="why-use-the-cbig2016-pipline">
+<h2>Why Use the CBIG2016 Pipline?<a class="headerlink" href="#why-use-the-cbig2016-pipline" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>Closely follow the processing steps used to implement the multi-session hierarchical Bayesian modeling parcellation method (Kong et al., 2019).</p></li>
+<li><p>Tedana multi-echo EPI integration</p></li>
+</ul>
+</section>
+<section id="cbig2016-preprocessing-pipeline-steps">
+<h2>CBIG2016 Preprocessing Pipeline Steps<a class="headerlink" href="#cbig2016-preprocessing-pipeline-steps" title="Permalink to this heading"></a></h2>
+<p>This pipeline includes the following steps:</p>
+<ul class="simple">
+<li><p>Motion correction (respiratory pseudomotion filtering)</p></li>
+<li><p>Spatial distortion correction</p></li>
+<li><p>Multi-echo denoising</p></li>
+<li><p>Intra-subject registration between T1 and T2* images</p></li>
+<li><p>Nuisance regression</p></li>
+<li><p>Temporal interpolation of censored frames</p></li>
+<li><p>Bandpass filtering (recommendation of bandpass censoring)</p></li>
+<li><p>Projections to standard surface &amp; volumetric spaces</p></li>
+<li><p>Functional connectivity (FC) matrix computation for 419 ROIs</p></li>
+</ul>
+<p>Complete documentation for this pipeline can be found on the <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/preprocessing/CBIG_fMRI_Preproc2016">CBIG Github Site</a>.</p>
+</section>
+<section id="prerequisites-for-the-cbig2016-pipeline">
+<h2>Prerequisites for the CBIG2016 Pipeline<a class="headerlink" href="#prerequisites-for-the-cbig2016-pipeline" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>NIFTI-formatted images (see our <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/preproc/prep1.html">dcm2niix guide</a>)</p></li>
+<li><p>Freesurfer recon-all (this is performed as part of the <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/preproc/prep2.html">fMRIprep pipeline</a>)</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../task/task1.html" class="btn btn-neutral float-left" title="Task Analysis Step 1: Timing Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cprep_0.html" class="btn btn-neutral float-right" title="CBIG2016 Preproc: Step 0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, M. Peterson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
