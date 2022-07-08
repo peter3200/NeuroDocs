@@ -30,6 +30,18 @@ Welcome to NeuroDocs!
    task/task1
 
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Preprocessing (CBIG2016)
+
+   cprep/cprep_ov
+   cprep/cprep_0
+   cprep/cprep_1
+   cprep/cprep_2
+   cprep/cprep_3
+   cprep/cprep_4
+
+
 .. toctree:: 
    :maxdepth: 1
    :caption: Odds and Ends
