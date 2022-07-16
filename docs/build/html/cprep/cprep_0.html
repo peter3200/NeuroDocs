@@ -58,6 +58,10 @@
 <li class="toctree-l1"><a class="reference internal" href="cprep_ov.html">CBIG2016 Preprocessing Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CBIG2016 Preproc  Step 0</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cloning-the-repo">Cloning the Repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#updating-the-repo">Updating the Repo</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#software-requirements">Software Requirements</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc Step 1</a></li>
@@ -103,11 +107,54 @@
 <h1>CBIG2016 Preproc  Step 0<a class="headerlink" href="#cbig2016-preproc-step-0" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
-<p>-Setting up CBIG environment
--git clone the repo
--updating the repo (knowing when to update = google group)
--config file
--software requirements</p>
+<p>Step 0 is all about downloading the CBIG repo and getting things setup generally before we start implementing specific pipelines, such as the preprocessing pipeline. To do this, we are going to clone the repo and follow the instructions to configure our environment to be compatible. Additionally, we will download the necessary software to implement the pipelines.</p>
+</section>
+<section id="cloning-the-repo">
+<h2>Cloning the Repo<a class="headerlink" href="#cloning-the-repo" title="Permalink to this heading"></a></h2>
+<p>All of the relevant CBIG code can be found on <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG">Github</a>. To download it on the supercomputer, we will use <code class="docutils literal notranslate"><span class="pre">git</span></code>.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> research_bin
+<span class="gp">$ </span>git clone https://github.com/ThomasYeoLab/CBIG.git
+</pre></div>
+</div>
+</section>
+<section id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this heading"></a></h2>
+<p>After the cloning finishes, you can go into the /setup folder and find a README.md file. This file contains instructions for configuring the environment.</p>
+<p>We are going to first copy their example configuration script and set the paths to the necessary software packages.</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>cp &lt;cbig-directory&gt;/setup/CBIG_sample_config.sh ~/CBIG_EDITED_config.sh
+<span class="gp">$ </span>nano CBIG_EDITED_config.sh
+</pre></div>
+</div>
+<p>Now, we are going to set the paths to specific software versions required by CBIG.</p>
+<p>Once you have edited the config script, you can go ahead and use it to update your environment:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">source</span> CBIG_EDITED_config.sh
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Before using any CBIG scripts, be sure to <code class="docutils literal notranslate"><span class="pre">source</span></code> the edited config script in order to correctly setup your environment.</p>
+</div>
+</section>
+<section id="updating-the-repo">
+<h2>Updating the Repo<a class="headerlink" href="#updating-the-repo" title="Permalink to this heading"></a></h2>
+<p>Occasionally, CBIG will release updates to their code. To know when this happens, joing the CBIG users <a class="reference external" href="https://groups.google.com/forum/#!forum/cbig_users/join">group</a>.</p>
+<p>To update the repo, use the following commands:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nb">cd</span> <span class="nv">$CBIG_CODE_DIR</span>
+<span class="gp">$ </span>git checkout master
+<span class="gp">$ </span>git pull origin master
+</pre></div>
+</div>
+</section>
+<section id="software-requirements">
+<h2>Software Requirements<a class="headerlink" href="#software-requirements" title="Permalink to this heading"></a></h2>
+<p>To use the CBIG code successfully, we recommend installing the necessary versions of CBIG software. However, in some cases, these older versions resulted faulty parcelations (Kong2018 MSHBM pipeline). Using the example subjects included with the Kong2019 pipeline, we have verified that the use of some newer software versions can result in the same or very similar parcellations. As of July 2022, software versions are as follows:</p>
+<ul class="simple">
+<li><p>Freesurfer 7.1.1</p></li>
+<li><p>FSL 6.0.4</p></li>
+<li><p>Workbench 1.4.2</p></li>
+<li><p>AFNI 20.2.18</p></li>
+<li><p>ANTs 2.2.0 (old)</p></li>
+</ul>
 </section>
 </section>
 
