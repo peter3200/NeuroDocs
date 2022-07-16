@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="CBIG2016 Preproc: Step 0" href="cprep_0.html" />
+    <link rel="next" title="CBIG2016 Preproc Step 0" href="cprep_0.html" />
     <link rel="prev" title="Task Analysis Step 1: Timing Files" href="../task/task1.html" /> 
 </head>
 
@@ -58,15 +58,15 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CBIG2016 Preprocessing Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-is-preprocessing">What is preprocessing?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#why-preprocess-neuroimaging-data">Why preprocess neuroimaging data?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#why-use-the-cbig2016-pipline">Why Use the CBIG2016 Pipline?</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cbig2016-preprocessing-pipeline-steps">CBIG2016 Preprocessing Pipeline Steps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#prerequisites-for-the-cbig2016-pipeline">Prerequisites for the CBIG2016 Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-use-the-cbig2016-pipline">Why use the CBIG2016 pipline?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cbig2016-preprocessing-pipeline-steps">CBIG2016 preprocessing pipeline steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites-for-the-cbig2016-pipeline">Prerequisites for the CBIG2016 pipeline</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_0.html">CBIG2016 Preproc: Step 0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc: Step 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_2.html">CBIG2016 Preproc: Step 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_3.html">CBIG2016 Preproc: Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_0.html">CBIG2016 Preproc  Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_2.html">CBIG2016 Preproc Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_3.html">CBIG2016 Preproc Step 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="cprep_4.html">CBIG2016 Preproc: Tedana Integration</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
@@ -114,14 +114,14 @@
 <p>Neuroimaging data is very noisy–that is, it can be difficult to separate out BOLD signal from artifacts resulting from inhomogeneities in the scanner’s magnetic field, physiological signal (heartbeat, respiration), and other issues such as head motion. Thus, the purpose of preprocessing is to remove or ameliorate noise and increase the signal-to-noise ratio.</p>
 </section>
 <section id="why-use-the-cbig2016-pipline">
-<h2>Why Use the CBIG2016 Pipline?<a class="headerlink" href="#why-use-the-cbig2016-pipline" title="Permalink to this heading"></a></h2>
+<h2>Why use the CBIG2016 pipline?<a class="headerlink" href="#why-use-the-cbig2016-pipline" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>Closely follow the processing steps used to implement the multi-session hierarchical Bayesian modeling parcellation method (Kong et al., 2019).</p></li>
 <li><p>Tedana multi-echo EPI integration</p></li>
 </ul>
 </section>
 <section id="cbig2016-preprocessing-pipeline-steps">
-<h2>CBIG2016 Preprocessing Pipeline Steps<a class="headerlink" href="#cbig2016-preprocessing-pipeline-steps" title="Permalink to this heading"></a></h2>
+<h2>CBIG2016 preprocessing pipeline steps<a class="headerlink" href="#cbig2016-preprocessing-pipeline-steps" title="Permalink to this heading"></a></h2>
 <p>This pipeline includes the following steps:</p>
 <ul class="simple">
 <li><p>Motion correction (respiratory pseudomotion filtering)</p></li>
@@ -137,7 +137,7 @@
 <p>Complete documentation for this pipeline can be found on the <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/preprocessing/CBIG_fMRI_Preproc2016">CBIG Github Site</a>.</p>
 </section>
 <section id="prerequisites-for-the-cbig2016-pipeline">
-<h2>Prerequisites for the CBIG2016 Pipeline<a class="headerlink" href="#prerequisites-for-the-cbig2016-pipeline" title="Permalink to this heading"></a></h2>
+<h2>Prerequisites for the CBIG2016 pipeline<a class="headerlink" href="#prerequisites-for-the-cbig2016-pipeline" title="Permalink to this heading"></a></h2>
 <ul class="simple">
 <li><p>NIFTI-formatted images (see our <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/preproc/prep1.html">dcm2niix guide</a>)</p></li>
 <li><p>Freesurfer recon-all (this is performed as part of the <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/preproc/prep2.html">fMRIprep pipeline</a>)</p></li>
@@ -150,7 +150,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../task/task1.html" class="btn btn-neutral float-left" title="Task Analysis Step 1: Timing Files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cprep_0.html" class="btn btn-neutral float-right" title="CBIG2016 Preproc: Step 0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cprep_0.html" class="btn btn-neutral float-right" title="CBIG2016 Preproc Step 0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
