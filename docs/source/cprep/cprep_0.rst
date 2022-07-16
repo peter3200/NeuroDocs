@@ -41,7 +41,7 @@ Once you have edited the config script, you can go ahead and use it to update yo
 Updating the Repo
 *****************
 
-Occasionally, CBIG will release updates to their code. To know when this happens, joing the CBIG users `group <https://groups.google.com/forum/#!forum/cbig_users/join>`__. 
+Occasionally, CBIG will release updates to their code. To know when this happens, join the CBIG users `group <https://groups.google.com/forum/#!forum/cbig_users/join>`__. 
 
 To update the repo, use the following commands:
 

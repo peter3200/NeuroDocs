@@ -11,13 +11,13 @@ Why preprocess neuroimaging data?
 
 Neuroimaging data is very noisy--that is, it can be difficult to separate out BOLD signal from artifacts resulting from inhomogeneities in the scanner's magnetic field, physiological signal (heartbeat, respiration), and other issues such as head motion. Thus, the purpose of preprocessing is to remove or ameliorate noise and increase the signal-to-noise ratio. 
 
-Why Use the CBIG2016 Pipline?
+Why use the CBIG2016 pipline?
 *****************************
 
 * Closely follow the processing steps used to implement the multi-session hierarchical Bayesian modeling parcellation method (Kong et al., 2019). 
 * Tedana multi-echo EPI integration
 
-CBIG2016 Preprocessing Pipeline Steps
+CBIG2016 preprocessing pipeline steps
 *************************************
 
 This pipeline includes the following steps:
@@ -34,7 +34,7 @@ This pipeline includes the following steps:
 
 Complete documentation for this pipeline can be found on the `CBIG Github Site <https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/preprocessing/CBIG_fMRI_Preproc2016>`__.
 
-Prerequisites for the CBIG2016 Pipeline
+Prerequisites for the CBIG2016 pipeline
 ***************************************
 
 * NIFTI-formatted images (see our `dcm2niix guide <https://neurodocs.readthedocs.io/en/latest/preproc/prep1.html>`__)
