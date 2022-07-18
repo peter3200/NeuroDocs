@@ -59,6 +59,10 @@
 <li class="toctree-l1"><a class="reference internal" href="cprep_0.html">CBIG2016 Preproc  Step 0</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CBIG2016 Preproc Step 1</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preproc-config-file">Preproc Config File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-fmrinii-txt">Create fmrinii.txt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#freesurfer-output">FreeSurfer Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-note-about-filestructure">A Note About Filestructure</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cprep_2.html">CBIG2016 Preproc Step 2</a></li>
@@ -103,12 +107,138 @@
 <h1>CBIG2016 Preproc Step 1<a class="headerlink" href="#cbig2016-preproc-step-1" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
-<ul class="simple">
-<li><p>preproc config file</p></li>
-<li><p>create fmrinii.txt</p></li>
-<li><p>freesurfer</p></li>
-<li><p>filestructure</p></li>
-</ul>
+<p>During Step 0, we cloned the CBIG repo and configured our environment to be functional with CBIG pipelines in general. Now we are ready to get things setup to run the CBIG2016 preprocessing pipeline. For Step 1, we will set up the specific configuration for preprocessing, create the necessary text files containing paths to the BOLD runs, and run FreeSurfer’s recon-all surface reconstruction on the anat files.</p>
+</section>
+<section id="preproc-config-file">
+<h2>Preproc Config File<a class="headerlink" href="#preproc-config-file" title="Permalink to this heading"></a></h2>
+<p>The config file for the preprocessing pipeline specifies which steps we would like to take and in what order. Here is what our config file looks like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">###CBIG fMRI preprocessing configuration file</span>
+<span class="c1">###The order of preprocess steps is listed below</span>
+CBIG_preproc_skip -skip <span class="m">4</span>
+<span class="c1">### Caution: Change your slice timing file based on your data !!! The example slice timing file is a fake one.</span>
+<span class="c1">#CBIG_preproc_fslslicetimer -slice_timing ${CBIG_CODE_DIR}/stable_projects/preprocessing/CBIG_fMRI_Preproc2016/example_slice_timing.txt</span>
+CBIG_preproc_fslmcflirt_outliers -FD_th <span class="m">0</span>.2 -DV_th <span class="m">50</span> -force -discard-run <span class="m">50</span> -rm-seg <span class="m">5</span>
+
+<span class="c1">### Caution: In the case of spatial distortion correction using opposite phase encoding directions, please change the path of j- and j+ image accordingly. If the voxel postion increases from posterior to anterior (for example, RAS, LAS orientation), j+ corresponds to PA and j- corresponds to AP direction.</span>
+<span class="c1">### Total readout time (trt), effective echo spacing (ees) and echo time (TE) should be based on your data!!!</span>
+<span class="c1">#CBIG_preproc_spatial_distortion_correction -fpm oppo_PED -j_minus &lt;j_minus_image_path&gt; -j_plus &lt;j_plus_image_path&gt; -j_minus_trt 0.04565 -j_plus_trt 0.04565 -ees .000690017 -te 0.0344</span>
+
+CBIG_preproc_bbregister
+CBIG_preproc_regress -whole_brain -wm -csf -motion12_itamar -detrend_method detrend -per_run -polynomial_fit <span class="m">1</span>
+<span class="c1">#CBIG_preproc_censor -max_mem NONE</span>
+CBIG_preproc_bandpass -low_f <span class="m">0</span>.009 -high_f <span class="m">0</span>.08 -detrend
+CBIG_preproc_QC_greyplot -FD_th <span class="m">0</span>.2 -DV_th <span class="m">50</span>
+CBIG_preproc_native2fsaverage -proj fsaverage6 -sm <span class="m">6</span>
+CBIG_preproc_FC_metrics -Pearson_r
+CBIG_preproc_native2mni_ants -sm_mask <span class="si">${</span><span class="nv">CBIG_CODE_DIR</span><span class="si">}</span>/data/templates/volume/FSL_MNI152_masks/SubcorticalLooseMask_MNI1mm_sm6_MNI2mm_bin0.2.nii.gz -final_mask <span class="si">${</span><span class="nv">FSL_DIR</span><span class="si">}</span>/data/standard/MNI152_T1_2mm_brain_mask_dil.nii.gz
+</pre></div>
+</div>
+</section>
+<section id="create-fmrinii-txt">
+<h2>Create fmrinii.txt<a class="headerlink" href="#create-fmrinii-txt" title="Permalink to this heading"></a></h2>
+<p>The next part of our setup involves create fmrinii.txt files for each participant, listing the BOLD runs for that subject and their paths. To do this we will use the get_individual_subjects.sh script:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Set your paths here</span>
+<span class="nv">code_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/CBIG2016_preproc
+<span class="nv">data_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/data/BIDS_compliant
+
+<span class="c1"># Put all of your subjects into a text file</span>
+<span class="c1">#/bin/ls -1 ${data_DIR} &gt; ${code_DIR}/subjids.txt</span>
+
+<span class="c1"># Create that special CBIG subjids text file for each subject (data must be in BIDS format)</span>
+<span class="c1"># CBIG example format: 001 /fslhome/NETID/Downloads/CBIG_Data/Sub0001/func/Sub0001_Ses1.nii</span>
+<span class="c1"># Ideal for running subjects parallel</span>
+<span class="c1"># Change the path of the first for loop to be your code_DIR</span>
+
+<span class="nv">counter</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span> subj <span class="k">in</span> sub-AA0002 sub-AA0004<span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> SES <span class="k">in</span> <span class="si">${</span><span class="nv">data_DIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>/ses-*/<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">ses</span><span class="o">=</span><span class="sb">`</span>basename <span class="s2">&quot;</span><span class="nv">$SES</span><span class="s2">&quot;</span><span class="sb">`</span>
+            <span class="k">for</span> i <span class="k">in</span> <span class="si">${</span><span class="nv">data_DIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>/<span class="si">${</span><span class="nv">ses</span><span class="si">}</span>/func/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>_<span class="si">${</span><span class="nv">ses</span><span class="si">}</span>_task-inscapes*bold.nii.gz<span class="p">;</span> <span class="k">do</span>
+            <span class="nv">counter</span><span class="o">=</span><span class="k">$((</span>counter+1<span class="k">))</span>
+            <span class="o">(</span><span class="nb">echo</span> <span class="m">00</span><span class="nv">$counter</span> <span class="si">${</span><span class="nv">i</span><span class="si">}</span><span class="o">)</span> &gt;&gt; <span class="si">${</span><span class="nv">data_DIR</span><span class="si">}</span>/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>_fmrinii.txt
+            <span class="k">done</span>
+        <span class="k">done</span>
+<span class="nv">counter</span><span class="o">=</span><span class="m">0</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This script works best with BIDS-formatted data.</p>
+</div>
+<p>And for references, an fmrinii.txt file will look something like the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="m">001</span> /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/sub-AA0002/ses-1/func/sub-AA0002_ses-1_task-inscapes_run-1_bold.nii.gz
+<span class="m">002</span> /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/sub-AA0002/ses-1/func/sub-AA0002_ses-1_task-inscapes_run-2_bold.nii.gz
+<span class="m">003</span> /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/sub-AA0002/ses-2/func/sub-AA0002_ses-2_task-inscapes_run-1_bold.nii.gz
+<span class="m">004</span> /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/sub-AA0002/ses-3/func/sub-AA0002_ses-3_task-inscapes_run-1_bold.nii.gz
+<span class="m">005</span> /fslgroup/fslg_spec_networks/compute/data/BIDS_compliant/sub-AA0002/ses-4/func/sub-AA0002_ses-4_task-inscapes_run-1_bold.nii.gz
+</pre></div>
+</div>
+</section>
+<section id="freesurfer-output">
+<h2>FreeSurfer Output<a class="headerlink" href="#freesurfer-output" title="Permalink to this heading"></a></h2>
+<p>An additional prerequisite for this pipeline is the output from FreeSurfer’s <code class="docutils literal notranslate"><span class="pre">recon-all</span></code> pipeline. In an ideal world with plenty of computing power, fMRIprep would have been ran previously and we could use the FreeSurfer output that comes as part of the fMRIprep processing pipeline. However, if this is not the case, you can run FreeSurfer as its own job:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">## FREESURFER JOB SCRIPT</span>
+
+<span class="c1">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --time=45:00:00   # walltime</span>
+<span class="c1">#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)</span>
+<span class="c1">#SBATCH --nodes=1   # number of nodes</span>
+<span class="c1">#SBATCH --mem-per-cpu=16384M  # memory per CPU core</span>
+<span class="c1">#SBATCH -J &quot;FS_R9&quot;   # job name</span>
+
+
+<span class="c1"># Compatibility variables for PBS. Delete if not needed.</span>
+<span class="nb">export</span> <span class="nv">PBS_NODEFILE</span><span class="o">=</span><span class="sb">`</span>/fslapps/fslutils/generate_pbs_nodefile<span class="sb">`</span>
+<span class="nb">export</span> <span class="nv">PBS_JOBID</span><span class="o">=</span><span class="nv">$SLURM_JOB_ID</span>
+<span class="nb">export</span> <span class="nv">PBS_O_WORKDIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SLURM_SUBMIT_DIR</span><span class="s2">&quot;</span>
+<span class="nb">export</span> <span class="nv">PBS_QUEUE</span><span class="o">=</span>batch
+
+<span class="c1"># Set the max number of threads to use for programs using OpenMP.</span>
+<span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_ON_NODE</span>
+
+<span class="c1"># LOAD ENVIRONMENTAL VARIABLES</span>
+<span class="nb">export</span> <span class="nv">FREESURFER_HOME</span><span class="o">=</span>/fslhome/mpeter55/compute/research_bin/freesurfer
+<span class="nb">source</span> <span class="nv">$FREESURFER_HOME</span>/SetUpFreeSurfer.sh
+
+<span class="c1"># INSERT CODE, AND RUN YOUR PROGRAMS HERE</span>
+<span class="nv">genDir</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute
+<span class="nv">codeDir</span><span class="o">=</span><span class="si">${</span><span class="nv">genDir</span><span class="si">}</span>/code/freesurfer
+<span class="nv">dataDir</span><span class="o">=</span><span class="si">${</span><span class="nv">genDir</span><span class="si">}</span>/data
+
+~/compute/research_bin/freesurfer/bin/recon-all <span class="se">\</span>
+-subjid <span class="si">${</span><span class="nv">1</span><span class="si">}</span> <span class="se">\</span>
+-i <span class="si">${</span><span class="nv">dataDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/anat/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>_T1w_resampled.nii.gz <span class="se">\</span>
+-wsatlas <span class="se">\</span>
+-all <span class="se">\</span>
+-sd <span class="si">${</span><span class="nv">dataDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/anat
+</pre></div>
+</div>
+<p>The adjacent wrapper script would look something like the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="nv">genDir</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute
+<span class="nv">codeDir</span><span class="o">=</span><span class="si">${</span><span class="nv">genDir</span><span class="si">}</span>/code/freesurfer
+<span class="nv">dataDir</span><span class="o">=</span><span class="si">${</span><span class="nv">genDir</span><span class="si">}</span>/data/
+
+<span class="nv">normal</span><span class="o">=</span><span class="si">${</span><span class="nv">codeDir</span><span class="si">}</span>/subjids/<span class="si">${</span><span class="nv">release</span><span class="si">}</span>_T1.txt
+
+<span class="k">for</span> subj <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">normal</span><span class="si">}</span><span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    sbatch <span class="se">\</span>
+        -o ~/logfiles/HBN_FS2/output_<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>.txt <span class="se">\</span>
+        -e ~/logfiles/HBN_FS2/error_<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>.txt <span class="se">\</span>
+        <span class="si">${</span><span class="nv">codeDir</span><span class="si">}</span>/freesurfer_job.sh <span class="se">\</span>
+        <span class="si">${</span><span class="nv">subj</span><span class="si">}</span>
+        sleep <span class="m">1</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+<section id="a-note-about-filestructure">
+<h2>A Note About Filestructure<a class="headerlink" href="#a-note-about-filestructure" title="Permalink to this heading"></a></h2>
+<p>Not completely unexpected, CBIG scripts are strict about maintaining an <em>implied</em> filestructure. For the preprocessing pipeline, BIDS structure for input /anat and /func files is required. If you run into errors, this is also a good place to start–chances are that your filestructure is not organized according the scripts’ implied requirements.</p>
 </section>
 </section>
 
