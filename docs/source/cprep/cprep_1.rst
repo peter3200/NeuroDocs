@@ -68,7 +68,7 @@ The next part of our setup involves create fmrinii.txt files for each participan
 
 .. note:: This script works best with BIDS-formatted data.
 
-And for references, an fmrinii.txt file will look something like the following: 
+For reference, the fmrinii.txt file will look something like the following: 
 
 .. code-block:: bash 
 
