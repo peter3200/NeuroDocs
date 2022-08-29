@@ -109,38 +109,46 @@
 </section>
 <section id="job-script">
 <h2>Job Script<a class="headerlink" href="#job-script" title="Permalink to this heading"></a></h2>
-<p>The job script will look something like this:
-.. code-block:: bash</p>
-<blockquote>
-<div><p>#!/bin/bash</p>
-<p>#SBATCH –time=20:00:00   # walltime
-#SBATCH –ntasks=1   # number of processor cores (i.e. tasks)
-#SBATCH –nodes=1   # number of nodes
-#SBATCH –mem-per-cpu=51250M   # memory per CPU core
-#SBATCH -J “preproc”   # job name</p>
-<p># Set the max number of threads to use for programs using OpenMP. Should be &lt;= ppn. Does nothing if the program doesn’t use OpenMP.
-export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE</p>
-<p>#Load git and matlab modules
+<p>The job script will look something like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --time=20:00:00   # walltime</span>
+<span class="c1">#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)</span>
+<span class="c1">#SBATCH --nodes=1   # number of nodes</span>
+<span class="c1">#SBATCH --mem-per-cpu=51250M   # memory per CPU core</span>
+<span class="c1">#SBATCH -J &quot;preproc&quot;   # job name</span>
+
+<span class="c1"># Set the max number of threads to use for programs using OpenMP. Should be &lt;= ppn. Does nothing if the program doesn&#39;t use OpenMP.</span>
+<span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_ON_NODE</span>
+
+<span class="c1">#Load git and matlab modules</span>
 ml git/2.14
 ml matlab/r2018b
-LD_PRELOAD= matlab &amp;
-unset DISPLAY</p>
-<p>#Set paths! ADD YOUR NETID:
-code_Dir=/fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc
-CBIG_Dir=/fslgroup/fslg_rdoc/compute/CBIG
-out_Dir=/fslgroup/fslg_spec_networks/compute/results/CBIG2016_preproc_FS6
-subj=$1
-subj_Dir=/fslgroup/fslg_spec_networks/compute/results/fmriprep_results/fmriprep/${subj}
-#fs_Dir=/fslgroup/fslg_spec_networks/compute/results/fmriprep_results/freesurfer
-mkdir -p ${out_Dir}</p>
-<p># ‘source’ -&gt; YOUR &lt;- config script (with software paths)
-source /fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc/CBIG_preproc_tested_config_funconn.sh</p>
-<p># Run the preprocessing pipeline
-${CBIG_Dir}/stable_projects/preprocessing/CBIG_fMRI_Preproc2016/CBIG_preproc_fMRI_preprocess.csh </p>
-<blockquote>
-<div><p>-s ${subj} -output_d ${out_Dir}/${subj} -anat_s ${subj} -anat_d ${subj_Dir}/anat -fmrinii ${subj_Dir}/${subj}_fmrinii.txt -config ${code_Dir}/example_config.txt</p>
-</div></blockquote>
-</div></blockquote>
+<span class="nv">LD_PRELOAD</span><span class="o">=</span> matlab <span class="p">&amp;</span>
+<span class="nb">unset</span> DISPLAY
+
+<span class="c1">#Set paths! ADD YOUR NETID:</span>
+<span class="nv">code_Dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc
+<span class="nv">CBIG_Dir</span><span class="o">=</span>/fslgroup/fslg_rdoc/compute/CBIG
+<span class="nv">out_Dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/results/CBIG2016_preproc_FS6
+<span class="nv">subj</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">subj_Dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/results/fmriprep_results/fmriprep/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>
+<span class="c1">#fs_Dir=/fslgroup/fslg_spec_networks/compute/results/fmriprep_results/freesurfer</span>
+mkdir -p <span class="si">${</span><span class="nv">out_Dir</span><span class="si">}</span>
+
+<span class="c1"># &#39;source&#39; -&gt; YOUR &lt;- config script (with software paths)</span>
+<span class="nb">source</span> /fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc/CBIG_preproc_tested_config_funconn.sh
+
+<span class="c1"># Run the preprocessing pipeline</span>
+<span class="si">${</span><span class="nv">CBIG_Dir</span><span class="si">}</span>/stable_projects/preprocessing/CBIG_fMRI_Preproc2016/CBIG_preproc_fMRI_preprocess.csh <span class="se">\</span>
+    -s <span class="si">${</span><span class="nv">subj</span><span class="si">}</span> <span class="se">\</span>
+    -output_d <span class="si">${</span><span class="nv">out_Dir</span><span class="si">}</span>/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span> <span class="se">\</span>
+    -anat_s <span class="si">${</span><span class="nv">subj</span><span class="si">}</span> <span class="se">\</span>
+    -anat_d <span class="si">${</span><span class="nv">subj_Dir</span><span class="si">}</span>/anat <span class="se">\</span>
+    -fmrinii <span class="si">${</span><span class="nv">subj_Dir</span><span class="si">}</span>/<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>_fmrinii.txt <span class="se">\</span>
+    -config <span class="si">${</span><span class="nv">code_Dir</span><span class="si">}</span>/example_config.txt
+</pre></div>
+</div>
 <p>A few things to note about the flags in the last section of the job script (‘Run the preprocessing pipeline’).</p>
 <p><cite>-s</cite> Refers to the subject name (designated in the wrapper script)
 <cite>-output_d</cite> Currently set to produce output in /path/to/output/${subj}/${subj}
@@ -152,6 +160,23 @@ ${CBIG_Dir}/stable_projects/preprocessing/CBIG_fMRI_Preproc2016/CBIG_preproc_fMR
 <section id="wrapper-script">
 <h2>Wrapper Script<a class="headerlink" href="#wrapper-script" title="Permalink to this heading"></a></h2>
 <p>The wrapper script will look something like the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">code_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc
+<span class="nv">output_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/results/CBIG2016_preproc_FS6
+
+<span class="c1">#Change this first line to your code_DIR pointing to the subjids file</span>
+<span class="k">for</span> subj <span class="k">in</span> sub-AA0002 sub-AA0004<span class="p">;</span> <span class="k">do</span>
+    mkdir -p <span class="si">${</span><span class="nv">code_DIR</span><span class="si">}</span>/logfiles
+    sbatch <span class="se">\</span>
+    -o <span class="si">${</span><span class="nv">code_DIR</span><span class="si">}</span>/logfiles/output_<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>.txt <span class="se">\</span>
+    -e <span class="si">${</span><span class="nv">code_DIR</span><span class="si">}</span>/logfiles/error_<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>.txt <span class="se">\</span>
+    <span class="si">${</span><span class="nv">code_DIR</span><span class="si">}</span>/preproc_job.sh <span class="se">\</span>
+    <span class="si">${</span><span class="nv">subj</span><span class="si">}</span>
+    sleep <span class="m">1</span>
+<span class="k">done</span>
+</pre></div>
+</div>
 <p>This script will submit a preproc job for each subject listed in the first line of the for loop. If there is a large amount of subjects, consider changing the first line to: “for subj in <cite>cat ${code_dir}/subjids.txt</cite>; do” and include a subjids.txt file containing the needed subject IDs within ${code_dir}.</p>
 </section>
 </section>
