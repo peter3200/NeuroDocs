@@ -60,6 +60,8 @@
 <li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc Step 1</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CBIG2016 Preproc Step 2</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#job-script">Job Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wrapper-script">Wrapper Script</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="cprep_3.html">CBIG2016 Preproc Step 3</a></li>
@@ -103,8 +105,54 @@
 <h1>CBIG2016 Preproc Step 2<a class="headerlink" href="#cbig2016-preproc-step-2" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
-<p>Wrapper Script</p>
-<p>Job Script</p>
+<p>For this step of processing, we are going to submit the CBIG2016 preprocessing jobs (1 per subject) using a wrapper script as follows:</p>
+</section>
+<section id="job-script">
+<h2>Job Script<a class="headerlink" href="#job-script" title="Permalink to this heading"></a></h2>
+<p>The job script will look something like this:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>#!/bin/bash</p>
+<p>#SBATCH –time=20:00:00   # walltime
+#SBATCH –ntasks=1   # number of processor cores (i.e. tasks)
+#SBATCH –nodes=1   # number of nodes
+#SBATCH –mem-per-cpu=51250M   # memory per CPU core
+#SBATCH -J “preproc”   # job name</p>
+<p># Set the max number of threads to use for programs using OpenMP. Should be &lt;= ppn. Does nothing if the program doesn’t use OpenMP.
+export OMP_NUM_THREADS=$SLURM_CPUS_ON_NODE</p>
+<p>#Load git and matlab modules
+ml git/2.14
+ml matlab/r2018b
+LD_PRELOAD= matlab &amp;
+unset DISPLAY</p>
+<p>#Set paths! ADD YOUR NETID:
+code_Dir=/fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc
+CBIG_Dir=/fslgroup/fslg_rdoc/compute/CBIG
+out_Dir=/fslgroup/fslg_spec_networks/compute/results/CBIG2016_preproc_FS6
+subj=$1
+subj_Dir=/fslgroup/fslg_spec_networks/compute/results/fmriprep_results/fmriprep/${subj}
+#fs_Dir=/fslgroup/fslg_spec_networks/compute/results/fmriprep_results/freesurfer
+mkdir -p ${out_Dir}</p>
+<p># ‘source’ -&gt; YOUR &lt;- config script (with software paths)
+source /fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc/CBIG_preproc_tested_config_funconn.sh</p>
+<p># Run the preprocessing pipeline
+${CBIG_Dir}/stable_projects/preprocessing/CBIG_fMRI_Preproc2016/CBIG_preproc_fMRI_preprocess.csh </p>
+<blockquote>
+<div><p>-s ${subj} -output_d ${out_Dir}/${subj} -anat_s ${subj} -anat_d ${subj_Dir}/anat -fmrinii ${subj_Dir}/${subj}_fmrinii.txt -config ${code_Dir}/example_config.txt</p>
+</div></blockquote>
+</div></blockquote>
+<p>A few things to note about the flags in the last section of the job script (‘Run the preprocessing pipeline’).</p>
+<p><cite>-s</cite> Refers to the subject name (designated in the wrapper script)
+<cite>-output_d</cite> Currently set to produce output in /path/to/output/${subj}/${subj}
+<cite>-anat_s</cite> The name of the Freesurfer output directory for the subject (named after the subject in this case)
+<cite>-anat_d</cite> The path to the Freesurfer output
+<cite>-fmrinii</cite> The path and name of the fmrinii.txt files created in Step 1
+<cite>-config</cite> The path an dname of the config file created in Step 1.</p>
+</section>
+<section id="wrapper-script">
+<h2>Wrapper Script<a class="headerlink" href="#wrapper-script" title="Permalink to this heading"></a></h2>
+<p>The wrapper script will look something like the following:</p>
+<p>This script will submit a preproc job for each subject listed in the first line of the for loop. If there is a large amount of subjects, consider changing the first line to: “for subj in <cite>cat ${code_dir}/subjids.txt</cite>; do” and include a subjids.txt file containing the needed subject IDs within ${code_dir}.</p>
 </section>
 </section>
 
