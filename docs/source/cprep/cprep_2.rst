@@ -9,7 +9,9 @@ Job Script
 **********
 
 The job script will look something like this:
+
 .. code-block:: bash 
+
     #!/bin/bash
 
     #SBATCH --time=20:00:00   # walltime
@@ -59,9 +61,12 @@ A few things to note about the flags in the last section of the job script ('Run
 
 Wrapper Script
 **************
+
 The wrapper script will look something like the following: 
 
+
 .. code-block:: bash
+
     #!/bin/bash
 
     code_DIR=/fslgroup/fslg_spec_networks/compute/code/ind_parc/CBIG2016_preproc
