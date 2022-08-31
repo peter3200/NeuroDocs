@@ -52,12 +52,17 @@ The job script will look something like this:
 
 A few things to note about the flags in the last section of the job script ('Run the preprocessing pipeline'). 
 
-`-s` Refers to the subject name (designated in the wrapper script)
-`-output_d` Currently set to produce output in /path/to/output/${subj}/${subj}
-`-anat_s` The name of the Freesurfer output directory for the subject (named after the subject in this case)
-`-anat_d` The path to the Freesurfer output 
-`-fmrinii` The path and name of the fmrinii.txt files created in Step 1
-`-config` The path an dname of the config file created in Step 1.
+* `-s` Refers to the subject name (designated in the wrapper script)
+
+* `-output_d` Currently set to produce output in /path/to/output/${subj}/${subj}
+
+* `-anat_s` The name of the Freesurfer output directory for the subject (named after the subject in this case)
+
+* `-anat_d` The path to the Freesurfer output 
+
+* `-fmrinii` The path and name of the fmrinii.txt files created in Step 1
+
+* `-config` The path and name of the config file created in Step 1.
 
 Wrapper Script
 **************
