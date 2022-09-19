@@ -115,18 +115,265 @@
 <h1>Seed-based Analysis Step 1<a class="headerlink" href="#seed-based-analysis-step-1" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
-<p>For the first step, we will compute a full-surface functional connectivity matrix.</p>
+<p>For the first step, we will compute a full-surface functional connectivity matrix. This involves correlating every vertex in both the right and left hemispheres with every other vertex. As one can imagine, this makes for a massive correlation matrix!</p>
 </section>
 <section id="full-surface-correlation">
 <h2>Full-Surface Correlation<a class="headerlink" href="#full-surface-correlation" title="Permalink to this heading"></a></h2>
+<p>There are four different scripts we will use to (painlessly) create individual jobs for each FC matrix calculation.</p>
+<p>First, we will generate text files containing the paths to the left and right hemisphere surface-projected preprocessing output. You may need to adjust the code if you subjects only have a single session of rs-fMRI data.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># Purpose: Generate text files to create individual vertex-to-vertex FC matrices.</span>
+<span class="c1"># Inputs: Surface-projected timeseries (rsfMRI)</span>
+<span class="c1"># Outputs: Vertex-to-vertex FC matrices for each individual</span>
+<span class="c1"># Written by M. Peterson, Nielsen Brain and Behavior Lab under MITT License 2022</span>
+
+<span class="c1">##########################</span>
+<span class="c1"># Specify paths</span>
+<span class="c1">##########################</span>
+
+<span class="nv">HOME</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute
+<span class="nv">code_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/code/MSC_analysis_group/FC_matrices/ALL
+<span class="nv">preproc_output</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/MSC_analysis/CBIG2016_preproc_FS6
+<span class="nv">out_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/MSC_analysis/parc_output_fs6_MSC_ALL/quant_metrics/FC_matrices
+mkdir -p <span class="nv">$out_dir</span>
+
+<span class="c1">#########################################</span>
+<span class="c1"># Create data lists</span>
+<span class="c1">#########################################</span>
+
+mkdir -p <span class="nv">$out_dir</span>/data_list
+
+<span class="k">for</span> SUB <span class="k">in</span> <span class="si">${</span><span class="nv">preproc_output</span><span class="si">}</span>/*/<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">sub</span><span class="o">=</span><span class="sb">`</span>basename <span class="s2">&quot;</span><span class="nv">$SUB</span><span class="s2">&quot;</span><span class="sb">`</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span><span class="p">;</span> <span class="k">do</span>
+        <span class="k">if</span> <span class="o">[</span> <span class="nv">$sess</span> -ne <span class="m">10</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$preproc_output</span>/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/surf/lh.<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_bld00<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz
+
+            <span class="c1">#if file exists</span>
+            <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+            <span class="c1"># fMRI data</span>
+            <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/lh.</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+            <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/data_list/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_LH.txt
+
+            <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/rh.</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+            <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/data_list/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_RH.txt
+            <span class="k">else</span>
+            <span class="nb">echo</span> <span class="s2">&quot;no </span><span class="nv">$sess</span><span class="s2"> </span><span class="nv">$sub</span><span class="s2">&quot;</span>
+            <span class="k">fi</span>
+        <span class="k">else</span>
+
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$preproc_output</span>/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/surf/lh.<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_bld0<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz
+            <span class="c1">#check if file exists</span>
+            <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+            <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/lh.</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+            <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/data_list/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_LH.txt
+
+            <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/rh.</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+            <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/data_list/<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_RH.txt
+                <span class="k">else</span>
+                <span class="nb">echo</span> <span class="s2">&quot;no </span><span class="nv">$sess</span><span class="s2"> </span><span class="nv">$sub</span><span class="s2">&quot;</span>
+            <span class="k">fi</span>
+        <span class="k">fi</span>
+    <span class="k">done</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<p>The next step is to set up our SLURM job script and individual Matlab scripts, which we will do simultaneously with a wrapper script. This scripts takes advantage of <cite>sed</cite> to replace subject and session variables with the correct values in each individual’s set of scripts.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#Purpose: submit jobs to generate individual full-surface FC matrices</span>
+
+<span class="c1">#Set paths and vars</span>
+<span class="nv">HOME</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute
+<span class="nv">CODE_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/code/MSC_analysis_group/FC_matrices/ALL
+<span class="nv">PREP_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/results/MSC_analysis/CBIG2016_preproc_FS6
+
+<span class="c1">#Submit a job for each sub/sess</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="si">${</span><span class="nv">PREP_DIR</span><span class="si">}</span>/*/<span class="p">;</span> <span class="k">do</span>
+    <span class="nv">SUB</span><span class="o">=</span><span class="sb">`</span>basename <span class="s2">&quot;</span><span class="nv">$sub</span><span class="s2">&quot;</span><span class="sb">`</span>
+    <span class="k">for</span> SES <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nv">$SES</span> -ne <span class="m">10</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$PREP_DIR</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/surf/lh.<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_bld00<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz
+            <span class="c1">#if file exists</span>
+            <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+
+            <span class="c1">#make new matlab and job scripts for each sub/sess</span>
+            <span class="nv">CODE_DIR2</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/subj_scripts/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/ses-<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>
+            mkdir -p <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>
+
+            <span class="c1">#matlab script</span>
+            <span class="nv">matfile</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/FC_matrix_SINGLE.m
+            cp <span class="si">${</span><span class="nv">matfile</span><span class="si">}</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>
+
+            sed -i <span class="s1">&#39;s|SUB|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SUB</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_SINGLE.m
+            sed -i <span class="s1">&#39;s|SES|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SES</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_SINGLE.m
+
+            <span class="c1">#job script</span>
+            <span class="nv">jobfile</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/FC_matrix_job.sh
+            cp <span class="si">${</span><span class="nv">jobfile</span><span class="si">}</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>
+
+            sed -i <span class="s1">&#39;s|${SUB}|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SUB</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_job.sh
+            sed -i <span class="s1">&#39;s|${SES}|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SES</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_job.sh
+
+            <span class="c1">#submit job</span>
+            sbatch <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_job.sh
+        <span class="k">else</span>
+            <span class="nb">echo</span> <span class="s2">&quot;no </span><span class="nv">$SES</span><span class="s2"> </span><span class="nv">$SUB</span><span class="s2">&quot;</span>
+        <span class="k">fi</span>
+
+    <span class="k">else</span>
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$PREP_DIR</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/surf/lh.<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_bld0<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz
+            <span class="c1">#if file exists</span>
+            <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+
+            <span class="c1">#make new matlab and job scripts for each sub/sess</span>
+            <span class="nv">CODE_DIR2</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/subj_scripts/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/ses-<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>
+            mkdir -p <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>
+
+            <span class="c1">#matlab script</span>
+            <span class="nv">matfile</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/FC_matrix_SINGLE.m
+            cp <span class="si">${</span><span class="nv">matfile</span><span class="si">}</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>
+
+            sed -i <span class="s1">&#39;s|SUB|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SUB</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_SINGLE.m
+            sed -i <span class="s1">&#39;s|SES|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SES</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_SINGLE.m
+
+            <span class="c1">#job script</span>
+            <span class="nv">jobfile</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/FC_matrix_job.sh
+            cp <span class="si">${</span><span class="nv">jobfile</span><span class="si">}</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>
+
+            sed -i <span class="s1">&#39;s|${SUB}|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SUB</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_job.sh
+            sed -i <span class="s1">&#39;s|${SES}|&#39;</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SES</span><span class="si">}</span><span class="s2">&quot;</span><span class="s1">&#39;|g&#39;</span> <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_job.sh
+
+            <span class="c1">#submit job</span>
+            sbatch <span class="si">${</span><span class="nv">CODE_DIR2</span><span class="si">}</span>/FC_matrix_job.sh
+        <span class="k">else</span>
+            <span class="nb">echo</span> <span class="s2">&quot;no </span><span class="nv">$SES</span><span class="s2"> </span><span class="nv">$SUB</span><span class="s2">&quot;</span>
+        <span class="k">fi</span>
+<span class="k">fi</span>
+<span class="k">done</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<p>The job script referenced in the wrapper script is as follows.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --time=1:00:00   # walltime</span>
+<span class="c1">#SBATCH --ntasks=4   # number of processor cores (i.e. tasks)</span>
+<span class="c1">#SBATCH --nodes=1   # number of nodes</span>
+<span class="c1">#SBATCH --mem-per-cpu=102400M   # memory per CPU core</span>
+<span class="c1">#SBATCH -J &quot;fc_matrix&quot;   # job name</span>
+
+<span class="c1"># Set the max number of threads to use for programs using OpenMP. Should be &lt;= ppn. Does nothing if the program doesn&#39;t use OpenMP.</span>
+<span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_ON_NODE</span>
+
+<span class="c1"># LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE</span>
+<span class="c1">#load CBIG environment</span>
+<span class="nb">source</span> /fslgroup/fslg_rdoc/compute/test_scripts/parc_scripts/CBIG_preproc_tested_config_funconn.sh
+
+<span class="c1">#load matlab</span>
+module load matlab/r2018b
+<span class="nv">LD_PRELOAD</span><span class="o">=</span> matlab <span class="p">&amp;</span>
+<span class="nb">unset</span> DISPLAY
+
+<span class="c1">#go to subject code dir with individual matlab script</span>
+<span class="nv">SUBJ_CODE_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/MSC_analysis_group/FC_matrices/ALL/subj_scripts/<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>/ses-<span class="si">${</span><span class="nv">SES</span><span class="si">}</span>
+<span class="nb">cd</span> <span class="nv">$SUBJ_CODE_DIR</span>
+
+<span class="c1">#call matlab to run the FC_matrix_SINGLE.m script</span>
+matlab -nodisplay -nojvm -nosplash -r FC_matrix_SINGLE
+</pre></div>
+</div>
+<p>Finally, the matlab script for each individual job is as follows.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Purpose: Implement CBIG_ComputeFullSurfaceCorrelation function</span><span class="w"></span>
+<span class="c">%Inputs: Text lists for LH and RH data</span><span class="w"></span>
+<span class="c">%Ouputs: Full surface correlation matrices</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022</span><span class="w"></span>
+
+<span class="c">%Arg structure:  CBIG_ComputeFullSurfaceCorrelation(output_file, varargin_text1, varargin_text2, pval)</span><span class="w"></span>
+<span class="c">%Instructions: source the CBIG config file, request an salloc job, load matlab/r2018b module, in Matlab run this script</span><span class="w"></span>
+
+<span class="c">%1c. Single sub and sess trial run</span><span class="w"></span>
+<span class="n">subout</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/quant_metrics/FC_matrices/SUB_sess-SES_fullcorr.mat&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">LH_text</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/quant_metrics/FC_matrices/data_list/SUB_sess-SES_LH.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">RH_text</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/quant_metrics/FC_matrices/data_list/SUB_sess-SES_RH.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">CBIG_ComputeFullSurfaceCorrelation</span><span class="p">(</span><span class="n">subout</span><span class="p">,</span><span class="w"> </span><span class="n">LH_text</span><span class="p">,</span><span class="w"> </span><span class="n">RH_text</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;0&#39;</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
 </section>
 <section id="average-across-runs">
 <h2>Average Across Runs<a class="headerlink" href="#average-across-runs" title="Permalink to this heading"></a></h2>
 <p>If your subjects have multiple rs-fMRI runs and you would like to compute a single correlation matrix per subject, we can average across functional connectivity matrices.</p>
+<p>This code can be implemented in the same way as the single FC matrix code, with a template .m file, a template job script, and a wrapper script. Here is an example template .m script to perform the averaging.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Load FC matrices and create an average FC matrix for each participant.</span><span class="w"></span>
+<span class="c">% Inputs: FC matrices for individual rs-fMRI runs.</span><span class="w"></span>
+<span class="c">% Outputs: Single averaged FC matrix per individual.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab, under MIT License 2022</span><span class="w"></span>
+
+<span class="c">%To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 300G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+
+<span class="c">% Step  1: Create 3D matrix of corr. matrices</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/quant_metrics/FC_matrices&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">sublist</span><span class="p">=[</span><span class="w"> </span><span class="s">&quot;SUB&quot;</span><span class="w"> </span><span class="p">];</span><span class="w"></span>
+<span class="n">seslist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="s">&quot;5&quot;</span><span class="w"> </span><span class="s">&quot;6&quot;</span><span class="w"> </span><span class="s">&quot;7&quot;</span><span class="w"> </span><span class="s">&quot;8&quot;</span><span class="w"> </span><span class="s">&quot;9&quot;</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist</span><span class="w"></span>
+<span class="w">    </span><span class="nb">count</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">ses</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seslist</span><span class="w"></span>
+<span class="w">        </span><span class="c">%Create 3D matrix of all runs for a single subject</span><span class="w"></span>
+<span class="w">        </span><span class="n">filename</span><span class="p">=</span><span class="nb">strcat</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="s">&#39;_sess-&#39;</span><span class="p">,</span><span class="n">ses</span><span class="p">,</span><span class="s">&#39;_fullcorr.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">str</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">isfile</span><span class="p">(</span><span class="n">str</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="nb">count</span><span class="p">=(</span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">new</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">load</span><span class="p">(</span><span class="n">str</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nb">count</span><span class="o">==</span><span class="mi">1</span><span class="w"></span>
+<span class="w">                </span><span class="n">matrix_1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">new</span><span class="p">.</span><span class="n">corr_mat</span><span class="p">;</span><span class="w"> </span><span class="c">%name of struct for FC matrix</span><span class="w"></span>
+<span class="w">            </span><span class="k">else</span><span class="w"></span>
+<span class="w">                </span><span class="n">matrix_1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="n">matrix_1</span><span class="p">,</span><span class="n">new</span><span class="p">.</span><span class="n">corr_mat</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="k">end</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%Created the individual-averaged FC matrix</span><span class="w"></span>
+<span class="w">    </span><span class="n">ind_avg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">matrix_1</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">file_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="s">&#39;_avg_FC.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">file_full</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="n">file_out</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sprintf</span><span class="p">(</span><span class="n">file_full</span><span class="p">,</span><span class="w"> </span><span class="n">ind_avg</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nb">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;ind_avg&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;-v7.3&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%Step 3: Plot the individual-averaged FC matrix</span><span class="w"></span>
+<span class="w">    </span><span class="c">%FC_plot = imagesc(ind_avg);</span><span class="w"></span>
+<span class="w">    </span><span class="c">%image_out = strcat(i,&#39;_avg_FC.png&#39;);</span><span class="w"></span>
+<span class="w">    </span><span class="c">%full_image = fullfile(project_dir,image_out);</span><span class="w"></span>
+<span class="w">    </span><span class="c">%saveas(FC_plot, full_image, &#39;png&#39;);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
 </section>
 <section id="fisher-s-z-transformation">
 <h2>Fisher’s Z Transformation<a class="headerlink" href="#fisher-s-z-transformation" title="Permalink to this heading"></a></h2>
-<p>To normalize the Pearson’s r correlation values, we can perform the Fisher’s Z Transformation.</p>
+<p>If normalization is desired, we can transform the Pearson’s r correlation values to z-scores using the Fisher’s Z transform. In Matlab, this is as simple as adding an additional line of code before writing out the matrix to a .mat file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Fisher Z Transform</span><span class="w"></span>
+<span class="n">z</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">atanh</span><span class="p">(</span><span class="n">ind_avg</span><span class="p">);</span><span class="w"> </span><span class="c">%where ind_avg is the matrix to be transformed</span><span class="w"></span>
+
+<span class="c">%Save Z output</span><span class="w"></span>
+<span class="n">file_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="s">&#39;_avg_FC_FisherZ.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">file_full</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="n">file_out</span><span class="p">);</span><span class="w"></span>
+<span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sprintf</span><span class="p">(</span><span class="n">file_full</span><span class="p">,</span><span class="w"> </span><span class="n">z</span><span class="p">);</span><span class="w"></span>
+<span class="nb">save</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;z&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;-v7.3&#39;</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
 </section>
 </section>
 

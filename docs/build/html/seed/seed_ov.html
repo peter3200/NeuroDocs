@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="seed_1.html" />
+    <link rel="next" title="Seed-based Analysis Step 1" href="seed_1.html" />
     <link rel="prev" title="CBIG2016 Preproc: Tedana Integration" href="../cprep/cprep_4.html" /> 
 </head>
 
@@ -64,7 +64,18 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Seed-based rs-fMRI Analysis Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Seed-based rs-fMRI Analysis Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisite-processing">Prerequisite Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#processeing-steps">Processeing Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#required-software">Required Software</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="seed_1.html">Seed-based Analysis Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed_2.html">Seed-based Analysis Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed_3.html">Seed-based Analysis Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed_4.html">Seed-based Analysis Step 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="seed_5.html">Seed-based Analysis Step 5</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
@@ -102,14 +113,34 @@
              
   <section id="seed-based-rs-fmri-analysis-overview">
 <h1>Seed-based rs-fMRI Analysis Overview<a class="headerlink" href="#seed-based-rs-fmri-analysis-overview" title="Permalink to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this heading"></a></h2>
+<p>The seed-based analysis approach to rs-fMRI connectivity is widely used in the fMRI literature. It makes for an interpretable result and its graphical output is highly intuitive for a reader or even a layperson to understand. And, depending on the specifics chosen by the investigators, the method can be rigorous and yield a high inter-rater reliability.</p>
+<p>As an overview, the seed-based approach entails choosing seed regions a priori, calculating whole-brain functional connectivity matrices, selecting seeds, and displaying the resulting connectivity maps (see the image below). These analyses can lead to group comparisons (e.g., answering how connectivity between two regions differ between a clinical and neurotypical population) or other analyses (e.g., surface area of highly connected vertices).</p>
+<img alt="../_images/s1_1.png" src="../_images/s1_1.png" />
+<p>The seed-based analysis in this tutorial is based off of the Braga et al. (2020) seed-based analysis (see <a class="reference external" href="https://journals.physiology.org/doi/full/10.1152/jn.00753.2019">https://journals.physiology.org/doi/full/10.1152/jn.00753.2019</a>).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For this tutorial, we will be performing the seed-based analysis on the surface (think vertices, not voxels). This is not compatible with subcortical or cerebellar seeds.</p>
+</div>
+</section>
+<section id="prerequisite-processing">
+<h2>Prerequisite Processing<a class="headerlink" href="#prerequisite-processing" title="Permalink to this heading"></a></h2>
+<p>This tutorial will assume that we are working with preprocessed rs-fMRI runs projected to the surface. Ideally, this would mean that Freesurfer and the CBIG2016 preprocessing pipeline have previously been run. A tutorial on implementing the CBIG2016 preprocessing pipeline can be found here: <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/cprep/cprep_ov.html">https://neurodocs.readthedocs.io/en/latest/cprep/cprep_ov.html</a>.</p>
+</section>
+<section id="processeing-steps">
+<h2>Processeing Steps<a class="headerlink" href="#processeing-steps" title="Permalink to this heading"></a></h2>
+<p>The general workflow will include calculating a full-surface functional connectivity correlation matrix for each subject, standarizing the matrix, converting the matrix to cifti format, picking seeds, visualizing the resulting connectiivty maps, and writing out maps and scenes to easily recreate analyses.</p>
+<img alt="../_images/s1_2.png" src="../_images/s1_2.png" />
+</section>
+<section id="required-software">
+<h2>Required Software<a class="headerlink" href="#required-software" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>What does this look like?</p></li>
-<li><p>Why a seed-based analysis? What can we learn?</p></li>
-<li><p>Qualifications- Surface-based (not for subcortical/cerebellar seeds)</p></li>
-<li><p>Processing steps- Full-surface correlation</p></li>
-<li><p>Prerequisites- Preprocessed rsfMRI run projected to the surface (ideally CBIG2016 preproc output)</p></li>
-<li><p>Software requirements for seed-based analysis- CBIG Repo, HCP workbench, Matlab (r2018b preferred)</p></li>
+<li><p>Matlab (version r2018b preferred). On the supercomputing cluster this is as simple as <cite>ml matlab/r2018b</cite>.</p></li>
+<li><p>HCP Workbench (see <a class="reference external" href="https://humanconnectome.org/software/get-connectome-workbench">https://humanconnectome.org/software/get-connectome-workbench</a>). This is a download and unzip kind of installation.</p></li>
+<li><p>CBIG Github Repository (<cite>git clone https://github.com/ThomasYeoLab/CBIG</cite>)</p></li>
 </ul>
+</section>
 </section>
 
 
@@ -117,7 +148,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../cprep/cprep_4.html" class="btn btn-neutral float-left" title="CBIG2016 Preproc: Tedana Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="seed_1.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="seed_1.html" class="btn btn-neutral float-right" title="Seed-based Analysis Step 1" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
