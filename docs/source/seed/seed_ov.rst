@@ -20,7 +20,7 @@ Prerequisite Processing
 
 This tutorial will assume that we are working with preprocessed rs-fMRI runs projected to the surface. Ideally, this would mean that Freesurfer and the CBIG2016 preprocessing pipeline have previously been run. A tutorial on implementing the CBIG2016 preprocessing pipeline can be found here: https://neurodocs.readthedocs.io/en/latest/cprep/cprep_ov.html. 
 
-Processeing Steps 
+Processing Steps 
 *****************
 
 The general workflow will include calculating a full-surface functional connectivity correlation matrix for each subject, standarizing the matrix, converting the matrix to cifti format, picking seeds, visualizing the resulting connectiivty maps, and writing out maps and scenes to easily recreate analyses.
