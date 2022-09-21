@@ -67,6 +67,7 @@
 <li class="toctree-l1"><a class="reference internal" href="seed_ov.html">Seed-based rs-fMRI Analysis Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="seed_1.html">Seed-based Analysis Step 1</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Seed-based Analysis Step 2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-cifti-format">What is Cifti Format?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#correlation-to-cifti">Correlation To Cifti</a></li>
 </ul>
 </li>
@@ -110,8 +111,56 @@
              
   <section id="seed-based-analysis-step-2">
 <h1>Seed-based Analysis Step 2<a class="headerlink" href="#seed-based-analysis-step-2" title="Permalink to this heading"></a></h1>
+<p>Now that we’ve obtained a full-surface correlation matrix (potentially z-transformed), the next step is to convert this massive matrix into a surface file (cifti format).</p>
+<section id="what-is-cifti-format">
+<h2>What is Cifti Format?<a class="headerlink" href="#what-is-cifti-format" title="Permalink to this heading"></a></h2>
+<p>There are several subtypes of cifti files, but they all have one thing in common–they represent data on the surface without being constrained to surface location. This means that any cifti file with X number of vertices can be displayed or overlaid on a surface structure file with that same number of vertices even if that surface file is the pial surface, inflated, or very inflated!</p>
+<p>For this tutorial, we will be working with .dconn.nii files, which stores connectivity values. For more information on other types of cifti files and their uses, we highly recommend the layman’s guide to working with cifti files (<a class="reference external" href="https://mandymejia.com/2015/08/10/a-laymans-guide-to-working-with-cifti-files/">https://mandymejia.com/2015/08/10/a-laymans-guide-to-working-with-cifti-files/</a>).</p>
+</section>
 <section id="correlation-to-cifti">
 <h2>Correlation To Cifti<a class="headerlink" href="#correlation-to-cifti" title="Permalink to this heading"></a></h2>
+<p>To make this happen, we are going to load the following script in Matlab! This script takes advantage of the CBIG function to write a correlation matrix into .dconn.nii cifti format.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Convert full surface correlation matrices into CIFTI surface</span><span class="w"></span>
+<span class="c">% files for HCP Workbench viewing</span><span class="w"></span>
+<span class="c">% Input: Full-surface correlation matrix averaged across runs</span><span class="w"></span>
+<span class="c">% (consider using CBIG full surface correlation script)</span><span class="w"></span>
+<span class="c">% Output: 1 CIFTI file per individual.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab</span><span class="w"></span>
+
+<span class="c">%To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 300G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Source your CBIG config file to set up CBIG environment.</span><span class="w"></span>
+<span class="c">%    3. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+
+<span class="c">% prep for usage</span><span class="w"></span>
+<span class="nb">clear</span><span class="w"> </span><span class="nb">all</span><span class="w"></span>
+<span class="nb">setenv</span><span class="p">(</span><span class="s">&#39;TMPDIR&#39;</span><span class="p">,</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/tmp&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">% Set project and subject variables</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/quant_metrics/FC_matrices&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">sublist1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;MSC01&quot;</span><span class="w"> </span><span class="s">&quot;MSC02&quot;</span><span class="w"> </span><span class="s">&quot;MSC03&quot;</span><span class="w"> </span><span class="s">&quot;MSC04&quot;</span><span class="w"> </span><span class="s">&quot;MSC05&quot;</span><span class="w"> </span><span class="s">&quot;MSC06&quot;</span><span class="w"> </span><span class="s">&quot;MSC07&quot;</span><span class="w"> </span><span class="s">&quot;MSC08&quot;</span><span class="w"> </span><span class="s">&quot;MSC09&quot;</span><span class="w"> </span><span class="s">&quot;MSC10&quot;</span><span class="p">];</span><span class="w"></span>
+
+<span class="c">% Loop through each subject and call CBIG_write_correlation_matrix script</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist1</span><span class="w"></span>
+<span class="w">    </span><span class="c">%input file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_avg_FC.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">fullname</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nb">load</span><span class="p">(</span><span class="n">fullname</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">%output file</span><span class="w"></span>
+<span class="w">    </span><span class="n">output_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_avg_FC&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">%call CBIG script</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_write_correlation_matrix_into_ciftiformat</span><span class="p">(</span><span class="n">ind_avg</span><span class="p">,</span><span class="w"> </span><span class="n">output_name</span><span class="p">,</span><span class="w"> </span><span class="n">project_dir</span><span class="p">);</span><span class="w"> </span><span class="c">%automatically saved as a .dconn.nii file</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Matlab will require a lot of RAM to load in the large correlation matrix and write out an equally large cifti file. Be sure to request ~300G of memory in your <cite>salloc</cite> job.</p>
+</div>
+<p>The next step is to work with the file in workbench!</p>
 </section>
 </section>
 
