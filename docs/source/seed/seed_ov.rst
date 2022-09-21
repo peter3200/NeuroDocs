@@ -23,7 +23,7 @@ This tutorial will assume that we are working with preprocessed rs-fMRI runs pro
 Processing Steps 
 *****************
 
-The general workflow will include calculating a full-surface functional connectivity correlation matrix for each subject, standarizing the matrix, converting the matrix to cifti format, picking seeds, visualizing the resulting connectiivty maps, and writing out maps and scenes to easily recreate analyses.
+The general workflow will include calculating a full-surface functional connectivity correlation matrix for each subject, standarizing the matrix, converting the matrix to cifti format, picking seeds, visualizing the resulting connectivity maps, and writing out maps and scenes to easily recreate analyses.
 
 .. image:: s1_2.png
 
