@@ -63,4 +63,5 @@ Welcome to NeuroDocs!
    misc/rclone
    misc/reorient
    misc/rtd
+   misc/split
    misc/addresources
