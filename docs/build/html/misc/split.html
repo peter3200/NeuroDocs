@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Split A BOLD Run &mdash; NeuroDocs 0.0.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Additional Resources" href="addresources.html" />
+    <link rel="prev" title="Read The Docs Documentation" href="rtd.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> NeuroDocs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (fMRIprep)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep_ov.html">Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep1.html">Preproc Step 1: Data Organization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep2.html">Preproc Step 2: fMRIprep</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep3.html">Preproc Step 3: Brain Extraction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Task Analysis (FSL)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task/task1.html">Task Analysis Step 1: Timing Files</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (CBIG2016)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_ov.html">CBIG2016 Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_0.html">CBIG2016 Preproc  Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_1.html">CBIG2016 Preproc Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_2.html">CBIG2016 Preproc Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_3.html">CBIG2016 Preproc Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_4.html">CBIG2016 Preproc: Tedana Integration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_ov.html">Seed-based rs-fMRI Analysis Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_1.html">Seed-based Analysis Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_2.html">Seed-based Analysis Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_3.html">Seed-based Analysis Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_4.html">Seed-based Analysis Step 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_5.html">Seed-based Analysis Step 5</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openneuro.html">Download a Dataset from OpenNeuro</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rclone.html">Rclone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reorient.html">Reorient a Nifti Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Split A BOLD Run</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how">How?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example-matlab-code">Example Matlab Code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="addresources.html">Additional Resources</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NeuroDocs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Split A BOLD Run</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/misc/split.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="split-a-bold-run">
+<h1>Split A BOLD Run<a class="headerlink" href="#split-a-bold-run" title="Permalink to this heading"></a></h1>
+<section id="how">
+<h2>How?<a class="headerlink" href="#how" title="Permalink to this heading"></a></h2>
+<p>Using Matlab! The CBIG group has written a very useful function– CBIG_GrabFrames. This function requires the full path and file name to the BOLD image being split, the full path and file name to the output, and the desired frames.</p>
+</section>
+<section id="example-matlab-code">
+<h2>Example Matlab Code<a class="headerlink" href="#example-matlab-code" title="Permalink to this heading"></a></h2>
+<p>This example script takes a Midnight Scan Club BOLD run and splits it into 5 equal parts. Each fifth of the run is written out as its own file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Split MSC timeseries into 5 pieces and create FC matrices for</span><span class="w"></span>
+<span class="c">% each fifth in order to aid in Stable Estimate of AI calculation.</span><span class="w"></span>
+<span class="c">% Inputs: A single run (CBIG2016 preprocessed) of MSC data.</span><span class="w"></span>
+<span class="c">% Outputs: 5 FC matrices per individual run.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab, under MIT License 2022</span><span class="w"></span>
+
+<span class="c">% To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 300G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+
+<span class="c">% Set paths</span><span class="w"></span>
+<span class="n">preproc_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/data/MSC&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/STABLE_EST/split5_BOLD&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">out_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;/t_series&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;MSC02&quot;</span><span class="w"> </span><span class="s">&quot;MSC04&quot;</span><span class="w"> </span><span class="s">&quot;MSC05&quot;</span><span class="w"> </span><span class="s">&quot;MSC06&quot;</span><span class="w"> </span><span class="s">&quot;MSC07&quot;</span><span class="p">];</span><span class="w"></span>
+
+
+<span class="c">%make out_dir</span><span class="w"></span>
+<span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">    </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">ses</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="w"></span>
+<span class="w">    </span><span class="c">%input filenames</span><span class="w"></span>
+<span class="w">    </span><span class="n">both_filename</span><span class="p">=</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_ses-func0&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">ses</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_task-rest_bold.nii.gz&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">str</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">preproc_dir</span><span class="p">,</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="nb">i</span><span class="p">),</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;ses-func0&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">ses</span><span class="p">)),</span><span class="s">&#39;func&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">both_filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">both</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MRIread</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">str</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">pieces</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">5</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%subsample: range_start:range_end</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="n">pieces</span><span class="o">==</span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">range_start</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">            </span><span class="n">range_start</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">floor</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">both</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="p">((</span><span class="n">pieces</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="mf">.2</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="w">        </span><span class="n">range_end</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">floor</span><span class="p">(</span><span class="nb">size</span><span class="p">(</span><span class="n">both</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">pieces</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">.2</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%output name</span><span class="w"></span>
+<span class="w">        </span><span class="n">both_file_out</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">i</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_ses-&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">ses</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;pieces-&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">pieces</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;.nii.gz&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">both_file_full</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="n">both_file_out</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%call CBIG function to write output (input, output, subsample)</span><span class="w"></span>
+<span class="w">        </span><span class="c">%lh</span><span class="w"></span>
+<span class="w">        </span><span class="n">CBIG_GrabFrames</span><span class="p">(</span><span class="n">str</span><span class="p">,</span><span class="w"> </span><span class="n">both_file_full</span><span class="p">,</span><span class="w"> </span><span class="p">[</span><span class="n">range_start</span><span class="p">:</span><span class="n">range_end</span><span class="p">]);</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rtd.html" class="btn btn-neutral float-left" title="Read The Docs Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="addresources.html" class="btn btn-neutral float-right" title="Additional Resources" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, M. Peterson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
