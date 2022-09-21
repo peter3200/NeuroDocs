@@ -69,6 +69,7 @@
 <li class="toctree-l1"><a class="reference internal" href="seed_2.html">Seed-based Analysis Step 2</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Seed-based Analysis Step 3</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#hcp-workbench-introduction">HCP Workbench Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opening-workbench">Opening Workbench</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loading-surface-gifti-files">Loading Surface Gifti Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loading-cifti-files">Loading Cifti Files</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#picking-a-seed">Picking a Seed</a></li>
@@ -86,6 +87,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/split.html">Split A BOLD Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/addresources.html">Additional Resources</a></li>
 </ul>
 
@@ -117,21 +119,71 @@
 <h1>Seed-based Analysis Step 3<a class="headerlink" href="#seed-based-analysis-step-3" title="Permalink to this heading"></a></h1>
 <section id="hcp-workbench-introduction">
 <h2>HCP Workbench Introduction<a class="headerlink" href="#hcp-workbench-introduction" title="Permalink to this heading"></a></h2>
+<p>The Human Connectome Project developed the workbench package to work with their massive dataset and somewhat rare data formats–namely surface files (cifti, gifti, etc.). As part of the workbench suite, there is a command line interface with many useful commands for manipulating and working with surface files as well as a the unique viewer (Workbench View or wb_view). A comprehensive help guide for the viewer can be found online (<a class="reference external" href="https://wiki.humanconnectome.org/display/WBPublic/Connectome+Workbench+Help+Guide">https://wiki.humanconnectome.org/display/WBPublic/Connectome+Workbench+Help+Guide</a>). Additionally, the workbench suite is fairly simple to download (think download and unzip) and can be found on the HCP website (<a class="reference external" href="https://humanconnectome.org/software/get-connectome-workbench">https://humanconnectome.org/software/get-connectome-workbench</a>).</p>
+<p>Within the context of seed-based analyses, workbench is very useful! For this tutorial we will use workbench to load the surface gifti files, the cifti .dconn.nii file, pick a seed, and threshold the resulting map.</p>
+</section>
+<section id="opening-workbench">
+<h2>Opening Workbench<a class="headerlink" href="#opening-workbench" title="Permalink to this heading"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Workbench is much faster on your local computer, so if possible download your files and work from there. Unfortunately, cifti .dconn files can be quite large, which means we will be loading them primarily from the supercomputer.</p>
+</div>
+<p>To reliably open workbench on the supercomputer, we will <cite>cd</cite> to the location of the workbench download!</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> workbench
+<span class="nb">cd</span> bin_rh_linux64/
+./mesagl_wb_view <span class="c1">#this will launch the application</span>
+</pre></div>
+</div>
+<p>A window will pop up giving you the opportunity to open a previous ‘scene’ (a file that contains instructions for loading files in a specific way). Choose the ‘cancel’ button since you probably haven’t saved any scenes before.</p>
+<img alt="../_images/s3_1.png" src="../_images/s3_1.png" />
+<p>After pressing ‘cancel’, the main viewer will be displayed.</p>
+<img alt="../_images/s3_2.png" src="../_images/s3_2.png" />
+<p>From here, we can open our files.</p>
 </section>
 <section id="loading-surface-gifti-files">
 <h2>Loading Surface Gifti Files<a class="headerlink" href="#loading-surface-gifti-files" title="Permalink to this heading"></a></h2>
+<p>In order to display the cifti .dconn file, an underlying surface file needs to be loaded first. If you recall, cifti files don’t store data about structure (only vertex number), so a surface is necessary to overlay the cifti data. For workbench to recognize a file as a surface file, the suffix must be ‘.surf.gii’.</p>
+<p>To open the file, go to File &gt; Open File and select the directory with your surface files. Be sure to change the “Files of type” option from .spec files (the default) to “Any File”.</p>
+<img alt="../_images/s3_3.png" src="../_images/s3_3.png" />
+<img alt="../_images/s3_4.png" src="../_images/s3_4.png" />
+<p>The surface files will then be displayed!</p>
+<img alt="../_images/s3_5.png" src="../_images/s3_5.png" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In order to overlay cifti files onto surface files, the surface files must have the same number of vertices as the cifti files! In other words, the resolution of both the cifti and the gifti files must match!</p>
+</div>
 </section>
 <section id="loading-cifti-files">
 <h2>Loading Cifti Files<a class="headerlink" href="#loading-cifti-files" title="Permalink to this heading"></a></h2>
+<p>With the surface files loaded, we can proceed to the cifti file! We will follow the same steps to open the cifti file.</p>
+<img alt="../_images/s3_7.png" src="../_images/s3_7.png" />
+<p>Next, check the box next to the loaded .dconn file.</p>
+<img alt="../_images/s3_8.png" src="../_images/s3_8.png" />
+<p>There will be no change in the display until after you pick a seed, so don’t panic when nothing happens!</p>
 </section>
 <section id="picking-a-seed">
 <h2>Picking a Seed<a class="headerlink" href="#picking-a-seed" title="Permalink to this heading"></a></h2>
+<p>Hopefully you have already chosen some seed regions <cite>a priori</cite>. You can proceed to select a seed simply by clicking on the surface.</p>
+<img alt="../_images/s3_9.png" src="../_images/s3_9.png" />
+<p>The connectivity map will automatically be displayed using the default thresholds and color lookup tables.</p>
 </section>
 <section id="removing-a-seed">
 <h2>Removing a Seed<a class="headerlink" href="#removing-a-seed" title="Permalink to this heading"></a></h2>
+<p>If you desire to remove a seed, simply select the “Remove Symbols” button. This will remove the white seed symbol but retain the connectivity map. Once the seed is removed, you can go ahead and select a new seed on the surface.</p>
+<img alt="../_images/s3_10.png" src="../_images/s3_10.png" />
+<p>The seed symbol has now been removed.</p>
+<img alt="../_images/s3_11.png" src="../_images/s3_11.png" />
 </section>
 <section id="thresholding-and-other-palette-customizations">
 <h2>Thresholding and Other Palette Customizations<a class="headerlink" href="#thresholding-and-other-palette-customizations" title="Permalink to this heading"></a></h2>
+<p>To change the thresholding, select the wrench button next to the file you would like to theshold (1 in the following image). To show the range of values displayed, select the colors button (2 in the following image).</p>
+<img alt="../_images/s3_12.png" src="../_images/s3_12.png" />
+<p>Your thresholding settings will depend on your data and study, so this might be a good thing to consult the literature and/or your advisor on. For reference, here is one example of threshold settings and their resulting maps.</p>
+<img alt="../_images/s3_13.png" src="../_images/s3_13.png" />
+<img alt="../_images/s3_14.png" src="../_images/s3_14.png" />
+<p>To change the background of the display, go to File &gt; Preferences and change the “Window Foreground” in the display.</p>
+<img alt="../_images/s3_6.png" src="../_images/s3_6.png" />
+<p>The next step is to display network parcellations alongside the connectivity map!</p>
 </section>
 </section>
 
