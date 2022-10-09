@@ -82,6 +82,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/split.html">Split A BOLD Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/addresources.html">Additional Resources</a></li>
 </ul>
 
@@ -111,11 +112,37 @@
              
   <section id="seed-based-analysis-step-4">
 <h1>Seed-based Analysis Step 4<a class="headerlink" href="#seed-based-analysis-step-4" title="Permalink to this heading"></a></h1>
+<p>For this step, we will walk through how to display both network parcellations and a seed-based connectivity map simultaneously. This will involve first loading up parcellation label files (.label.gii) followed by changing the settings to display a single network. Skip this step if you don’t have individual parcellations.</p>
 <section id="overlaying-network-parcellations">
 <h2>Overlaying Network Parcellations<a class="headerlink" href="#overlaying-network-parcellations" title="Permalink to this heading"></a></h2>
+<p>We will start up where we left off with Step 3: displaying the connectivity map.</p>
+<img alt="../_images/s4_1.png" src="../_images/s4_1.png" />
+<p>To overlay the parcellation files, first open your label files (following the same steps to open these as with the surface files). Once these are loaded, add overlays and position them above the .dconn file as so. To add a layer above the .dconn file, select the yellow working man button and choose “Add Overlay Above”.</p>
+<img alt="../_images/s4_2.png" src="../_images/s4_2.png" />
+<p>This will display the parcellations.</p>
+<img alt="../_images/s4_3.png" src="../_images/s4_3.png" />
 </section>
 <section id="displaying-a-single-network">
 <h2>Displaying a Single Network<a class="headerlink" href="#displaying-a-single-network" title="Permalink to this heading"></a></h2>
+<p>Now that the parcellations are loaded, we can go ahead and adjust the settings to just show the network boundaries and display a single network (hopefully the network that corresponds with the network identified with the seed-based connectivity analysis).</p>
+<p>The first step is to display the network borders without fill. To do this, select the silver tool icon next to the overlay.</p>
+<img alt="../_images/s4_4.png" src="../_images/s4_4.png" />
+<p>In the dialog box, change “Drawing Type” from “Filled” to “Outline Color”.</p>
+<img alt="../_images/s4_5.png" src="../_images/s4_5.png" />
+<p>This will update the hemisphere that you selected.</p>
+<img alt="../_images/s4_6.png" src="../_images/s4_6.png" />
+<p>Now, to display a single network, select “Edit Map’s Labels”. This will open a new dialog box displaying each network in the parcellation file.</p>
+<img alt="../_images/s4_7.png" src="../_images/s4_7.png" />
+<p>To display a single network, go ahead and delete the undesired networks. This won’t delete them from the original file unless you choose to save these changes to the original parcellation file (not necessarily recommended).</p>
+<img alt="../_images/s4_8.png" src="../_images/s4_8.png" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This dialog box also contains the settings to adjust network colors.</p>
+</div>
+<p>Here is the result for the left hemisphere. These steps will need to be repeated for the right hemisphere!</p>
+<img alt="../_images/s4_9.png" src="../_images/s4_9.png" />
+<p>As you can see, the seed and the selected network don’t quite line up.</p>
+<p>The next step is saving out our settings configuration so we can easiliy reload and replicate the analysis!</p>
 </section>
 </section>
 
