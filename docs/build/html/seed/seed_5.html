@@ -72,6 +72,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Seed-based Analysis Step 5</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#saving-out-a-scene">Saving out a Scene</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#loading-a-scene">Loading a Scene</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bonus-saving-a-connectivity-map-as-a-mask-or-gifti">Bonus: Saving a Connectivity Map as a Mask or Gifti</a></li>
 </ul>
 </li>
 </ul>
@@ -82,6 +83,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/split.html">Split A BOLD Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/addresources.html">Additional Resources</a></li>
 </ul>
 
@@ -111,16 +113,122 @@
              
   <section id="seed-based-analysis-step-5">
 <h1>Seed-based Analysis Step 5<a class="headerlink" href="#seed-based-analysis-step-5" title="Permalink to this heading"></a></h1>
-<p>Purpose is to effortlessly reload analyses!</p>
+<p>Seed-based analyses may seem a little “touch and go” at first, but one way to introduce reproducibility is to save the resulting connectivity maps as scenes. By doing this, we can effortlessly reload analyses with their exact settings.</p>
 <section id="saving-out-a-scene">
 <h2>Saving out a Scene<a class="headerlink" href="#saving-out-a-scene" title="Permalink to this heading"></a></h2>
+<p>To save out a scene, we will first create a scene and then save that scene to a Workbench-specific .scene file.</p>
+<p>First, we will locate the clapboard button which can be found in the top right of the GUI.</p>
+<img alt="../_images/s5_1.png" src="../_images/s5_1.png" />
+<p>This will open a new dialog box. To create the initial scene, we can select the “Add” button.</p>
+<img alt="../_images/s5_2.png" src="../_images/s5_2.png" />
+<p>Another dialog box will appear asking for a scene name. After entering the name for our scene, we can close the dialog box.</p>
+<img alt="../_images/s5_3.png" src="../_images/s5_3.png" />
+<p>The scene has now been created! However, unless we save it to a file, we will lose it. To save the scene, select “Save As” and save a .scene file.</p>
+<img alt="../_images/s5_4.png" src="../_images/s5_4.png" />
+<p>In the event that you have multiple seeds and desire to save multiple scenes within a single file, simply add more scenes! If you need to overwrite a scene, choose the “Replace” option.</p>
+<img alt="../_images/s5_5.png" src="../_images/s5_5.png" />
 </section>
 <section id="loading-a-scene">
 <h2>Loading a Scene<a class="headerlink" href="#loading-a-scene" title="Permalink to this heading"></a></h2>
+<p>Scenes are simple to work with! To load a specific seed, go ahead and select a scene from the options and choose “Show”.</p>
+<img alt="../_images/s5_6.png" src="../_images/s5_6.png" />
+<p>Like magic, all of your previously selected settings will be in place!</p>
+<img alt="../_images/s5_7.png" src="../_images/s5_7.png" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>A scene will only load if the file paths are unchanged!</p>
+<p>A scene will only load if the file paths are unchanged! If files have been moved, the scene will fail to load properly!</p>
 </div>
+</section>
+<section id="bonus-saving-a-connectivity-map-as-a-mask-or-gifti">
+<h2>Bonus: Saving a Connectivity Map as a Mask or Gifti<a class="headerlink" href="#bonus-saving-a-connectivity-map-as-a-mask-or-gifti" title="Permalink to this heading"></a></h2>
+<p>Connectivity maps can be saved out as gifti files for concurrent viewing! To do this, we will walk through an example.</p>
+<p>In this example, a seed approximating the language network has been selected. To create a matching gifti file, we need to know what column of the connectivity matrix to save from! This information can be found in the Overlay Toolbox.</p>
+<img alt="../_images/s5_8.png" src="../_images/s5_8.png" />
+<p>For this network, the corresponding seed is in row 27546. However, since our connectivity matrices are symmetrical across the diagonal, this means that the seed is <cite>column</cite> 27546. We can now input this information into a Matlab script.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Purpose: Convert a seed-based connectivity map displayed in workbench to a gifti that can be displayed like a parcel</span><span class="w"></span>
+<span class="c">%Inputs: Vertex number of seed, symmetrical connectivity matrices (.dconn.nii)</span><span class="w"></span>
+<span class="c">%Outputs: Gifti file for each seed</span><span class="w"></span>
+<span class="c">%Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022</span><span class="w"></span>
+
+<span class="c">%To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 300G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Source your CBIG config file to set up CBIG environment.</span><span class="w"></span>
+<span class="c">%    3. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+<span class="c">%Set paths</span><span class="w"></span>
+<span class="n">project_dir</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_fun_conn/compute/MSC_analysis/quant_metrics/FC_matrices&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">out_dir</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/DYNCONN/gifti&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">gifti_template_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">% Make out_dir</span><span class="w"></span>
+<span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="c">%Set variables and input seed row into seedlist  (multiple seeds can be ran at once)</span><span class="w"></span>
+<span class="c">%MSC01</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="p">=[</span><span class="s">&quot;MSC01&quot;</span><span class="p">];</span><span class="w"></span>
+<span class="w">    </span><span class="n">seedlist</span><span class="p">=[</span><span class="s">&quot;27546&quot;</span><span class="p">];</span><span class="w"></span>
+
+<span class="c">%Loop through each subject/seed</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%load cifti .dconn file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_avg_FC_FisherZ.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">fullname</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nb">load</span><span class="p">(</span><span class="n">fullname</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">zmat</span><span class="p">=</span><span class="n">z</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">seed</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seedlist</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%save seed column as new variable</span><span class="w"></span>
+<span class="w">        </span><span class="n">seed_col</span><span class="p">=</span><span class="n">zmat</span><span class="p">(:,</span><span class="nb">str2num</span><span class="p">(</span><span class="n">seed</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%threshold seed column (less than .2 as indicated in Braga et al.</span><span class="w"></span>
+<span class="w">        </span><span class="c">%(2020)</span><span class="w"></span>
+<span class="w">        </span><span class="n">seed_col</span><span class="p">(</span><span class="n">seed_col</span><span class="o">&lt;</span><span class="mf">.2</span><span class="p">)=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">seed_col</span><span class="p">(</span><span class="n">seed_col</span><span class="o">&gt;=</span><span class="mf">.2</span><span class="p">)=</span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%split seed col into LH and RH</span><span class="w"></span>
+<span class="w">        </span><span class="n">rows</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">zmat</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">lh_labels</span><span class="p">=</span><span class="n">seed_col</span><span class="p">(</span><span class="mi">1</span><span class="p">:(</span><span class="n">rows</span><span class="o">/</span><span class="mi">2</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="n">rh_labels</span><span class="p">=</span><span class="n">seed_col</span><span class="p">((</span><span class="n">rows</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">):</span><span class="k">end</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%write out seed as gifti .shape.gii</span><span class="w"></span>
+<span class="w">            </span><span class="c">%grab resolution</span><span class="w"></span>
+<span class="w">            </span><span class="n">resolution</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">lh_labels</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="c">%output filenames</span><span class="w"></span>
+<span class="w">            </span><span class="n">fname_lh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_seed-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_lh.shape.gii&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">fname_rh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_seed-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">seed</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_rh.shape.gii&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">full_lh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">),</span><span class="w"> </span><span class="n">fname_lh</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">full_rh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">),</span><span class="w"> </span><span class="n">fname_rh</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">%load in template .shape.gii file</span><span class="w"></span>
+<span class="w">            </span><span class="n">g_left</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gifti</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">gifti_template_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FS6_lh.shape.gii&#39;</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="n">g_right</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gifti</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">gifti_template_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FS6_rh.shape.gii&#39;</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">%replace vertex values in templates with AI values</span><span class="w"></span>
+<span class="w">            </span><span class="n">metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">single</span><span class="p">(</span><span class="nb">ones</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="n">g_left</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">metric</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">g_right</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">metric</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">g_left</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">lh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">g_right</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">%save output</span><span class="w"></span>
+<span class="w">            </span><span class="nb">save</span><span class="p">(</span><span class="n">g_left</span><span class="p">,</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="n">full_lh</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="nb">save</span><span class="p">(</span><span class="n">g_right</span><span class="p">,</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="n">full_rh</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This script loops through the subject specified and the list of seeds provided. First, it will grab the corresponding column of data for that seed and then threshold it (currently set to .2). Vertices are binarized according to whether they meet the minimum threshold or not. From here, the column is split into the left and right hemispheres (the top half of the column is the left hemisphere). Next, an empty gifti file is created by copying over a template gifti file and filling it to the correct resolution with zeros. Then the left and right empty gifti files are filled with the binarized connectivity data.</p>
+<p>The resulting gifti overlay can be seen below.</p>
+<img alt="../_images/s5_9.png" src="../_images/s5_9.png" />
+<p>Multiple gifti connectivity maps can be displayed simultaneously to give the researcher an idea of how they overlay or interconnect.</p>
+<img alt="../_images/s5_10.png" src="../_images/s5_10.png" />
 </section>
 </section>
 
