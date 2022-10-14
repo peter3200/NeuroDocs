@@ -1,5 +1,5 @@
-Training Your Own Priors
-========================
+Kong2019 Parc: Training Your Own Priors
+=======================================
 
 * Need adequate data and data to burn
 * Step1 initialization

@@ -1,5 +1,5 @@
-Parc Step 2
-===========
+Kong2019 Parc Step 2
+====================
 
 Copy group priors. 
 

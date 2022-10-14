@@ -1,6 +1,5 @@
-
-Parc Step 3
-===========
+Kong2019 Parc Step 3
+====================
 
 * Step 2.5 generate text lists
 * Identifying number of available sessions for each participant
