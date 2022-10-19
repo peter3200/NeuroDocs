@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Parc Step 0" href="parc_0.html" />
+    <link rel="next" title="Kong2019 Parc Step 0" href="parc_0.html" />
     <link rel="prev" title="CBIG2016 Preproc: Tedana Integration" href="../cprep/cprep_4.html" /> 
 </head>
 
@@ -70,17 +70,16 @@
 <li class="toctree-l2"><a class="reference internal" href="#workflow-overview">Workflow Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisite-processing">Prerequisite Processing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisite-software">Prerequisite Software</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#expected-outcomes">Expected Outcomes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="parc_0.html">Parc Step 0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_1.html">Parc Step 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_2.html">Parc Step 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_3.html">Parc Step 3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_4.html">Parc Step 4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_5.html">Parc Step 5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_6.html">Training Your Own Priors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2019 Parc Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2019 Parc Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2019 Parc Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2019 Parc Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2019 Parc Step 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_5.html">Kong2019 Parc Step 5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_6.html">Kong2019 Parc: Training Your Own Priors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
 <ul>
@@ -128,30 +127,61 @@
              
   <section id="kong2019-parcellation-overview">
 <h1>Kong2019 Parcellation Overview<a class="headerlink" href="#kong2019-parcellation-overview" title="Permalink to this heading"></a></h1>
-<p>Coming soon!</p>
 <section id="purpose">
 <h2>Purpose<a class="headerlink" href="#purpose" title="Permalink to this heading"></a></h2>
+<p>The Kong 2019 Multi-session Hierarchical Bayesian Modeling pipeline allows users to take functional MRI BOLD runs and create individualized network parcellations. This just means taking a brain surface and assigning network labels to each vertex, or splitting up the surface of the brain into functional brain networks. These networks include visual networks, somatomotor networks, an auditory network, dorsal and ventral attention networks, frontoparietal control networks, and others. These canonical networks are referred to extensively throughout the rs-fMRI literature.</p>
+<p>This tutorial will walk the user through the steps needed to create both group and individual parcellations using this unique pipeline.</p>
 </section>
 <section id="parcellation-approaches">
 <h2>Parcellation Approaches<a class="headerlink" href="#parcellation-approaches" title="Permalink to this heading"></a></h2>
+<p>The Kong2019 MS-HBM pipeline isn’t the only parcellation pipeline out there. Other parcellation approaches include k-means parcellations and seed-based approaches. However, unlike these alterantives, the Kong2019 pipeline takes group priors into account. These priors constrain the model in different ways–such as by dictating the spatial layout of the networks. In an update, the Kong2022 Areal MS-HBM pipeline includes additional priors not included in the Kong2019 pipeline, such as a gradient prior and a contiguity prior.</p>
+<p><cite>Below</cite> is an example of Kong2019 parcellaton output.</p>
+<img alt="../_images/ov_1.png" src="../_images/ov_1.png" />
+<p><cite>Below</cite> is a comparative example of k-means parcellation output.</p>
+<img alt="../_images/ov_2.png" src="../_images/ov_2.png" />
 </section>
 <section id="workflow-overview">
 <h2>Workflow Overview<a class="headerlink" href="#workflow-overview" title="Permalink to this heading"></a></h2>
+<p>The implementation of this pipeline includes both preparatory and processing steps. Preparatory steps include create text files and copying over group priors, while processing steps take the text files generated in the preparatory steps and perform specific calculations. The pipeline itself is organized into 3 steps, but we have expanded those here to include the preparatory steps and some post-processing.</p>
+<ul class="simple">
+<li><p>Step 0. Preparatory step that generates text files for Step 1.</p></li>
+<li><p>Step 1. Processing step that generates surface profiles for each individual and the group. Group parcellation can also be generated at this step if desired.</p></li>
+<li><p>Step 2. Preparatory step that involves copying over HCP group priors (access provided by CBIG).</p></li>
+<li><p>Step 3. Preparatory and processing step that generates text files and computes individual parcellations.</p></li>
+<li><p>Step 4. Processing step for visualizing group and individual parcellations.</p></li>
+<li><p>Step 5. Processing step for computing quantitative metrics on parcellation output.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We will assume that the reader is not interested in generating their own group priors for this tutorial. Instead, we will use priors previously released by CBIG. However, if this is the case, we will include a page at the very end titled “Training Your Own Priors” detailing how this is different and what steps to take.</p>
+</div>
+<p><cite>Below</cite> is an illustrated version of the parcellation steps.</p>
+<img alt="../_images/ov_3.png" src="../_images/ov_3.png" />
 </section>
 <section id="prerequisite-processing">
 <h2>Prerequisite Processing<a class="headerlink" href="#prerequisite-processing" title="Permalink to this heading"></a></h2>
+<p>Before embarking on this journey, please note that the following preprocessing steps should be completed.</p>
+<ul class="simple">
+<li><p>BIDS organization of raw data</p></li>
+<li><p>Freesurfer recon-all output within BIDS formatted raw data.</p></li>
+<li><p>CBIG2016 preprocessing output (requires the above) for each participant.</p></li>
+</ul>
 </section>
 <section id="prerequisite-software">
 <h2>Prerequisite Software<a class="headerlink" href="#prerequisite-software" title="Permalink to this heading"></a></h2>
-</section>
-<section id="expected-outcomes">
-<h2>Expected Outcomes<a class="headerlink" href="#expected-outcomes" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>CBIG Github repo (see <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/cprep/cprep_0.html">https://neurodocs.readthedocs.io/en/latest/cprep/cprep_0.html</a> for details)</p></li>
+<li><p>MATLAB (version r2018b preferred)</p></li>
+<li><p>HCP Workbench (see <a class="reference external" href="https://humanconnectome.org/software/get-connectome-workbench">https://humanconnectome.org/software/get-connectome-workbench</a>). This is a download and unzip kind of installation.</p></li>
+<li><p>Freesurfer</p></li>
+<li><p>Python v3.6 (quantitative analysis only)</p></li>
+</ul>
 </section>
 <section id="additional-resources">
 <h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this heading"></a></h2>
 <ul class="simple">
-<li><p>CBIG Github repo</p></li>
-<li><p>CBIG Google group</p></li>
+<li><p>CBIG Github repo (<a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM">https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM</a>). For more techinical details and a replication example (to verify your pipeline will compute the same results).</p></li>
+<li><p>CBIG Google group (<a class="reference external" href="https://groups.google.com/forum/#!forum/cbig_users/join">https://groups.google.com/forum/#!forum/cbig_users/join</a>). For updates and bugs.</p></li>
 </ul>
 </section>
 </section>
@@ -161,7 +191,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../cprep/cprep_4.html" class="btn btn-neutral float-left" title="CBIG2016 Preproc: Tedana Integration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="parc_0.html" class="btn btn-neutral float-right" title="Parc Step 0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="parc_0.html" class="btn btn-neutral float-right" title="Kong2019 Parc Step 0" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

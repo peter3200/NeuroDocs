@@ -65,7 +65,11 @@
 <p class="caption" role="heading"><span class="caption-text">Parcellation (Kong2019)</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="parc_ov.html">Kong2019 Parcellation Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 0</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 0</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#scripting">Scripting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#explanation">Explanation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2019 Parc Step 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2019 Parc Step 2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2019 Parc Step 3</a></li>
@@ -119,7 +123,82 @@
              
   <section id="kong2019-parc-step-0">
 <h1>Kong2019 Parc Step 0<a class="headerlink" href="#kong2019-parc-step-0" title="Permalink to this heading"></a></h1>
-<p>Generate Data</p>
+<p>This is a preparatory step in which we will generate text files for Step 1. These text files will include the paths to the left and right hemisphere preprocessed BOLD output for each session of each subject. You will thus need to know the path to your CBIG2016 preprocessed outputs.</p>
+<section id="scripting">
+<h2>Scripting<a class="headerlink" href="#scripting" title="Permalink to this heading"></a></h2>
+<p>This is a simple step with only one script! Hooray!</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># This is Step 0: Generate Input Data and setup file folder structures.</span>
+<span class="c1"># Run this before CBIG Parc Step 1.</span>
+<span class="c1"># Additionally, the preproc data was formatted sub-0#. Adjust the script as necessary to fit your naming conventions.</span>
+
+
+<span class="c1">##########################</span>
+<span class="c1"># Specify output directory</span>
+<span class="c1">##########################</span>
+
+<span class="nv">HOME</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute
+<span class="nv">D_HOME</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute
+<span class="nv">code_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/code/HCPD_analysis/Kong2019_parc_fs6
+<span class="nv">out_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">D_HOME</span><span class="si">}</span>/HCPD_analysis/parc_output_fs6_HCPD
+<span class="nv">preproc_output</span><span class="o">=</span><span class="si">${</span><span class="nv">D_HOME</span><span class="si">}</span>/HCPD_analysis/CBIG2016_preproc_FS6
+mkdir -p <span class="nv">$out_dir</span>/estimate_group_priors
+mkdir -p <span class="nv">$out_dir</span>/generate_individual_parcellations
+
+<span class="c1"># Add the $CBIG_CODE_DIR to your environment</span>
+<span class="nb">source</span> <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/CBIG_preproc_tested_config_funconn.sh
+
+<span class="c1">#########################################</span>
+<span class="c1"># Create data lists to generate profiles</span>
+<span class="c1">#########################################</span>
+
+mkdir -p <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list
+mkdir -p <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/censor_list
+
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span><span class="p">;</span> <span class="k">do</span>
+    <span class="c1"># fMRI data</span>
+        <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">lh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list/lh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">rh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list/rh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="c1"># censor list</span>
+        <span class="nv">censor_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">preproc_output</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/qc/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_FDRMS0.2_DVARS50_motion_outliers.txt&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$censor_file</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/censor_list/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>.txt
+    <span class="k">done</span>
+<span class="k">done</span>
+
+
+<span class="nb">echo</span> <span class="s2">&quot;Step 0 was successful!&quot;</span>
+
+<span class="c1"># You are now ready to run Step 1!</span>
+</pre></div>
+</div>
+</section>
+<section id="explanation">
+<h2>Explanation<a class="headerlink" href="#explanation" title="Permalink to this heading"></a></h2>
+<p>In the first section of code, we are setting up our paths to the code directory ($code_dir), the parcellation output directory ($out_dir), and the CBIG2016 preproc output directory ($preproc_output). After that, we are going to create the file structure needed for the parcellation output.</p>
+<p>The following section is going to do the heavy lifting and generate the data lists needed for Step 1. This portion of code begins by making additional directories for the data lists within the overall parcellation output folder. Next, we are going to loop through each subject in a subject IDs text file. It is assumed in the subject IDs text file that the subjects do not have the prefix ‘sub-’. Next, we set up the loop for each session. If your data does not have multiple BOLD runs, remove this loop.</p>
+<p>Within the for loops, we will <cite>echo</cite> the paths and file names of the preprocessed BOLD runs into LH and RH text files. The names of these text files must be ?h_sub${sub}_sess${sess}.txt for Step 1 to find them. Notice that there is also a censor file that contains the volumes that exceed the motion thresholds set in the preprocessing pipeline. Step 1 will skip the volumes found in the censor list.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Even if your subjects have different numbers of sessions, we will generate the same number of session text files for each subject. If a particular session doesn’t exist, Step 1 will just skip over that session.</p>
+</div>
+<p>Once the data lists are generated, we can proceed to Step 1!</p>
+</section>
 </section>
 
 
