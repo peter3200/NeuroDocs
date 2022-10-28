@@ -66,7 +66,15 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="parc_ov.html">Kong2019 Parcellation Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2019 Parc Step 0</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 1</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 1</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#beginning-notes">Beginning Notes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generate-profiles">Generate Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#group-profile">Group Profile</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#group-parcellation">Group Parcellation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expected-output">Expected Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting-help">Troubleshooting Help</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2019 Parc Step 2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2019 Parc Step 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2019 Parc Step 4</a></li>
@@ -85,6 +93,7 @@
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
@@ -119,7 +128,148 @@
              
   <section id="kong2019-parc-step-1">
 <h1>Kong2019 Parc Step 1<a class="headerlink" href="#kong2019-parc-step-1" title="Permalink to this heading"></a></h1>
-<p>Generate individual profiles, generate initializationi parameters, group profile and group parcellation</p>
+<p>For this step, we will generate individual profiles, a group profile, and the group parcellation. To perform these steps, we will use MATLAB. If you have never used MATLAB in a supercomputing environment, please refer to the MATLAB tutorial (<a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/misc/matlab.html">https://neurodocs.readthedocs.io/en/latest/misc/matlab.html</a>).</p>
+<section id="beginning-notes">
+<h2>Beginning Notes<a class="headerlink" href="#beginning-notes" title="Permalink to this heading"></a></h2>
+<p>Before beginning this set of steps, you should have completed the Step 0 Generate Data, which generated specifically formatted data lists pointing to your CBIG2016 preproc output. Additionally, note that depending on the number of subjects, these steps make take several hours and require a lot of RAM ~50 - 200G.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Step 1 of CBIG Kong2019 Brain Parc Pipeline</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 200G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. source your config file containing the $CBIG_CODE_DIR variable</span><span class="w"></span>
+<span class="c">%           -It might be helpful to `cd` to the $CBIG_CODE_DIR/stable_projects/brain_parcellation/Kong2019_MSHBM/step1... folder</span><span class="w"></span>
+<span class="c">%    3. Enter the command `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%    5. In Matlab: pull up this script and choose &quot;Run&quot;</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%FYI, the data_list/fMRI_list lists should be formatted sub01_sess1, etc (such that there are no dashes or spaces between &quot;sub&quot; and &quot;01&quot; or &quot;sess&quot; and &quot;1&quot;</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Previously, recon-all and the CBIG preproc pipeline were run on these subjects.</span><span class="w"></span>
+<span class="c">%Additionally, you must have the folder structure and text files with paths to your preproc output set up</span><span class="w"></span>
+<span class="c">%See the CBIG example script CBIG_MSHBM_create_example_input_data.sh for details on formatting.</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="generate-profiles">
+<h2>Generate Profiles<a class="headerlink" href="#generate-profiles" title="Permalink to this heading"></a></h2>
+<p>For this step, we will generate functional connectivity profiles for each individual subject using all of their available sessions. We will first specify the subject list, which can be done two different ways.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run MATLAB steps, such as this, make sure you are in the CBIG repo and running your script from the appropriate step’s folder. For this step, you should be in /stable_projects/brain_parcellation/Kong2019_MSHBM/step1_generate_profiles_and_ini_params.</p>
+</div>
+<ul class="simple">
+<li><p>Option 1. Create an array and list each subject. This option is ideal for a small number of subjects.</p></li>
+</ul>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s">&quot;HCD0001305&quot;</span><span class="w"> </span><span class="s">&quot;HCD0008117&quot;</span><span class="w"> </span><span class="s">&quot;HCD0021614&quot;</span><span class="w"> </span><span class="s">&quot;HCD0022919&quot;</span><span class="w"> </span><span class="s">&quot;HCD0026119&quot;</span><span class="w"> </span><span class="s">&quot;HCD0029630&quot;</span><span class="w"> </span><span class="s">&quot;HCD0031617&quot;</span><span class="w"> </span><span class="s">&quot;HCD0040113&quot;</span><span class="w"> </span><span class="p">];</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Then, to run this step using Option 1, simply use this code.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% Part 1: Generate Profiles for all Subjs</span><span class="w"></span>
+<span class="n">seslist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="mi">8</span><span class="p">];</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/HCPD_analysis/parc_output_fs6_HCPD/generate_profiles_and_ini_params&#39;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seslist</span><span class="w"></span>
+<span class="w">    </span><span class="k">try</span><span class="w">  </span><span class="n">CBIG_MSHBM_generate_profiles</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">project_dir</span><span class="p">,</span><span class="nb">num2str</span><span class="p">(</span><span class="n">sub</span><span class="p">),</span><span class="nb">num2str</span><span class="p">(</span><span class="n">sess</span><span class="p">),</span><span class="s">&#39;0&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">continue</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Option 2. Load in a text file containing the subject IDs. This option is ideal for a large number of subjects. However, this option has downstream effects for how the profile generation step is called.</p></li>
+</ul>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Load subjids text file</span><span class="w"></span>
+<span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HBN_analysis/Kong2019_parc_fs6/subjids/subjids.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="c">% Close the text file.</span><span class="w"></span>
+<span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="n">subjids</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">%% Part 1: Generate Profiles for all Subjs</span><span class="w"></span>
+<span class="n">seslist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="mi">8</span><span class="p">];</span><span class="w"></span>
+
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/HCPD_analysis/parc_output_fs6_HCPD/generate_profiles_and_ini_params&#39;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">subjids</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject</span><span class="p">=</span><span class="n">subjids</span><span class="p">(</span><span class="n">sub</span><span class="p">);</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seslist</span><span class="w"></span>
+<span class="w">    </span><span class="k">try</span><span class="w">  </span><span class="n">CBIG_MSHBM_generate_profiles</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="nb">char</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span><span class="nb">char</span><span class="p">(</span><span class="n">subject</span><span class="p">),</span><span class="nb">num2str</span><span class="p">(</span><span class="n">sess</span><span class="p">),</span><span class="s">&#39;0&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">continue</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To generate the profiles for each subject, we are going to loop through each subject and each session within each subject. Because we are using the <cite>try</cite> command, it doesn’t matter if a specific subject is missing any sessions–MATLAB will simply skip over these if it can’t find the files.</p>
+</section>
+<section id="group-profile">
+<h2>Group Profile<a class="headerlink" href="#group-profile" title="Permalink to this heading"></a></h2>
+<p>For this next step, we will generate a profile for the group. This can take some time, so make sure you have requested adequate time in your <cite>salloc</cite> job (12-24 hours depending on the number of subjects).</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Part 2: Create group profile</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/HCPD_analysis/parc_output_fs6_HCPD/generate_profiles_and_ini_params&#39;</span><span class="w"></span>
+<span class="n">num_sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;616&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;9&#39;</span><span class="p">;</span><span class="w"> </span><span class="c">%max number of sessions</span><span class="w"></span>
+<span class="n">CBIG_MSHBM_avg_profiles</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">project_dir</span><span class="p">,</span><span class="n">num_sub</span><span class="p">,</span><span class="n">num_sess</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This code starts by specifying the project directory, which is the parcellation output directory followed by the /generate_profiles_and_ini_params directory. From here, we specify the number of subjects and the maximum number of sessions available for each subject. Then we call the CBIG script CBIG_MSHBM_avg_profiles.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your data does not conform to BIDS naming conventions exactly, you will run into errors. However, there is a workaround.</p>
+</div>
+<p>If your naming conventions include a dataset-specific prefix such as ‘MSC’ or ‘HCP’ or ‘NDAR’, you will want to implement this workaround. This involves editing the CBIG script directly, so make sure that you are the only one using your CBIG repo.</p>
+<p>For this workaround, we will be loading the subject names using a text file. These edits are made to the CBIG script “CBIG_MSHBM_avg_profiles” which is found in /CBIG/stable_projects/brain_parcellation/Kong2019_MSHBM/step1_generate_profiles_and_ini_params.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%HBN sublist</span><span class="w"></span>
+<span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HBN_analysis/Kong2019_parc_fs6/subjids/SUBJIDS.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">subjids</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">subjids</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub</span><span class="p">=</span><span class="n">subjids</span><span class="p">(</span><span class="nb">i</span><span class="p">);</span><span class="w"></span>
+<span class="c">%for sub = 1:str2num(num_sub)</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">str2num</span><span class="p">(</span><span class="n">num_sess</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">sess</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">out_profile_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">out_dir</span><span class="p">),</span><span class="s">&#39;profiles&#39;</span><span class="p">,</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">),</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sess&#39;</span><span class="p">,</span><span class="n">sess</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="group-parcellation">
+<h2>Group Parcellation<a class="headerlink" href="#group-parcellation" title="Permalink to this heading"></a></h2>
+<p>Now we will generate a group parcellation! This step can take a while, so make sure you have requested adequate RAM and time (24 hours or more depending on the number of initializations).</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Part 3: Create group.mat with group parc</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/HCPD_analysis/parc_output_fs6_HCPD/generate_profiles_and_ini_params&#39;</span><span class="w"></span>
+<span class="n">num_clusters</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;17&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_initialization</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;1000&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">CBIG_MSHBM_generate_ini_params</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">num_clusters</span><span class="p">,</span><span class="n">num_initialization</span><span class="p">,</span><span class="w"> </span><span class="n">project_dir</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you desire a group parcellation using onlly a subset of your participants (such as participants in a specific clinical group), you will need to first generate the group LH and RH profiles using only those desired subjects and then generate the parcellation using those profiles.</p>
+</div>
+</section>
+<section id="expected-output">
+<h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<p>Within your parcellation output folder and within the generate_profiles_and_ini_params directory, you should see /group /data_list and /profiles folders. The group parcellation is stored in the group folder (group.mat) and all of the profiles are stored within the /profiles folder.</p>
+</section>
+<section id="troubleshooting-help">
+<h2>Troubleshooting Help<a class="headerlink" href="#troubleshooting-help" title="Permalink to this heading"></a></h2>
+<p>Some common errors include the following.</p>
+<ul class="simple">
+<li><p>fscanf cannot open… In this case, your paths somewhere are incorrect. Doublecheck your paths in the generate_profiles_and_ini_params/data_list/fMRI. Also, your project_dir could be incorrect. Also, the format of the data_list/fMRI_list text files names may be incorrect.</p></li>
+<li><p>CBIG_MSHBM_generate_ini_params function not found (or something like that)… You need to be in the step1 folder to run this script. If you are in a different directory, you will encounter this error.It may help to copy this script over to the script1 directory and then open matlab…</p></li>
+</ul>
+<p>If MATLAB has crashed unexpectedly, you most likely have not requested adequate memory or time. You can check your job stats to see if this is the case on your account at rc.byu.edu.</p>
+</section>
 </section>
 
 
