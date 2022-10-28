@@ -73,6 +73,7 @@ Welcome to NeuroDocs!
    :caption: Odds and Ends
 
    misc/freesurfer
+   misc/matlab
    misc/openneuro
    misc/rclone
    misc/reorient
