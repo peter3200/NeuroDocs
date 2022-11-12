@@ -68,7 +68,12 @@
 <li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2019 Parc Step 0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2019 Parc Step 1</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2019 Parc Step 2</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 3</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 3</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generate-text-lists">Generate Text Lists</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#identify-number-of-available-sessions">Identify Number of Available Sessions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-individual-parcellation">Step 3 - Individual Parcellation</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2019 Parc Step 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_5.html">Kong2019 Parc Step 5</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_6.html">Kong2019 Parc: Training Your Own Priors</a></li>
@@ -85,6 +90,7 @@
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
@@ -119,11 +125,305 @@
              
   <section id="kong2019-parc-step-3">
 <h1>Kong2019 Parc Step 3<a class="headerlink" href="#kong2019-parc-step-3" title="Permalink to this heading"></a></h1>
+<p>This step is a little more complicated than those previously described for this pipeline. But you can do it! As a general overview, we will generate text lists containing the paths to the LH and RH profiles generated in Step 1, identify the number of available sessions for each participant, and then generate the individual parcellations!</p>
+<section id="generate-text-lists">
+<h2>Generate Text Lists<a class="headerlink" href="#generate-text-lists" title="Permalink to this heading"></a></h2>
+<p>For this step, we are going to jump right in the code!</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># This is Step 2.5, which will generate the profile lists for Step 3</span>
+
+<span class="c1">##########################</span>
+<span class="c1"># Specify output directory</span>
+<span class="c1">##########################</span>
+
+<span class="nv">HOME</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute <span class="c1">#code home</span>
+<span class="nv">code_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/code/HCPD_analysis/Kong2019_parc_fs6 <span class="c1">#code directory</span>
+
+<span class="nv">HOME_D</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute <span class="c1">#data home</span>
+<span class="nv">out_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME_D</span><span class="si">}</span>/HCPD_analysis/parc_output_fs6_HCPD <span class="c1">#parc output directory</span>
+<span class="nv">preproc_output</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME_D</span><span class="si">}</span>/HCPD_analysis/CBIG2016_preproc_FS6 <span class="c1">#preproc output directory</span>
+
+<span class="nv">profile_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/generate_profiles_and_ini_params/profiles <span class="c1">#do not edit</span>
+<span class="nv">list_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/generate_individual_parcellations/profile_list/test_set <span class="c1">#do not edit</span>
+<span class="nv">sess_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/sess_lists <span class="c1">#do not edit</span>
+
+<span class="c1">########################################</span>
+<span class="c1"># Generate profile lists--Step3 Test Set</span>
+<span class="c1">########################################</span>
+
+mkdir -p <span class="nv">$list_dir</span> <span class="nv">$sess_dir</span>
+
+<span class="c1">#1. create list of sessions available for each subject</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span><span class="p">;</span> <span class="k">do</span>  <span class="c1">#include maximum number of sessions available for each subject</span>
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$out_dir</span>/generate_profiles_and_ini_params/profiles/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>/<span class="se">\</span>
+lh.sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz
+
+        <span class="c1">#if file exists, add to sub sesslist</span>
+            <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+        <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$sess_dir</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_lh.txt
+
+        <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+        <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$sess_dir</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_rh.txt
+
+        <span class="k">else</span>
+        <span class="nb">echo</span> <span class="s2">&quot;sess </span><span class="nv">$sess</span><span class="s2"> not available for sub </span><span class="nv">$sub</span><span class="s2">&quot;</span>
+        <span class="k">fi</span>
+<span class="k">done</span>
+
+        <span class="c1">#add filler lines equal to number of missing sessions to the end of the file</span>
+        <span class="nv">num_lines</span><span class="o">=</span><span class="sb">`</span>wc --lines &lt; <span class="si">${</span><span class="nv">sess_dir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_lh.txt<span class="sb">`</span>
+        <span class="nv">max_sess</span><span class="o">=</span><span class="m">9</span> <span class="c1">#maximum number of sessions available for each subject</span>
+        <span class="nv">filler</span><span class="o">=</span><span class="sb">`</span>expr <span class="nv">$max_sess</span> - <span class="nv">$num_lines</span><span class="sb">`</span>
+
+        <span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$filler</span><span class="s2">&quot;</span> -ne <span class="m">0</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="k">for</span> i <span class="k">in</span> <span class="k">$(</span> seq <span class="m">1</span> <span class="nv">$filler</span> <span class="k">)</span><span class="p">;</span> <span class="k">do</span>
+        <span class="nv">filler_message</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess11_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz&quot;</span> <span class="c1">#note this is an imaginary &quot;sess11&quot;</span>
+        <span class="nb">echo</span> <span class="nv">$filler_message</span> &gt;&gt; <span class="si">${</span><span class="nv">sess_dir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_lh.txt
+        <span class="nb">echo</span> <span class="nv">$filler_message</span> &gt;&gt; <span class="si">${</span><span class="nv">sess_dir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_rh.txt
+        <span class="k">done</span>
+        <span class="k">fi</span>
+<span class="k">done</span>
+
+
+<span class="c1">#2. RH: if # line exists, add to list# otherwise, dummy line</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="nv">filename</span><span class="o">=</span><span class="si">${</span><span class="nv">sess_dir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_rh.txt
+    <span class="nv">n</span><span class="o">=</span><span class="m">1</span>
+    <span class="k">while</span> <span class="nb">read</span> line<span class="p">;</span> <span class="k">do</span>
+        <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;</span><span class="nv">$line</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="s2">&quot;this is a fake line&quot;</span> &gt;&gt; <span class="nv">$list_dir</span>/rh_sess<span class="si">${</span><span class="nv">n</span><span class="si">}</span>.txt
+        <span class="k">else</span>
+        <span class="nb">echo</span> <span class="nv">$line</span> &gt;&gt; <span class="nv">$list_dir</span>/rh_sess<span class="si">${</span><span class="nv">n</span><span class="si">}</span>.txt
+        <span class="k">fi</span>
+    <span class="nv">n</span><span class="o">=</span><span class="k">$((</span>n+1<span class="k">))</span>
+    <span class="k">done</span> &lt; <span class="nv">$filename</span>
+<span class="k">done</span>
+
+<span class="c1">#2. LH</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="nv">filename</span><span class="o">=</span><span class="si">${</span><span class="nv">sess_dir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_lh.txt
+    <span class="nv">n</span><span class="o">=</span><span class="m">1</span>
+    <span class="k">while</span> <span class="nb">read</span> line<span class="p">;</span> <span class="k">do</span>
+        <span class="k">if</span> <span class="o">[</span> -z <span class="s2">&quot;</span><span class="nv">$line</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="s2">&quot;this is a fake line&quot;</span> &gt;&gt; <span class="nv">$list_dir</span>/lh_sess<span class="si">${</span><span class="nv">n</span><span class="si">}</span>.txt
+        <span class="k">else</span>
+        <span class="nb">echo</span> <span class="nv">$line</span> &gt;&gt; <span class="nv">$list_dir</span>/lh_sess<span class="si">${</span><span class="nv">n</span><span class="si">}</span>.txt
+        <span class="k">fi</span>
+    <span class="nv">n</span><span class="o">=</span><span class="k">$((</span>n+1<span class="k">))</span>
+    <span class="k">done</span> &lt; <span class="nv">$filename</span>
+<span class="k">done</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;Lists successfully generated! Step 2.5 is complete.&quot;</span>
+</pre></div>
+</div>
+<p>As you might have noticed, this script is composed of two main parts: #1 Creation of a session list for each subject (RH and LH) in the $code_dir and #2 Creation of the official Parcellation Step 3 session lists. I will address each part separately.</p>
+<p>For #1 of the script, we are going to loop through each subject in a subjids.txt file located in the $code_dir and then loop through each session for that subject. If the profile exists (in fsaverage6 resolution; change if in a different resolution), then the line is added to the text file. After looping through all of the sessions, we will then read the text file and add filler lines equal to number of missing sessions to the end of the file.</p>
+<p>For #2 of the script, we are going to create a set of text files for each subject within the $code_dir – for both the RH and LH. These files will read the text files created in #1 and read each line–if the line exists, then it will stick the line in the $list_dir for use in Parcellation Step 3. If the line does not exist, then a dummy line will be placed in the Parcellation Step 3 list. The dummy line is needed to maintain contiguity across the session lists for Step 3– the line number within the text file signals which subject the parcellation is calling, so if each subject has a different number of sessions, then without the dummy line, the parcellation code could bring up files from different subjects to compute an individual parcellation (not desired).</p>
+</section>
+<section id="identify-number-of-available-sessions">
+<h2>Identify Number of Available Sessions<a class="headerlink" href="#identify-number-of-available-sessions" title="Permalink to this heading"></a></h2>
+<p>For this next script, we are going to generate text files that will lead us to the number of sessions available for each subject. This is important for Parcellation Step 3, which requires us to indicate how many sessions to draw on for a given subject when computing the individual parcellations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#Purpose: Determine which subjects have which number of runs available and create lists accordingly for MSHBM Step3.</span>
+<span class="c1">#Inputs: Generate_data_step_2.5 sess_lists output.</span>
+<span class="c1">#Outputs: Text lists with corresponding subjects for each number of sessions.</span>
+<span class="c1">#Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022.</span>
+
+<span class="c1">#Set paths</span>
+<span class="nv">HOME</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute <span class="c1">#code directory</span>
+<span class="nv">CODE_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME</span><span class="si">}</span>/code/HCPD_analysis/Kong2019_parc_fs6 <span class="c1">#parcellation code directory</span>
+<span class="nv">code_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>
+<span class="nv">SESS_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/sess_lists_fake <span class="c1">#do not edit</span>
+<span class="nv">sess_dir</span><span class="o">=</span><span class="nv">$SESS_DIR</span>
+<span class="nv">NUM_SESS</span><span class="o">=</span><span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/sess_numbers <span class="c1">#do not edit; folder for text files indicating number of available sessions</span>
+mkdir -p <span class="nv">$SESS_DIR</span>
+mkdir -p <span class="nv">$NUM_SESS</span>
+
+<span class="nv">HOME_D</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute <span class="c1">#output home directory</span>
+<span class="nv">out_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME_D</span><span class="si">}</span>/HCPD_analysis/parc_output_fs6_HCPD <span class="c1">#parcellation output directory</span>
+<span class="nv">preproc_output</span><span class="o">=</span><span class="si">${</span><span class="nv">HOME_D</span><span class="si">}</span>/HCPD_analysis/CBIG2016_preproc_FS6 <span class="c1">#preproc output directory</span>
+<span class="nv">list_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/generate_individual_parcellations/profile_list/test_set <span class="c1">#do not edit</span>
+<span class="nv">profile_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/generate_profiles_and_ini_params/profiles <span class="c1">#do not edit</span>
+
+<span class="c1">#1</span>
+<span class="c1">#create fake sess_list that only includes files that exist</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span><span class="p">;</span> <span class="k">do</span>
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$out_dir</span>/generate_profiles_and_ini_params/profiles/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>/<span class="se">\</span>
+lh.sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz <span class="c1">#assumes fsaverage6 resolution</span>
+
+        <span class="c1">#if file exists, add to sub sesslist</span>
+            <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+        <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$sess_dir</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_lh.txt
+
+        <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_fsaverage6_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+        <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$sess_dir</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_rh.txt
+
+        <span class="k">else</span>
+        <span class="nb">echo</span> <span class="s2">&quot;sess </span><span class="nv">$sess</span><span class="s2"> not available for sub </span><span class="nv">$sub</span><span class="s2">&quot;</span>
+        <span class="k">fi</span>
+<span class="k">done</span>
+<span class="k">done</span>
+
+<span class="c1">#2</span>
+<span class="c1">#Grab number of available sessions for each individual</span>
+<span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+<span class="c1">#Loop through each subject</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/subjids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+    <span class="c1">#Determine number of sessions for each subj (=length of sess list)</span>
+    <span class="nv">num_sess</span><span class="o">=</span><span class="k">$(</span> cat <span class="si">${</span><span class="nv">SESS_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_lh.txt <span class="p">|</span> wc -l <span class="k">)</span>
+
+    <span class="c1">#Add subject to appropriate list depending on # of sessions (= number of lines in file)</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">1</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/1_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">2</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/2_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">3</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/3_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">4</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/4_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">5</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/5_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">6</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/6_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">7</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/7_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">8</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/8_sess.txt
+    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;</span><span class="nv">$num_sess</span><span class="s2">&quot;</span> -eq <span class="m">9</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">count</span><span class="si">}</span> &gt;&gt; <span class="si">${</span><span class="nv">NUM_SESS</span><span class="si">}</span>/9_sess.txt
+    <span class="k">else</span>
+        <span class="nb">echo</span> <span class="si">${</span><span class="nv">sub</span><span class="si">}</span> has <span class="m">0</span> sess
+    <span class="k">fi</span>
+
+<span class="k">done</span>
+</pre></div>
+</div>
+<p>Once again, this script is divided into two main parts: #1 Create a session list that only consists of available profiles for each subject and #2 Use those files to find the number of available runs for each subject and compile those together (e.g., all subjects with only 1 run end up in 1_sess.txt).</p>
+<p>To break this down further, in #1, we are looping through each subject in $code_dir/subjids.txt and each session within that subject. We are then identifying whether those profiles were created in Parcellation Step 1 and then adding them to a subject-specific text file in the $code_dir.</p>
+<p>For #2 of this script, we are looping through each subject in $code_dir/subjids.txt and finding the number of lines in that text file (each line equals 1 session of data). That subject ID is then added to a text file corresponding the number of session available.</p>
+</section>
+<section id="step-3-individual-parcellation">
+<h2>Step 3 - Individual Parcellation<a class="headerlink" href="#step-3-individual-parcellation" title="Permalink to this heading"></a></h2>
+<p>For this step, we are going to use Matlab within an <cite>salloc</cite> job.</p>
+<p>Here is the script header, where we given instructions for using the script and explain where our optimal parameters came from.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Step 3 of CBIG Kong2019 Brain Parc Pipeline</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 6G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. source your config file containing the $CBIG_CODE_DIR variable</span><span class="w"></span>
+<span class="c">%    3. `cd` to the $CBIG_CODE_DIR/stable_projects/brain_parcellation/Kong2019_MSHBM/step3... folder</span><span class="w"></span>
+<span class="c">%    4. `cp` this script over to the step3 folder in the CBIG repo</span><span class="w"></span>
+<span class="c">%    5. Enter the command `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    6. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%    7. In Matlab: Pull up this script and choose &quot;Run&quot; (green button)</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Previously, recon-all and the CBIG preproc pipeline were run on these subjects.</span><span class="w"></span>
+<span class="c">%Additionally, you must have the folder structure and text files with paths to your preproc output set up</span><span class="w"></span>
+<span class="c">%See the CBIG example script CBIG_MSHBM_create_example_input_data.sh for details on formatting.</span><span class="w"></span>
+<span class="c">%The script &quot;Create_parc_data.sh&quot; has taken care of this.</span><span class="w"></span>
+<span class="c">%Steps 1 and 2 have also been ran previous to this.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%For questions, contact M. Peterson, Nielsen Brain and Behavior Lab</span><span class="w"></span>
+
+<span class="c">%Note: Using the GSP Final_Params (FS6 space) from Ruby and CBIG. Per</span><span class="w"></span>
+<span class="c">%supplementary material for Kong2019 paper, the optimal parameters for the GSP dataset are c=30</span><span class="w"></span>
+<span class="c">%and alpha=200 (see page 10).</span><span class="w"></span>
+</pre></div>
+</div>
+<p>For the actual indivdiual parcellations, we are going to call on a CBIG function. We will run this function for each number of available runs (i.e., all the subjects with only 1 session, all the subjects with only two sessions, etc.). You will need to edit the filename variable and the project_dir variable.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% Subs with 1 run</span><span class="w"></span>
+<span class="c">%Load text file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HBN_analysis/Kong2019_parc_fs6/sess_numbers/1_sess.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Format for each line of text:</span><span class="w"></span>
+<span class="w">    </span><span class="c">%   column1: text (%s)</span><span class="w"></span>
+<span class="w">    </span><span class="c">% For more information, see the TEXTSCAN documentation.</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Open the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="w">    </span><span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Close the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_autism_networks/compute/HBN_analysis/parc_output_fs6_HBN/generate_individual_parcellations&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject</span><span class="p">=</span><span class="n">sublist</span><span class="p">(</span><span class="n">subid</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_MSHBM_generate_individual_parcellation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="s">&#39;1&#39;</span><span class="p">,</span><span class="s">&#39;17&#39;</span><span class="p">,</span><span class="n">subject</span><span class="p">,</span><span class="s">&#39;200&#39;</span><span class="p">,</span><span class="s">&#39;30&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+
+<span class="c">%% Subs with 2 runs</span><span class="w"></span>
+<span class="c">%Load text file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HBN_analysis/Kong2019_parc_fs6/sess_numbers/2_sess.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Format for each line of text:</span><span class="w"></span>
+<span class="w">    </span><span class="c">%   column1: text (%s)</span><span class="w"></span>
+<span class="w">    </span><span class="c">% For more information, see the TEXTSCAN documentation.</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Open the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="w">    </span><span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Close the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_autism_networks/compute/HBN_analysis/parc_output_fs6_HBN/generate_individual_parcellations&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject</span><span class="p">=</span><span class="n">sublist</span><span class="p">(</span><span class="n">subid</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_MSHBM_generate_individual_parcellation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="s">&#39;2&#39;</span><span class="p">,</span><span class="s">&#39;17&#39;</span><span class="p">,</span><span class="n">subject</span><span class="p">,</span><span class="s">&#39;200&#39;</span><span class="p">,</span><span class="s">&#39;30&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+
+<span class="c">%% Subs with 3 runs</span><span class="w"></span>
+<span class="c">%Load text file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HBN_analysis/Kong2019_parc_fs6/sess_numbers/3_sess.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Format for each line of text:</span><span class="w"></span>
+<span class="w">    </span><span class="c">%   column1: text (%s)</span><span class="w"></span>
+<span class="w">    </span><span class="c">% For more information, see the TEXTSCAN documentation.</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Open the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="w">    </span><span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Close the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_autism_networks/compute/HBN_analysis/parc_output_fs6_HBN/generate_individual_parcellations&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="n">subject</span><span class="p">=</span><span class="n">sublist</span><span class="p">(</span><span class="n">subid</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_MSHBM_generate_individual_parcellation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="s">&#39;3&#39;</span><span class="p">,</span><span class="s">&#39;17&#39;</span><span class="p">,</span><span class="n">subject</span><span class="p">,</span><span class="s">&#39;200&#39;</span><span class="p">,</span><span class="s">&#39;30&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+<p>To break this down a little, we will take a closer look at the ‘%% Subs with 1 run’ block of code.</p>
 <ul class="simple">
-<li><p>Step 2.5 generate text lists</p></li>
-<li><p>Identifying number of available sessions for each participant</p></li>
-<li><p>Step 3 parc: individual parcellations using HCP priors and parameters</p></li>
+<li><p>First, we are going to load the text file we generated earlier that contains all of the subjects with only 1 available session. You will need to change the filename variable to point to the correct file!</p></li>
+<li><p>Second, we will set our project_dir variable (edit this to point to your parcellation output folder).</p></li>
+<li><p>Third, we will loop through each subject in the text file that we loaded and run the CBIG function to compute individual parcellations.</p></li>
+<li><p>Fourth, for the CBIG_MSHBM_generate_individual_parcellation function, we will specify our parameters: project_dir (output directory), ‘fsaverage6’ (resolution of profiles), ‘1’ (number of sessions), ‘17’ (number of networks), subject (variable for subject name), ‘200’ (alpha value; see Step 2), ‘3’) (c value; see Step 2).</p></li>
 </ul>
+<p>At this point, we will have our individual parellations! From here, we can start to work with the output and visualize it and perform other calculations such as dice coefficients and network surface area.</p>
+</section>
 </section>
 
 
