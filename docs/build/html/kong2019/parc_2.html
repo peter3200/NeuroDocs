@@ -67,7 +67,12 @@
 <li class="toctree-l1"><a class="reference internal" href="parc_ov.html">Kong2019 Parcellation Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2019 Parc Step 0</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2019 Parc Step 1</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 2</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 2</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#priors-are-transferable">Priors are Transferable</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#selecting-priors">Selecting Priors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#copy-priors">Copy Priors</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2019 Parc Step 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2019 Parc Step 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_5.html">Kong2019 Parc Step 5</a></li>
@@ -85,6 +90,7 @@
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
@@ -119,12 +125,29 @@
              
   <section id="kong2019-parc-step-2">
 <h1>Kong2019 Parc Step 2<a class="headerlink" href="#kong2019-parc-step-2" title="Permalink to this heading"></a></h1>
-<p>Copy group priors.</p>
+<p>This step is named “Estimate Group Priors” in the CBIG documentation for this pipeline. However, for the purposes of this tutorial, we will demonstrate how to work with priors previously estimated by CBIG. If the user desires to develop their own priors using their own data, they are encouraged to view the tutorial on training their own priors (<a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/kong2019/parc_6.html">https://neurodocs.readthedocs.io/en/latest/kong2019/parc_6.html</a>).</p>
+<section id="priors-are-transferable">
+<h2>Priors are Transferable<a class="headerlink" href="#priors-are-transferable" title="Permalink to this heading"></a></h2>
+<p>Training your own priors has several large disadvantages, mainly data loss. To train your own priors, you would lose ~40 subjects. Due to issues of statistical power, this is typically a costly decision. To avoid this specific issue, we are going to use priors previously trained by CBIG.</p>
+<p>Previously, it has been demonstrated that MS-HBM parameters estimated from one dataset can be effectively applied to another dataset with significant differences in acquisition and preprocessing (Kong et al., 2021). Thus, to generate our model, priors trained on 40 Human Connectome Project subjects (Van Essen et al., 2012, 2013) will be utilized (Kong et al., 2019).</p>
+</section>
+<section id="selecting-priors">
+<h2>Selecting Priors<a class="headerlink" href="#selecting-priors" title="Permalink to this heading"></a></h2>
+<p>Several versions of group priors are available on Github from CBIG. The file that you use will depend on the resolution and “space” of your data. The resolution of your data was specified in Step 1, when you indicated the output resolution in the generate profiles step.</p>
 <ul class="simple">
-<li><p>Evidence from Kong2022 that groups priors are transferable</p></li>
-<li><p>Location of HCP priors and getting fs6 priors (upload to Github)</p></li>
-<li><p>Finding associated parameters from HCP priors</p></li>
+<li><p>fs_LR32K. Available for download at <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM/lib/group_priors/HCP_40">https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM/lib/group_priors/HCP_40</a>. These priors were trained on 40 HCP subjects and the associated optimal parameters (c=40 and alpha=200) can be found on page 10 of the Kong2019 Supplementary Materials.</p></li>
+<li><p>fsaverage5. Available for download at <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM/lib/group_priors/GSP_37">https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM/lib/group_priors/GSP_37</a>. These priors were trained on 37 GSP subjects and the associated optimal parameters (c=30 and alpha=200) can be found on page 10 of the Kong2019 Supplementary Materials.</p></li>
+<li><p>fsaverage6. Priors were obtained via personal correspondence with CBIG: <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/ccb10c14a04df4b6fdd36751938520adc982ebc6/example_data/Params_Final.mat">https://github.com/peter3200/NeuroDocs/blob/ccb10c14a04df4b6fdd36751938520adc982ebc6/example_data/Params_Final.mat</a> These priors were generated by taking the fsaverage5 GSP priors and upsampling the spatial probability prior Params.theta to fsaverage6 space. The associated optimal parameters were retained as c=30 and alpha=200.</p></li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Be sure to record which priors are being used and their associated optimal parameters. These will come in handy when performing Step 3 and writing your methods section on any publications!</p>
+</div>
+</section>
+<section id="copy-priors">
+<h2>Copy Priors<a class="headerlink" href="#copy-priors" title="Permalink to this heading"></a></h2>
+<p>Once you have downloaded the selected file to your local computer, you can upload it to Box and use <cite>rclone</cite> to finish the transfer (see tutorial <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/misc/rclone.html">https://neurodocs.readthedocs.io/en/latest/misc/rclone.html</a>) or use the <cite>scp</cite> command to secure copy the file from your computer to the supercomputer. Ultimately, the priors need to end up in parcellation_output_folder/generate_individual_parcellations/priors.</p>
+</section>
 </section>
 
 
