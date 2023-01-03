@@ -11,7 +11,7 @@ This tutorial will walk the user through the steps needed to create both group a
 Parcellation Approaches
 ***********************
 
-The Kong2019 MS-HBM pipeline isn't the only parcellation pipeline out there. Other parcellation approaches include k-means parcellations and seed-based approaches. However, unlike these alterantives, the Kong2019 pipeline takes group priors into account. These priors constrain the model in different ways--such as by dictating the spatial layout of the networks. In an update, the Kong2022 Areal MS-HBM pipeline includes additional priors not included in the Kong2019 pipeline, such as a gradient prior and a contiguity prior. 
+The Kong2019 MS-HBM pipeline isn't the only parcellation pipeline out there. Other parcellation approaches include k-means parcellations and seed-based approaches. However, unlike these alternatives, the Kong2019 pipeline takes group priors into account. These priors constrain the model in different ways--such as by dictating the spatial layout of the networks. In an update, the Kong2022 Areal MS-HBM pipeline includes additional priors not included in the Kong2019 pipeline, such as a gradient prior and a contiguity prior. 
 
 `Below` is an example of Kong2019 parcellaton output.
 
@@ -33,7 +33,7 @@ The implementation of this pipeline includes both preparatory and processing ste
 * Step 4. Processing step for visualizing group and individual parcellations. 
 * Step 5. Processing step for computing quantitative metrics on parcellation output. 
 
-.. note:: We will assume that the reader is not interested in generating their own group priors for this tutorial. Instead, we will use priors previously released by CBIG. However, if this is the case, we will include a page at the very end titled "Training Your Own Priors" detailing how this is different and what steps to take. 
+.. note:: We will assume that the reader is not interested in generating their own group priors for this tutorial. Instead, we will use priors previously released by CBIG. However, if the reader wishes to train their own priors, please see the page at the very end titled "Training Your Own Priors". This page deatils how this process is different and what steps to take. 
 
 `Below` is an illustrated version of the parcellation steps. 
 
