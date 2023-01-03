@@ -70,7 +70,22 @@
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2019 Parc Step 2</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2019 Parc Step 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2019 Parc Step 4</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 5</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc Step 5</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#network-surface-area">Network Surface Area</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#parc2annot">1.Parc2Annot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#freesurfer-stats">2.Freesurfer Stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#grab-surface-area">3.Grab Surface Area</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configure-surface-area">4.Configure Surface Area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#dice-coefficient">Dice Coefficient</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#dice-matrix">Dice Matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-retest-dice-coefficients">Test-Retest Dice Coefficients</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#group-individual-dice">Group-Individual Dice</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_6.html">Kong2019 Parc: Training Your Own Priors</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
@@ -85,6 +100,7 @@
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
@@ -119,11 +135,552 @@
              
   <section id="kong2019-parc-step-5">
 <h1>Kong2019 Parc Step 5<a class="headerlink" href="#kong2019-parc-step-5" title="Permalink to this heading"></a></h1>
-<ul class="simple">
-<li><p>Quantitative metrics</p></li>
-<li><p>Network surface area</p></li>
-<li><p>Dice coeffient</p></li>
-</ul>
+<p>Once individual parcellations have been generated, you may desire additional quantitative information about those parcellations. For this step, we will provide scripts for obtaining network surface area and dice coefficients.</p>
+<section id="network-surface-area">
+<h2>Network Surface Area<a class="headerlink" href="#network-surface-area" title="Permalink to this heading"></a></h2>
+<p>To obtain network surface area for your individual parcellations, we will take 4 steps.
+1. Parc2Annot. Convert .mat parcellations to .annot files.
+2. Freesurfer Statistics. Generate Freesurfer statistics for each subject (job and wrapper script).
+3. Grab Surface Area. Specifically obtain network surface area out of the statistics files.
+4. Configure Surface Area. Add RH and LH surface area for each subject and place in a .mat file (usable as input for a Kernel Ridge Regression).</p>
+<section id="parc2annot">
+<h3>1.Parc2Annot<a class="headerlink" href="#parc2annot" title="Permalink to this heading"></a></h3>
+<p>We will use MATLAB to convert the .mat parcellation files to .annot files.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Wrapper script to turn parcellation files into FreeSurfer annotation</span><span class="w"></span>
+<span class="c">% files. Then you can calculate surface area of parcellations!</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Assumes ind_parcellation output from Kong2019 CBIG pipeline.</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab</span><span class="w"></span>
+<span class="c">%To run</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 6G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Source your CBIG config file to set up CBIG environment.</span><span class="w"></span>
+<span class="c">%    3. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+<span class="c">%% HCPD</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/HCPD_analysis/parc_output_fs6_HCPD/generate_individual_parcellations/ind_parcellation/test_set&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">out_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/HCPD_analysis/parc_output_fs6_HCPD/quant_metrics/MSHBM_vis&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">% Create output directory</span><span class="w"></span>
+<span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">616</span><span class="w"> </span><span class="c">%loop through each subject with a parcellation</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub_str</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">sub</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub_filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;Ind_parcellation_MSHBM_sub&#39;</span><span class="p">,</span><span class="n">sub_str</span><span class="p">,</span><span class="s">&#39;_w200_MRF30_matched.mat&#39;</span><span class="p">);</span><span class="w"> </span><span class="c">%individual parcellation file names</span><span class="w"></span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="n">sub_filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub_str</span><span class="p">,</span><span class="s">&#39;_lh.annot&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub_str</span><span class="p">,</span><span class="s">&#39;_rh.annot&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">combo</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub_str</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_output_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="n">lh_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_output_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="n">rh_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_SaveParcellationToFreesurferAnnotation</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">lh_output_file</span><span class="p">,</span><span class="w"> </span><span class="n">rh_output_file</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="freesurfer-stats">
+<h3>2.Freesurfer Stats<a class="headerlink" href="#freesurfer-stats" title="Permalink to this heading"></a></h3>
+<p>Once we have the .annot files, we can use Freesurfer’s mris_stats function to calculate network surface area. To do this, we will use a job and a wrapper script.</p>
+<p>The wrapper script is as follows.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">code_dir</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute/code/quant_metrics
+<span class="nv">var</span><span class="o">=</span><span class="sb">`</span>date +<span class="s2">&quot;%Y%m%d-%H%M%S&quot;</span><span class="sb">`</span>
+mkdir -p ~/logfiles/<span class="nv">$var</span>
+mkdir -p /fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/quant_metrics <span class="c1">#quant metrics folder where output will be stored</span>
+
+<span class="k">for</span> subj <span class="k">in</span> <span class="m">18</span> <span class="m">19</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#loop through each subject</span>
+    sbatch <span class="se">\</span>
+    -o ~/logfiles/<span class="si">${</span><span class="nv">var</span><span class="si">}</span>/output_<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>.txt <span class="se">\</span>
+    -e ~/logfiles/<span class="si">${</span><span class="nv">var</span><span class="si">}</span>/error_<span class="si">${</span><span class="nv">subj</span><span class="si">}</span>.txt <span class="se">\</span>
+    <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/freesurfer_mris_stats.sh <span class="se">\</span>
+    <span class="si">${</span><span class="nv">subj</span><span class="si">}</span>
+    sleep <span class="m">1</span>
+<span class="k">done</span>
+</pre></div>
+</div>
+<p>The job script is as follows.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#SBATCH --time=00:10:00   # walltime</span>
+<span class="c1">#SBATCH --ntasks=1   # number of processor cores (i.e. tasks)</span>
+<span class="c1">#SBATCH --nodes=1   # number of nodes</span>
+<span class="c1">#SBATCH --mem-per-cpu=16384M  # memory per CPU core</span>
+
+<span class="c1"># Compatibility variables for PBS. Delete if not needed.</span>
+<span class="nb">export</span> <span class="nv">PBS_NODEFILE</span><span class="o">=</span><span class="sb">`</span>/fslapps/fslutils/generate_pbs_nodefile<span class="sb">`</span>
+<span class="nb">export</span> <span class="nv">PBS_JOBID</span><span class="o">=</span><span class="nv">$SLURM_JOB_ID</span>
+<span class="nb">export</span> <span class="nv">PBS_O_WORKDIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$SLURM_SUBMIT_DIR</span><span class="s2">&quot;</span>
+<span class="nb">export</span> <span class="nv">PBS_QUEUE</span><span class="o">=</span>batch
+
+<span class="c1"># Set the max number of threads to use for programs using OpenMP.</span>
+<span class="nb">export</span> <span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="nv">$SLURM_CPUS_ON_NODE</span>
+
+<span class="c1"># LOAD ENVIRONMENTAL VARIABLES</span>
+<span class="nb">export</span> <span class="nv">FREESURFER_HOME</span><span class="o">=</span>/fslhome/mpeter55/compute/research_bin/freesurfer
+<span class="nb">source</span> <span class="nv">$FREESURFER_HOME</span>/SetUpFreeSurfer.sh
+
+<span class="nv">subjid</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nb">export</span> <span class="nv">SUBJECTS_DIR</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute/data/renamed <span class="c1">#location of freesurfer output</span>
+<span class="nv">CBIG_OUTPUT_DIR</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2
+
+<span class="c1"># INSERT CODE, AND RUN YOUR PROGRAMS HERE</span>
+    <span class="c1"># left hemisphere</span>
+mris_anatomical_stats <span class="se">\</span>
+-a /fslgroup/fslg_autism_networks/compute/data/renamed/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/anat/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>_lh.annot <span class="se">\</span>
+-f /fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/quant_metrics/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>_LH_SA.csv <span class="se">\</span>
+-b sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/anat/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span> lh
+
+
+    <span class="c1"># right hemisphere</span>
+mris_anatomical_stats <span class="se">\</span>
+-a /fslgroup/fslg_autism_networks/compute/data/renamed/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/anat/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>_rh.annot <span class="se">\</span>
+-f /fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/quant_metrics/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>_RH_SA.csv <span class="se">\</span>
+-b sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span>/anat/sub-<span class="si">${</span><span class="nv">1</span><span class="si">}</span> rh
+
+<span class="c1">#Note: -a = path to annotation file, -f is path to output file, -b is tabular</span>
+<span class="c1">#output (to your logfile set up in the job script)</span>
+<span class="c1">#followed by the path to the subject&#39;s recon-all output</span>
+<span class="c1">#and then the hemisphere.</span>
+</pre></div>
+</div>
+</section>
+<section id="grab-surface-area">
+<h3>3.Grab Surface Area<a class="headerlink" href="#grab-surface-area" title="Permalink to this heading"></a></h3>
+<p>Once the stats have been calculated, we are going to go ahead and grab the specific values we are interested in, namely network surface area.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="nv">genDir</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute
+<span class="nv">subDir</span><span class="o">=</span><span class="si">${</span><span class="nv">genDir</span><span class="si">}</span>/parc_test_output_MP2/quant_metrics/network_SA <span class="c1">#output directory</span>
+
+mkdir -p <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>
+mv <span class="si">${</span><span class="nv">genDir</span><span class="si">}</span>/parc_test_output_MP2/quant_metrics/sub*.csv <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>
+
+<span class="c1">#Remove the first 60 lines in the .csv file generated in Step 2</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="m">18</span> <span class="m">19</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#loop through each subject</span>
+    sed -i <span class="s1">&#39;1,60d&#39;</span> <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA.csv
+    sed -i <span class="s1">&#39;1,60d&#39;</span> <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA.csv
+<span class="k">done</span>
+
+<span class="c1">#Extract SA (3rd column) and add as a row to a group csv file</span>
+<span class="k">for</span> i <span class="k">in</span> <span class="m">18</span> <span class="m">19</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#loop through each subject</span>
+    <span class="c1">#LH</span>
+    cat <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA.csv <span class="p">|</span> sed -r <span class="s1">&#39;s/\s+/ /g&#39;</span> &gt; <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA_s.csv
+    cat <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA_s.csv <span class="p">|</span> cut -d <span class="s2">&quot; &quot;</span> -f3 &gt; <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA3.csv
+    cat <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA3.csv <span class="p">|</span> awk -v <span class="nv">RS</span><span class="o">=</span> -v <span class="nv">OFS</span><span class="o">=</span><span class="s2">&quot;\t&quot;</span> <span class="s1">&#39;{$1 = $1} 1&#39;</span> &gt;&gt; <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/LH_SA.txt
+    sed -i 1i<span class="s2">&quot;lh&quot;</span> <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_LH_SA3.csv
+    <span class="c1">#RH</span>
+    cat <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA.csv <span class="p">|</span> sed -r <span class="s1">&#39;s/\s+/ /g&#39;</span> &gt; <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA_s.csv
+    cat <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA_s.csv <span class="p">|</span> cut -d <span class="s2">&quot; &quot;</span> -f3 &gt; <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA3.csv
+    cat <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA3.csv <span class="p">|</span> awk -v <span class="nv">RS</span><span class="o">=</span> -v <span class="nv">OFS</span><span class="o">=</span><span class="s2">&quot;\t&quot;</span> <span class="s1">&#39;{$1 = $1} 1&#39;</span> &gt;&gt; <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/RH_SA.txt
+    sed -i 1i<span class="s2">&quot;rh&quot;</span> <span class="si">${</span><span class="nv">subDir</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">i</span><span class="si">}</span>_RH_SA3.csv
+<span class="k">done</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This step generated group LH and RH .csv files. The next step is to calculate the total surface area for each network.</p>
+</div>
+</section>
+<section id="configure-surface-area">
+<h3>4.Configure Surface Area<a class="headerlink" href="#configure-surface-area" title="Permalink to this heading"></a></h3>
+<p>The purpose of this step is to take the previously calculated surface area for each network and convert it into a usable form. To do this, we will use python.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ml python/3.6
+python configure_SA.py
+</pre></div>
+</div>
+<p>The contents of configure_SA.py are shown below.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># Purpose: Create .mat input of network SA for the 17 networks</span>
+<span class="c1"># Input: single-column .csv files with SA for each hemisphere.</span>
+<span class="c1"># Output: .mat struct for each individual&#39;s SA for the 17 networks. Usable input for KRR.</span>
+<span class="c1"># Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License (2021)</span>
+
+<span class="c1">#load packages</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">scipy.io</span> <span class="c1">#loads .mat files</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1">#List of test set subjids</span>
+<span class="n">test_set</span> <span class="o">=</span> <span class="p">[</span><span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">]</span>
+
+<span class="c1">#for each subject, load .csv input files and add the SAs together to get a total SA for each network</span>
+<span class="k">for</span> <span class="n">sub1</span> <span class="ow">in</span> <span class="n">test_set</span><span class="p">:</span>
+    <span class="c1">#path to rh input files</span>
+    <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/quant_metrics/network_SA&quot;</span>
+    <span class="n">rh_name</span> <span class="o">=</span> <span class="s2">&quot;sub-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_RH_SA3.csv&quot;</span>
+    <span class="n">rh_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">rh_name</span><span class="p">)</span>
+
+    <span class="c1">#path to lh input files</span>
+    <span class="n">lh_name</span> <span class="o">=</span> <span class="s2">&quot;sub-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_LH_SA3.csv&quot;</span>
+    <span class="n">lh_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">lh_name</span><span class="p">)</span>
+
+    <span class="n">csv_file_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">rh_sub</span><span class="p">,</span> <span class="n">lh_sub</span><span class="p">]</span> <span class="c1">#combine the SAs from the two CSV files</span>
+    <span class="n">list_of_dataframes</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#create empty list</span>
+
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">csv_file_list</span><span class="p">:</span>
+        <span class="n">list_of_dataframes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span> <span class="c1">#actually appends one list to the other</span>
+
+    <span class="n">merged_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">list_of_dataframes</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1">#concatenates the two lists into a pandas format</span>
+    <span class="n">sum_column</span> <span class="o">=</span> <span class="n">merged_df</span><span class="p">[</span><span class="s2">&quot;rh&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">merged_df</span><span class="p">[</span><span class="s2">&quot;lh&quot;</span><span class="p">]</span> <span class="c1">#add the surface areas from the right and left hemispheres</span>
+    <span class="n">merged_df</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sum_column</span> <span class="c1">#add this column to the dataset</span>
+
+    <span class="n">running_list</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1">#creates empty placeholder list</span>
+    <span class="n">running_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">merged_df</span><span class="p">[</span><span class="s2">&quot;total&quot;</span><span class="p">])</span> <span class="c1">#saves the &quot;total&quot; column into the list</span>
+    <span class="c1">#del running_list[0:1] #removes the first network (NONAME 0 1 1 1 on CLUT)</span>
+    <span class="n">r_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">running_list</span><span class="p">))</span> <span class="c1">#transpose the array from horizontal to vertical</span>
+
+    <span class="n">mdic</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;network_SA&quot;</span><span class="p">:</span> <span class="n">r_arr</span><span class="p">}</span> <span class="c1">#Create matlab dictionary datatype</span>
+    <span class="n">mat_name</span> <span class="o">=</span> <span class="s2">&quot;sub&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_total_SA.mat&quot;</span>
+    <span class="n">full_mat</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="n">mat_name</span><span class="p">)</span>
+    <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">savemat</span><span class="p">(</span><span class="n">full_mat</span><span class="p">,</span> <span class="n">mdic</span><span class="p">)</span> <span class="c1">#Total SA as a single .mat file for each subject</span>
+</pre></div>
+</div>
+<p>This wraps up the surface area calculations!</p>
+</section>
+</section>
+<section id="dice-coefficient">
+<h2>Dice Coefficient<a class="headerlink" href="#dice-coefficient" title="Permalink to this heading"></a></h2>
+<p>What is a dice coefficient? It is a statistic that measures similarity or overlap between two datasets. The official formula is (2(X join Y))/(X+Y), where X join Y consists of the number of commonalities between X and Y.</p>
+<p>This is a very useful index when we want to estimate the overlap in parcellation labels between two subjects, an individual and the group parcellation, or between to parcellations from the same individual (in the case that you are determining test-retest reliability for example). Here we will provide code for calculating a matrix of dice coefficients (each individual by every other individual then averaged across each network), test-retest dice coefficients (individual X by individual X), and individual-group dice coefficients.</p>
+<section id="dice-matrix">
+<h3>Dice Matrix<a class="headerlink" href="#dice-matrix" title="Permalink to this heading"></a></h3>
+<p>This matrix of averaged dice coefficients can be used as input to a Kernel Ridge Regression. To create this matrix, we will use python.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># Purpose: Create 3D matrix of dice coefficients, KxKxN where K = subject and N = network, all are test subjects!</span>
+<span class="c1"># Input: ind_parcellation output from Kong2019 pipeline</span>
+<span class="c1"># Output: matrices (initially 17 30x30 2D matrices, followed by 1 30x30 matrix with averaged dice coefficients)</span>
+<span class="c1"># Note: Users may need to run &#39;which python&#39; and paste the correct path following the shebang on line one.</span>
+<span class="c1"># Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License (2021)</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">scipy.io</span> <span class="c1">#loads .mat files</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># create function to get index positions</span>
+<span class="k">def</span> <span class="nf">get_index_positions</span><span class="p">(</span><span class="n">list_of_elems</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+    <span class="n">index_pos_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">index_pos</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index_pos</span> <span class="o">=</span> <span class="n">list_of_elems</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">index_pos</span><span class="p">)</span>
+            <span class="n">index_pos_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index_pos</span><span class="p">)</span>
+            <span class="n">index_pos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">index_pos_list</span>
+
+
+<span class="c1"># Create 2D matrices of the dice coefficient (30x30) for each network</span>
+<span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">18</span><span class="p">):</span> <span class="c1">#Range must be set to actual number of networks +1</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1">#Counter to keep track of which subject combination we are on within each network</span>
+    <span class="k">for</span> <span class="n">sub1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">31</span><span class="p">):</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">sub2</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">31</span><span class="p">):</span>
+            <span class="c1"># path to test_set subjects</span>
+            <span class="n">test_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_rdoc/compute/parc_test_output_MP/generate_individual_parcellations/ind_parcellation/test_set&quot;</span>
+            <span class="n">test_name</span> <span class="o">=</span> <span class="s2">&quot;Ind_parcellation_MSHBM_sub&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_w60_MRF30.mat&quot;</span>
+            <span class="n">test_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">test_name</span><span class="p">)</span>
+            <span class="n">test_file</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">test_sub</span><span class="p">)</span> <span class="c1">#Load first sub .mat file</span>
+            <span class="n">test_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">test_file</span><span class="p">[</span><span class="s1">&#39;rh_labels&#39;</span><span class="p">])</span>
+            <span class="n">test_rh_list</span> <span class="o">=</span> <span class="n">test_rh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">test_lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">test_file</span><span class="p">[</span><span class="s1">&#39;lh_labels&#39;</span><span class="p">])</span>
+            <span class="n">test_lh_list</span> <span class="o">=</span> <span class="n">test_lh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="c1"># combine Rh and Lh labels</span>
+            <span class="n">test_comb2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_rh_list</span><span class="p">,</span><span class="n">test_lh_list</span><span class="p">)</span> <span class="c1">#Combine RH and LH labels files</span>
+            <span class="n">test_comb</span> <span class="o">=</span> <span class="n">test_comb2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="c1"># path to second subject</span>
+            <span class="n">sec_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_rdoc/compute/parc_test_output_MP/generate_individual_parcellations/ind_parcellation/test_set&quot;</span>
+            <span class="n">sec_name</span> <span class="o">=</span> <span class="s2">&quot;Ind_parcellation_MSHBM_sub&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_w60_MRF30.mat&quot;</span>
+            <span class="n">sec_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">sec_dir</span><span class="p">,</span> <span class="n">sec_name</span><span class="p">)</span>
+            <span class="n">sec_file</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">sec_sub</span><span class="p">)</span>
+            <span class="n">sec_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sec_file</span><span class="p">[</span><span class="s1">&#39;rh_labels&#39;</span><span class="p">])</span>
+            <span class="n">sec_rh_list</span> <span class="o">=</span> <span class="n">sec_rh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">sec_lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sec_file</span><span class="p">[</span><span class="s1">&#39;lh_labels&#39;</span><span class="p">])</span>
+            <span class="n">sec_lh_list</span> <span class="o">=</span> <span class="n">sec_lh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="c1"># Combine Rh and Lh labels</span>
+            <span class="n">sec_comb2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sec_rh_list</span><span class="p">,</span><span class="n">sec_lh_list</span><span class="p">)</span>
+            <span class="n">sec_comb</span> <span class="o">=</span> <span class="n">sec_comb2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="c1">#find total and common vertices between subjects</span>
+            <span class="n">test_tot</span> <span class="o">=</span> <span class="n">test_comb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="c1">#Total vertices for $network in test subject (sub1)</span>
+            <span class="n">sec_tot</span> <span class="o">=</span> <span class="n">sec_comb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="c1">#Total vertices for $network for second subject (sub2)</span>
+
+            <span class="n">index_pos_list</span> <span class="o">=</span> <span class="n">get_index_positions</span><span class="p">(</span><span class="n">test_comb</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span> <span class="c1">#Get positions/order for $network for sub1</span>
+            <span class="n">test_pos_list</span> <span class="o">=</span> <span class="n">index_pos_list</span>
+            <span class="n">index_pos_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">index_pos_list</span> <span class="o">=</span> <span class="n">get_index_positions</span><span class="p">(</span><span class="n">sec_comb</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span> <span class="c1">#Get positions/order for $network for sub2</span>
+            <span class="n">sec_pos_list</span> <span class="o">=</span> <span class="n">index_pos_list</span>
+            <span class="n">index_pos_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="n">common</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_pos_list</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sec_pos_list</span><span class="p">])</span> <span class="c1">#Compare positions for $network for both subjects</span>
+            <span class="n">denominator</span> <span class="o">=</span> <span class="n">sec_tot</span> <span class="o">+</span> <span class="n">test_tot</span> <span class="c1">#Combine total number of vertices with $network</span>
+            <span class="n">dice</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">common</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span> <span class="k">if</span> <span class="n">denominator</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># calculate dice coefficient</span>
+
+            <span class="k">if</span> <span class="n">sub2</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">running_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">running_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dice</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">running_list</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dice</span><span class="p">])</span>
+
+        <span class="c1">#For each Sub1, add a row (a list) to network list</span>
+        <span class="k">if</span> <span class="n">sub1</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">df_list</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">df_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">running_list</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">running_list</span><span class="p">)</span>
+
+    <span class="c1">#For each network, write a .npy file</span>
+    <span class="n">file_name</span> <span class="o">=</span> <span class="s2">&quot;arr&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.npy&quot;</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">file_name</span><span class="p">,</span> <span class="n">df_list</span><span class="p">)</span>
+
+
+<span class="c1"># Load the 17 matrices and concatenate them into a 3D numpy matrix</span>
+<span class="n">arr0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr0.npy&#39;</span><span class="p">)</span>
+<span class="n">arr1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr1.npy&#39;</span><span class="p">)</span>
+<span class="n">arr2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr2.npy&#39;</span><span class="p">)</span>
+<span class="n">arr3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr3.npy&#39;</span><span class="p">)</span>
+<span class="n">arr4</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr4.npy&#39;</span><span class="p">)</span>
+<span class="n">arr5</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr5.npy&#39;</span><span class="p">)</span>
+<span class="n">arr6</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr6.npy&#39;</span><span class="p">)</span>
+<span class="n">arr7</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr7.npy&#39;</span><span class="p">)</span>
+<span class="n">arr8</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr8.npy&#39;</span><span class="p">)</span>
+<span class="n">arr9</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr9.npy&#39;</span><span class="p">)</span>
+<span class="n">arr10</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr10.npy&#39;</span><span class="p">)</span>
+<span class="n">arr11</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr11.npy&#39;</span><span class="p">)</span>
+<span class="n">arr12</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr12.npy&#39;</span><span class="p">)</span>
+<span class="n">arr13</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr13.npy&#39;</span><span class="p">)</span>
+<span class="n">arr14</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr14.npy&#39;</span><span class="p">)</span>
+<span class="n">arr15</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr15.npy&#39;</span><span class="p">)</span>
+<span class="n">arr16</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr16.npy&#39;</span><span class="p">)</span>
+<span class="n">arr17</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;arr17.npy&#39;</span><span class="p">)</span>
+<span class="n">comb_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">((</span><span class="n">arr0</span><span class="p">,</span> <span class="n">arr1</span><span class="p">,</span> <span class="n">arr2</span><span class="p">,</span> <span class="n">arr3</span><span class="p">,</span> <span class="n">arr4</span><span class="p">,</span> <span class="n">arr5</span><span class="p">,</span> <span class="n">arr6</span><span class="p">,</span> <span class="n">arr7</span><span class="p">,</span> <span class="n">arr8</span><span class="p">,</span> <span class="n">arr9</span><span class="p">,</span> <span class="n">arr10</span><span class="p">,</span> <span class="n">arr11</span><span class="p">,</span> <span class="n">arr12</span><span class="p">,</span> <span class="n">arr13</span><span class="p">,</span> <span class="n">arr14</span><span class="p">,</span> <span class="n">arr15</span><span class="p">,</span> <span class="n">arr16</span><span class="p">,</span> <span class="n">arr17</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span> <span class="c1">#Create 3D combined matrix</span>
+
+<span class="c1">#Average coefficients across networks (yields a KxK matrix that forms kernel for KRR)</span>
+<span class="n">avg_dice</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">comb_array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">avg_name</span> <span class="o">=</span> <span class="s2">&quot;avg_dice_matrix.npy&quot;</span>
+
+<span class="c1">#Save output</span>
+<span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">avg_name</span><span class="p">,</span> <span class="n">avg_dice</span><span class="p">)</span> <span class="c1">#Save as .npy</span>
+<span class="n">mdic</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;avg_dice&quot;</span><span class="p">:</span> <span class="n">avg_dice</span><span class="p">}</span> <span class="c1">#Create matlab dictionary datatype</span>
+<span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">savemat</span><span class="p">(</span><span class="s2">&quot;avg_dice.mat&quot;</span><span class="p">,</span> <span class="n">mdic</span><span class="p">)</span> <span class="c1">#Save avg matrix as .mat matrix</span>
+</pre></div>
+</div>
+</section>
+<section id="test-retest-dice-coefficients">
+<h3>Test-Retest Dice Coefficients<a class="headerlink" href="#test-retest-dice-coefficients" title="Permalink to this heading"></a></h3>
+<p>If you are developing a pipeline or testing the reliability of a known pipeline, it can be very informative to examine the test-retest reliability. One example use case may be running the parcellation pipeline on all of the even runs for a subject separate from all of the odd runs from that same subject. We can then look at the overlap in network assignment between the odd and even runs (the dice coefficient!). A higher dice coefficient is indicative of greater overlap (higher reliability).</p>
+<p>To do this, we will use python.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># Purpose: Create a .csv file of Nx17 dice coefficients to assess MSHBM test-retest reliability</span>
+<span class="c1"># Input: ind_parcellation output from Kong2019 pipeline</span>
+<span class="c1"># Output: 1 Nx17 .csv file with dice coefficients</span>
+<span class="c1"># Note: Users may need to run &#39;which python&#39; and paste the correct path following the shebang on line one.</span>
+<span class="c1"># Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License (2021)</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">scipy.io</span> <span class="c1">#loads .mat files</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># create function to get index positions</span>
+<span class="k">def</span> <span class="nf">get_index_positions</span><span class="p">(</span><span class="n">list_of_elems</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+    <span class="n">index_pos_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">index_pos</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index_pos</span> <span class="o">=</span> <span class="n">list_of_elems</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">index_pos</span><span class="p">)</span>
+            <span class="n">index_pos_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index_pos</span><span class="p">)</span>
+            <span class="n">index_pos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">index_pos_list</span>
+
+<span class="c1"># Create 2D matrices of the dice coefficient for each network</span>
+<span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+<span class="k">for</span> <span class="n">sub1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">11</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">18</span><span class="p">):</span> <span class="c1">#Range must be set to actual number of networks +1</span>
+        <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># set sub name</span>
+        <span class="n">sub</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span>
+        <span class="n">new_sub</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sub_name</span> <span class="o">=</span> <span class="s2">&quot;MSC&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_sub</span><span class="p">)</span>
+
+        <span class="c1"># path to test_set subjects</span>
+        <span class="n">test_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_EVEN_GROUP/generate_individual_parcellations/ind_parcellation/test_set&quot;</span>
+        <span class="n">test_name</span> <span class="o">=</span> <span class="s2">&quot;Ind_parcellation_MSHBM_sub&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_w200_MRF30_matched.mat&quot;</span>
+        <span class="n">test_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">test_name</span><span class="p">)</span>
+        <span class="n">test_file</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">test_sub</span><span class="p">)</span> <span class="c1">#Load first sub .mat file</span>
+        <span class="n">test_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">test_file</span><span class="p">[</span><span class="s1">&#39;rh_labels&#39;</span><span class="p">])</span>
+        <span class="n">test_rh_list</span> <span class="o">=</span> <span class="n">test_rh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">test_lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">test_file</span><span class="p">[</span><span class="s1">&#39;lh_labels&#39;</span><span class="p">])</span>
+        <span class="n">test_lh_list</span> <span class="o">=</span> <span class="n">test_lh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># combine Rh and Lh labels</span>
+        <span class="n">test_comb2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_rh_list</span><span class="p">,</span><span class="n">test_lh_list</span><span class="p">)</span> <span class="c1">#Combine RH and LH labels files</span>
+        <span class="n">test_comb</span> <span class="o">=</span> <span class="n">test_comb2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># path to second subject</span>
+        <span class="n">sec_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ODD_GROUP/generate_individual_parcellations/ind_parcellation/test_set&quot;</span>
+        <span class="n">sec_name</span> <span class="o">=</span> <span class="s2">&quot;Ind_parcellation_MSHBM_sub&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_w200_MRF30.mat&quot;</span>
+        <span class="n">sec_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">sec_dir</span><span class="p">,</span> <span class="n">sec_name</span><span class="p">)</span>
+        <span class="n">sec_file</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">sec_sub</span><span class="p">)</span>
+        <span class="n">sec_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sec_file</span><span class="p">[</span><span class="s1">&#39;rh_labels&#39;</span><span class="p">])</span>
+        <span class="n">sec_rh_list</span> <span class="o">=</span> <span class="n">sec_rh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">sec_lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sec_file</span><span class="p">[</span><span class="s1">&#39;lh_labels&#39;</span><span class="p">])</span>
+        <span class="n">sec_lh_list</span> <span class="o">=</span> <span class="n">sec_lh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># Combine Rh and Lh labels</span>
+        <span class="n">sec_comb2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sec_rh_list</span><span class="p">,</span><span class="n">sec_lh_list</span><span class="p">)</span>
+        <span class="n">sec_comb</span> <span class="o">=</span> <span class="n">sec_comb2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1">#find total and common vertices between subjects</span>
+        <span class="n">test_tot</span> <span class="o">=</span> <span class="n">test_comb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="c1">#Total vertices for $network in test subject (sub1)</span>
+        <span class="n">sec_tot</span> <span class="o">=</span> <span class="n">sec_comb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="c1">#Total vertices for $network for second subject (sub2)</span>
+
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="n">get_index_positions</span><span class="p">(</span><span class="n">test_comb</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span> <span class="c1">#Get positions/order for $network for sub1</span>
+        <span class="n">test_pos_list</span> <span class="o">=</span> <span class="n">index_pos_list</span>
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="n">get_index_positions</span><span class="p">(</span><span class="n">sec_comb</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span> <span class="c1">#Get positions/order for $network for sub2</span>
+        <span class="n">sec_pos_list</span> <span class="o">=</span> <span class="n">index_pos_list</span>
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">common</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_pos_list</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sec_pos_list</span><span class="p">])</span> <span class="c1">#Compare positions for $network for both subjects</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="n">sec_tot</span> <span class="o">+</span> <span class="n">test_tot</span> <span class="c1">#Combine total number of vertices with $network</span>
+        <span class="n">dice</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">common</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span> <span class="k">if</span> <span class="n">denominator</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># calculate dice coefficient</span>
+
+        <span class="k">if</span> <span class="n">count</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">runningList</span> <span class="o">=</span> <span class="p">[[</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">dice</span><span class="p">]]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">runningList</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SUBJID&#39;</span><span class="p">,</span> <span class="s1">&#39;Network&#39;</span><span class="p">,</span> <span class="s1">&#39;Dice&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">runningList</span> <span class="o">=</span> <span class="p">[[</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">dice</span><span class="p">]]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">runningList</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SUBJID&#39;</span><span class="p">,</span> <span class="s1">&#39;Network&#39;</span><span class="p">,</span> <span class="s1">&#39;Dice&#39;</span><span class="p">]),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#Save the dataframe as .csv</span>
+<span class="n">r_name</span> <span class="o">=</span> <span class="s2">&quot;retest_MSHBM_LONG_dice_220810.csv&quot;</span> <span class="c1">#file name</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">r_name</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1">#save dataframe to csv</span>
+</pre></div>
+</div>
+</section>
+<section id="group-individual-dice">
+<h3>Group-Individual Dice<a class="headerlink" href="#group-individual-dice" title="Permalink to this heading"></a></h3>
+<p>One additional piece of information that may be useful is a quanitative estimate of the overlap between group labels and individual parcellation labels.</p>
+<p>To do this, we will again use python.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># Purpose: Create a .csv file of Nx17 dice coefficients to assess MSHBM test-retest reliability</span>
+<span class="c1"># Input: ind_parcellation output from Kong2019 pipeline</span>
+<span class="c1"># Output: 1 Nx17 .csv file with dice coefficients</span>
+<span class="c1"># Note: Users may need to run &#39;which python&#39; and paste the correct path following the shebang on line one.</span>
+<span class="c1"># Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License (2021)</span>
+
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">scipy.io</span> <span class="c1">#loads .mat files</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># create function to get index positions</span>
+<span class="k">def</span> <span class="nf">get_index_positions</span><span class="p">(</span><span class="n">list_of_elems</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+    <span class="n">index_pos_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">index_pos</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">index_pos</span> <span class="o">=</span> <span class="n">list_of_elems</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">index_pos</span><span class="p">)</span>
+            <span class="n">index_pos_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index_pos</span><span class="p">)</span>
+            <span class="n">index_pos</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span> <span class="n">index_pos_list</span>
+
+<span class="c1"># Create 2D matrices of the dice coefficient for each network</span>
+<span class="n">count</span><span class="o">=</span><span class="mi">0</span>
+<span class="k">for</span> <span class="n">sub1</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">11</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">network</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">18</span><span class="p">):</span> <span class="c1">#Range must be set to actual number of networks +1</span>
+        <span class="n">count</span><span class="o">=</span><span class="p">(</span><span class="n">count</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># set sub name</span>
+        <span class="n">sub</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span>
+        <span class="n">new_sub</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">sub_name</span> <span class="o">=</span> <span class="s2">&quot;MSC&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_sub</span><span class="p">)</span>
+
+        <span class="c1"># path to test_set subjects</span>
+        <span class="n">test_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/generate_individual_parcellations/ind_parcellation/test_set&quot;</span>
+        <span class="n">test_name</span> <span class="o">=</span> <span class="s2">&quot;Ind_parcellation_MSHBM_sub&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sub1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_w200_MRF30_matched.mat&quot;</span>
+        <span class="n">test_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">test_dir</span><span class="p">,</span> <span class="n">test_name</span><span class="p">)</span>
+        <span class="n">test_file</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">test_sub</span><span class="p">)</span> <span class="c1">#Load first sub .mat file</span>
+        <span class="n">test_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">test_file</span><span class="p">[</span><span class="s1">&#39;rh_labels&#39;</span><span class="p">])</span>
+        <span class="n">test_rh_list</span> <span class="o">=</span> <span class="n">test_rh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">test_lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">test_file</span><span class="p">[</span><span class="s1">&#39;lh_labels&#39;</span><span class="p">])</span>
+        <span class="n">test_lh_list</span> <span class="o">=</span> <span class="n">test_lh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># combine Rh and Lh labels</span>
+        <span class="n">test_comb2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">test_rh_list</span><span class="p">,</span><span class="n">test_lh_list</span><span class="p">)</span> <span class="c1">#Combine RH and LH labels files</span>
+        <span class="n">test_comb</span> <span class="o">=</span> <span class="n">test_comb2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1"># path to second subject</span>
+        <span class="n">sec_dir</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_ALL/generate_profiles_and_ini_params/&quot;</span>
+        <span class="n">sec_name</span> <span class="o">=</span> <span class="s2">&quot;group.mat&quot;</span>
+        <span class="n">sec_sub</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">sec_dir</span><span class="p">,</span> <span class="n">sec_name</span><span class="p">)</span>
+        <span class="n">sec_file</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">loadmat</span><span class="p">(</span><span class="n">sec_sub</span><span class="p">)</span>
+        <span class="n">sec_rh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sec_file</span><span class="p">[</span><span class="s1">&#39;rh_labels&#39;</span><span class="p">])</span>
+        <span class="n">sec_rh_list</span> <span class="o">=</span> <span class="n">sec_rh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">sec_lh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(</span><span class="n">sec_file</span><span class="p">[</span><span class="s1">&#39;lh_labels&#39;</span><span class="p">])</span>
+        <span class="n">sec_lh_list</span> <span class="o">=</span> <span class="n">sec_lh</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># Combine Rh and Lh labels</span>
+        <span class="n">sec_comb2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sec_rh_list</span><span class="p">,</span><span class="n">sec_lh_list</span><span class="p">)</span>
+        <span class="n">sec_comb</span> <span class="o">=</span> <span class="n">sec_comb2</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+        <span class="c1">#find total and common vertices between subjects</span>
+        <span class="n">test_tot</span> <span class="o">=</span> <span class="n">test_comb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="c1">#Total vertices for $network in test subject (sub1)</span>
+        <span class="n">sec_tot</span> <span class="o">=</span> <span class="n">sec_comb</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">network</span><span class="p">)</span> <span class="c1">#Total vertices for $network for second subject (sub2)</span>
+
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="n">get_index_positions</span><span class="p">(</span><span class="n">test_comb</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span> <span class="c1">#Get positions/order for $network for sub1</span>
+        <span class="n">test_pos_list</span> <span class="o">=</span> <span class="n">index_pos_list</span>
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="n">get_index_positions</span><span class="p">(</span><span class="n">sec_comb</span><span class="p">,</span> <span class="n">network</span><span class="p">)</span> <span class="c1">#Get positions/order for $network for sub2</span>
+        <span class="n">sec_pos_list</span> <span class="o">=</span> <span class="n">index_pos_list</span>
+        <span class="n">index_pos_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">common</span> <span class="o">=</span> <span class="nb">len</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">test_pos_list</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sec_pos_list</span><span class="p">])</span> <span class="c1">#Compare positions for $network for both subjects</span>
+        <span class="n">denominator</span> <span class="o">=</span> <span class="n">sec_tot</span> <span class="o">+</span> <span class="n">test_tot</span> <span class="c1">#Combine total number of vertices with $network</span>
+        <span class="n">dice</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">common</span><span class="p">)</span> <span class="o">/</span> <span class="n">denominator</span> <span class="k">if</span> <span class="n">denominator</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>  <span class="c1"># calculate dice coefficient</span>
+
+        <span class="k">if</span> <span class="n">count</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">runningList</span> <span class="o">=</span> <span class="p">[[</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">dice</span><span class="p">]]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">runningList</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SUBJID&#39;</span><span class="p">,</span> <span class="s1">&#39;Network&#39;</span><span class="p">,</span> <span class="s1">&#39;Dice&#39;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">runningList</span> <span class="o">=</span> <span class="p">[[</span><span class="n">sub_name</span><span class="p">,</span> <span class="n">network</span><span class="p">,</span> <span class="n">dice</span><span class="p">]]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">runningList</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;SUBJID&#39;</span><span class="p">,</span> <span class="s1">&#39;Network&#39;</span><span class="p">,</span> <span class="s1">&#39;Dice&#39;</span><span class="p">]),</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1">#Save the dataframe as .csv</span>
+<span class="n">r_name</span> <span class="o">=</span> <span class="s2">&quot;retest_MSHBM_INDIVIDUAL_GROUP_dice_220810.csv&quot;</span> <span class="c1">#file name</span>
+<span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">r_name</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">index_label</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="c1">#save dataframe to csv</span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
