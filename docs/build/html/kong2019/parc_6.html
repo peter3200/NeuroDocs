@@ -71,7 +71,20 @@
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2019 Parc Step 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2019 Parc Step 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_5.html">Kong2019 Parc Step 5</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc: Training Your Own Priors</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2019 Parc: Training Your Own Priors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-initialization">Step 1 Initialization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-group-priors">Step 2 Group Priors</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#profile-lists">Profile Lists</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clustering">Clustering</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-homogeneity-and-parcellations">Step 3 Homogeneity and Parcellations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#homogeneity-finder">Homogeneity Finder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#parcellation">Parcellation</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
 <ul>
@@ -85,6 +98,7 @@
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../misc/matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
@@ -119,12 +133,252 @@
              
   <section id="kong2019-parc-training-your-own-priors">
 <h1>Kong2019 Parc: Training Your Own Priors<a class="headerlink" href="#kong2019-parc-training-your-own-priors" title="Permalink to this heading"></a></h1>
-<ul class="simple">
-<li><p>Need adequate data and data to burn</p></li>
-<li><p>Step1 initialization</p></li>
-<li><p>Step2 group priors</p></li>
-<li><p>Step3 homogeneity finder script (Matlab)</p></li>
-</ul>
+<p>Each of the previously described steps for this parcellation tutorial have assumed that you will be using priors previously trained and made available by CBIG. This is highly advised as these priors were trained at a great cost and are freely available in fsaverage5, fsaverage6, and fsLR 32k resolutions. However, if you attempt to train your own priors, you should know the costs and risks. For one, training your own priors will require a fairly large quantity of data that you can just burn (30-40 subjects). Additionally, there is the chance that the iterations will “fail to converge” and you will be left without priors.</p>
+<p>In the event that you desire to train your own priors, here are some tips and scripts for each step.</p>
+<section id="step-1-initialization">
+<h2>Step 1 Initialization<a class="headerlink" href="#step-1-initialization" title="Permalink to this heading"></a></h2>
+<p>After generating individual and group profiles, you will need to generate initialization parameters in preparation for Step 2.</p>
+<p>To do this, first <cite>cd</cite> to the step1 folder within the CBIG repo and then implement the following code in MATLAB.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;output_dir&gt;/generate_profiles_and_ini_params&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_clusters</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;17&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_initialization</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;1000&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">CBIG_MSHBM_generate_ini_params</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">num_clusters</span><span class="p">,</span><span class="n">num_initialization</span><span class="p">,</span><span class="w"> </span><span class="n">project_dir</span><span class="p">)</span><span class="w"></span>
+</pre></div>
+</div>
+<p>This code is specifying that there are 17 clusters (networks) and 1000 random initializations.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the number of random initializations performed (1000 is recommended), you will need to request a large allocation of time and RAM.</p>
+</div>
+</section>
+<section id="step-2-group-priors">
+<h2>Step 2 Group Priors<a class="headerlink" href="#step-2-group-priors" title="Permalink to this heading"></a></h2>
+<p>This step is where we will really diverge from the previous tutorial steps. You will need to separate out your ‘training set’ or the 30-40 subjects set aside to train these priors.</p>
+<section id="profile-lists">
+<h3>Profile Lists<a class="headerlink" href="#profile-lists" title="Permalink to this heading"></a></h3>
+<p>The first step is to generate profile lists for the training set using a bash script. Note the patterns within this script and adopt it to fit the needs of your dataset.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1"># This is Step 1.5, which will generate the profile lists for Step 2: Estimate Group Priors</span>
+<span class="c1"># Previous to this, Parc Step 1 has been completed.</span>
+
+<span class="c1">##########################</span>
+<span class="c1"># Specify output directory</span>
+<span class="c1">##########################</span>
+<span class="nv">out_dir</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2
+<span class="nv">preproc_output</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute/preproc_output_MP4
+<span class="nv">data_dir</span><span class="o">=</span>/fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/generate_profiles_and_ini_params/profiles
+<span class="nv">code_dir</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute/code/Kong2019_parc
+
+<span class="c1">########################################</span>
+<span class="c1"># Generate profile lists--</span>
+<span class="c1">########################################</span>
+mkdir -p <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set
+mkdir -p <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/test_set
+mkdir -p <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/validation_set
+
+<span class="c1">#When specifying sessions, choose the least common denominator for your subjects (e.g., if each subject as at least 2 sessions, choose 2 even if some subjects have more).</span>
+<span class="c1">#We chose to specify lists explicitly, but you can alternatively create if/then statements to determine which subject has which number of sessions.</span>
+<span class="nv">SESS1and2</span><span class="o">=(</span><span class="m">711</span> <span class="m">181</span> <span class="m">632</span> <span class="m">435</span> <span class="m">576</span> <span class="m">780</span> <span class="m">782</span> <span class="m">476</span> <span class="m">557</span> <span class="m">784</span> <span class="m">791</span> <span class="m">794</span> <span class="m">479</span> <span class="m">714</span> <span class="m">628</span> <span class="m">177</span> <span class="m">463</span> <span class="m">712</span><span class="o">)</span>
+<span class="nv">SESS1and4</span><span class="o">=(</span><span class="m">625</span><span class="o">)</span>
+<span class="nv">SESS3and4</span><span class="o">=(</span><span class="m">178</span> <span class="m">626</span> <span class="m">179</span> <span class="m">723</span><span class="o">)</span>
+
+<span class="nv">SESS1</span><span class="o">=(</span><span class="m">43</span> <span class="m">20</span> <span class="m">69</span> <span class="m">96</span><span class="o">)</span>
+<span class="nv">SESS2</span><span class="o">=(</span><span class="m">381</span> <span class="m">710</span><span class="o">)</span>
+
+<span class="c1">#Sessions 1 and 2</span>
+<span class="k">for</span> sess <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..2<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS1and2</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+        <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+    <span class="k">done</span>
+<span class="k">done</span>
+
+
+<span class="c1">#for subjects with sessions 1 and 4</span>
+        <span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS1and4</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess1/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess1_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess1.txt
+
+            <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess1/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess1_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess1.txt
+<span class="k">done</span>
+
+        <span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS1and4</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess4/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess4_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess2.txt
+
+            <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess4/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess4_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess2.txt
+
+<span class="k">done</span>
+
+<span class="c1">#for subjects with sessions 3 and 4</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS3and4</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess3/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess3_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess1.txt
+
+            <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess3/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess3_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess1.txt
+<span class="k">done</span>
+
+        <span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS3and4</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+            <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess4/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess4_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess2.txt
+
+            <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess4/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess4_fsaverage5_roifsaverage3.surf2surf_profile.nii.gz&quot;</span>
+            <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess2.txt
+
+<span class="k">done</span>
+
+<span class="c1">#For subjects with only one functional run that were split in step 1</span>
+<span class="k">for</span> split <span class="k">in</span> <span class="o">{</span><span class="m">1</span>,2<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">for</span> sub <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..164<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
+        <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess1/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess1_fsaverage5_roifsaverage3.surf2surf_profile_</span><span class="si">${</span><span class="nv">split</span><span class="si">}</span><span class="s2">.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/validation_set/lh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+        <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess1/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess1_fsaverage5_roifsaverage3.surf2surf_profile_</span><span class="si">${</span><span class="nv">split</span><span class="si">}</span><span class="s2">.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/validation_set/rh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+        <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+    <span class="k">done</span>
+<span class="k">done</span>
+
+<span class="c1">#Split session1</span>
+<span class="k">for</span> split <span class="k">in</span> <span class="o">{</span><span class="m">1</span>,2<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
+        <span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS1</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+                <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess1/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess1_fsaverage5_roifsaverage3.surf2surf_profile_</span><span class="si">${</span><span class="nv">split</span><span class="si">}</span><span class="s2">.nii.gz&quot;</span>
+                <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+
+                <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess1/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess1_fsaverage5_roifsaverage3.surf2surf_profile_</span><span class="si">${</span><span class="nv">split</span><span class="si">}</span><span class="s2">.nii.gz&quot;</span>
+                <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+        <span class="k">done</span>
+<span class="k">done</span>
+
+<span class="c1">#If split session 2</span>
+<span class="k">for</span> split <span class="k">in</span> <span class="o">{</span><span class="m">1</span>,2<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
+        <span class="k">for</span> sub <span class="k">in</span> <span class="s2">&quot;</span><span class="si">${</span><span class="nv">SESS2</span><span class="p">[@]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">;</span> <span class="k">do</span>
+                <span class="nv">lh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess2/\</span>
+<span class="s2">lh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess2_fsaverage5_roifsaverage3.surf2surf_profile_</span><span class="si">${</span><span class="nv">split</span><span class="si">}</span><span class="s2">.nii.gz&quot;</span>
+                <span class="nb">echo</span> <span class="nv">$lh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/lh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+
+                <span class="nv">rh_profile</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$out_dir</span><span class="s2">/generate_profiles_and_ini_params/profiles/sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sess2/\</span>
+<span class="s2">rh.sub</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess2_fsaverage5_roifsaverage3.surf2surf_profile_</span><span class="si">${</span><span class="nv">split</span><span class="si">}</span><span class="s2">.nii.gz&quot;</span>
+                <span class="nb">echo</span> <span class="nv">$rh_profile</span> &gt;&gt; <span class="nv">$out_dir</span>/estimate_group_priors/profile_list/training_set/rh_sess<span class="si">${</span><span class="nv">split</span><span class="si">}</span>.txt
+        <span class="k">done</span>
+<span class="k">done</span>
+
+
+mkdir -p <span class="nv">$out_dir</span>/estimate_group_priors/group
+cp <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/group/group.mat <span class="nv">$out_dir</span>/estimate_group_priors/group/
+
+<span class="c1">#Order the profiles within each list</span>
+sort <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/lh_sess1.txt &gt; <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/lh_sess1_sort.txt
+sort <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/rh_sess1.txt &gt; <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/rh_sess1_sort.txt
+sort <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/lh_sess2.txt &gt; <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/lh_sess2_sort.txt
+sort <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/rh_sess2.txt &gt; <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set/rh_sess2_sort.txt
+
+<span class="nv">list_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/profile_list/training_set
+mv <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/lh_sess1_sort.txt <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/lh_sess1.txt
+mv <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/rh_sess1_sort.txt <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/rh_sess1.txt
+mv <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/lh_sess2_sort.txt <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/lh_sess2.txt
+mv <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/rh_sess2_sort.txt <span class="si">${</span><span class="nv">list_dir</span><span class="si">}</span>/rh_sess2.txt
+
+<span class="nb">echo</span> <span class="s2">&quot;Profile lists successfully generated! Step 1.5 is complete.&quot;</span>
+</pre></div>
+</div>
+<p>Once the profile lists are created, you can proceed to the clustering step.</p>
+</section>
+<section id="clustering">
+<h3>Clustering<a class="headerlink" href="#clustering" title="Permalink to this heading"></a></h3>
+<p>Next, after entering the step2 directory and launching MATLAB, you can use the following code.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;&lt;output_dir&gt;/estimate_group_priors&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">30</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_sessions</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+<span class="n">Params</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">CBIG_MSHBM_estimate_group_priors</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">num_sub</span><span class="p">,</span><span class="w"> </span><span class="n">num_sessions</span><span class="p">,</span><span class="s">&#39;17&#39;</span><span class="p">,</span><span class="s">&#39;max_iter&#39;</span><span class="p">,</span><span class="s">&#39;1000&#39;</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+<p>Where the number of subjects reflects the number of subjects within the training set, and the number of sessions reflects the number of sessions for each subject (note that code is available on the CBIG Github repo to split sessions if needed), and ‘17’ refers to the number of networks.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Depending on the number of random initializations performed (1000 is recommended), you will need to request a large allocation of time and RAM.</p>
+</div>
+<p>You can find detailed information about the outputs on <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM">Github</a>.</p>
+</section>
+</section>
+<section id="step-3-homogeneity-and-parcellations">
+<h2>Step 3 Homogeneity and Parcellations<a class="headerlink" href="#step-3-homogeneity-and-parcellations" title="Permalink to this heading"></a></h2>
+<section id="homogeneity-finder">
+<h3>Homogeneity Finder<a class="headerlink" href="#homogeneity-finder" title="Permalink to this heading"></a></h3>
+<p>As we inch towards the individual parcellations, the next step is to identify the optimal ‘w’ and ‘c’ parameters using those group priors we just generated in Step 2. To do this, we will use MATLAB.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%% CBIG AVERAGE HOMOGENEITY ACROSS PARTICIPANTS</span><span class="w"></span>
+<span class="n">project_dir</span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/generate_individual_parcellations/homogeneity/validation_set&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">homogeneity_mat</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">);</span><span class="w"></span>
+<span class="n">w_values</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">60</span><span class="p">;</span><span class="w"> </span><span class="mi">80</span><span class="p">;</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="mi">120</span><span class="p">];</span><span class="w"></span>
+<span class="n">MRF_values</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">30</span><span class="p">;</span><span class="w"> </span><span class="mi">40</span><span class="p">;</span><span class="w"> </span><span class="mi">50</span><span class="p">;</span><span class="w"> </span><span class="mi">60</span><span class="p">];</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">30</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nb">j</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="w"></span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="w"></span>
+<span class="w">            </span><span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">w_values</span><span class="p">(</span><span class="nb">j</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">MRF</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MRF_values</span><span class="p">(</span><span class="n">k</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="nb">load</span><span class="p">([</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;/Ind_homogeneity_MSHBM_sub&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="nb">i</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_w&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_MRF&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">MRF</span><span class="p">),</span><span class="s">&#39;.mat&#39;</span><span class="p">])</span><span class="w"></span>
+<span class="w">            </span><span class="n">homogeneity_mat</span><span class="p">(</span><span class="nb">i</span><span class="p">,</span><span class="nb">j</span><span class="p">,</span><span class="n">k</span><span class="p">,:)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">homo_with_weight</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="n">homogeneity_mat_mean_1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">squeeze</span><span class="p">(</span><span class="nb">mean</span><span class="p">(</span><span class="n">homogeneity_mat</span><span class="p">(:,:,:,</span><span class="mi">1</span><span class="p">)))</span><span class="w"></span>
+<span class="n">homogeneity_mat_mean_2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">squeeze</span><span class="p">(</span><span class="nb">mean</span><span class="p">(</span><span class="n">homogeneity_mat</span><span class="p">(:,:,:,</span><span class="mi">2</span><span class="p">)))</span><span class="w"></span>
+
+<span class="c">%Now it is up to you to identify the w and c combination that resulted in the highest homo value. W=row and MRF=column</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="parcellation">
+<h3>Parcellation<a class="headerlink" href="#parcellation" title="Permalink to this heading"></a></h3>
+<p>Now that you have identified the optimal ‘w’ and ‘c’ values, you can use them in generated indivdiual parcellations. Also note that you will need to copy your generated priors from Step 2 into your Step 3 output folder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cp -r <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/estimate_group_priors/priors <span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/generate_individual_parcellations
+</pre></div>
+</div>
+<p>You can then proceed to generate individual parcellations.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Create test_set subj list</span><span class="w"></span>
+<span class="n">initial</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">18</span><span class="p">:</span><span class="mi">831</span><span class="p">;</span><span class="w"></span>
+<span class="n">training</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">625</span><span class="w"> </span><span class="mi">711</span><span class="w"> </span><span class="mi">178</span><span class="w"> </span><span class="mi">626</span><span class="w"> </span><span class="mi">179</span><span class="w"> </span><span class="mi">557</span><span class="w"> </span><span class="mi">784</span><span class="w"> </span><span class="mi">181</span><span class="w"> </span><span class="mi">791</span><span class="w"> </span><span class="mi">794</span><span class="w"> </span><span class="mi">43</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="mi">479</span><span class="w"> </span><span class="mi">714</span><span class="w"> </span><span class="mi">381</span><span class="w"> </span><span class="mi">723</span><span class="w"> </span><span class="mi">435</span><span class="w"> </span><span class="mi">628</span><span class="w"> </span><span class="mi">576</span><span class="w"> </span><span class="mi">632</span><span class="w"> </span><span class="mi">69</span><span class="w"> </span><span class="mi">177</span><span class="w"> </span><span class="mi">709</span><span class="w"> </span><span class="mi">710</span><span class="w"> </span><span class="mi">463</span><span class="w"> </span><span class="mi">96</span><span class="w"> </span><span class="mi">780</span><span class="w"> </span><span class="mi">712</span><span class="w"> </span><span class="mi">476</span><span class="w"> </span><span class="mi">782</span><span class="p">];</span><span class="w"></span>
+<span class="n">test_set</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">setdiff</span><span class="p">(</span><span class="n">initial</span><span class="p">,</span><span class="n">training</span><span class="p">);</span><span class="w"></span>
+
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_HBN_preproc/compute/parc_test_output_MP2/generate_individual_parcellations&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">test_set</span><span class="w"></span>
+<span class="w">    </span><span class="n">w</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">120</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">c</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">40</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_MSHBM_generate_individual_parcellation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="s">&#39;2&#39;</span><span class="p">,</span><span class="s">&#39;17&#39;</span><span class="p">,</span><span class="nb">num2str</span><span class="p">(</span><span class="n">subid</span><span class="p">),</span><span class="nb">num2str</span><span class="p">(</span><span class="n">w</span><span class="p">),</span><span class="nb">num2str</span><span class="p">(</span><span class="n">c</span><span class="p">));</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+</section>
 </section>
 
 
