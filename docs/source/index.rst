@@ -72,6 +72,7 @@ Welcome to NeuroDocs!
    :maxdepth: 1
    :caption: Odds and Ends
 
+   misc/aws
    misc/freesurfer
    misc/matlab
    misc/openneuro
@@ -80,3 +81,4 @@ Welcome to NeuroDocs!
    misc/rtd
    misc/split
    misc/addresources
+
