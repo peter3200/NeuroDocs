@@ -74,6 +74,7 @@ Welcome to NeuroDocs!
 
    misc/aws
    misc/freesurfer
+   misc/conda
    misc/matlab
    misc/openneuro
    misc/rclone
@@ -81,4 +82,4 @@ Welcome to NeuroDocs!
    misc/rtd
    misc/split
    misc/addresources
-
+   
