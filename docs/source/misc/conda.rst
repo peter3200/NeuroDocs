@@ -14,7 +14,7 @@ Conda is package manager for python and can be helpful in setting up reproducibl
 
 .. code-block:: bash 
 
-sh Anaconda3-2022.10-Linux-x86_64.sh  
+    sh Anaconda3-2022.10-Linux-x86_64.sh  
 
 3. Setup the conda environment folling `CBIG instructions <https://github.com/ThomasYeoLab/CBIG/tree/master/setup/python_env_setup#quick-installation-for-linux>`__ for Linux. 
 
