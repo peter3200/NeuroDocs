@@ -4,7 +4,7 @@ CBIG2016 Preproc: Tedana Integration
 Purpose
 *******
 
-Multi-echo EPI data are different from their single-echo counterparts in a fundamental way: three or more images per volume are acquired at echo times spanning tens of milliseconds. This results in a couple of specific benefits: 1) Echoes can be integrated into a single time-series with improved BOLD contrast and less susceptibility artifact via weighted averaging, and 2) the way in which signals decay across echoes can be used to inform denoising (Lynch et al., 2021). Ultimately, through this multi-echo acquisiton process, you end up with a greater signal-to-noise ratio than with single-echo data.
+Multi-echo EPI data are different from their single-echo counterparts in a fundamental way: three or more images per volume are acquired at echo times spanning tens of milliseconds. This results in a couple of specific benefits: 1) Echoes can be integrated into a single time-series with improved BOLD contrast and less susceptibility artifact via weighted averaging, and 2) the way in which signals decay across echoes can be used to inform denoising (Lynch et al., 2021). Ultimately, through this multi-echo acquisiton process, you end up with a greater signal-to-noise ratio than with single-echo data. For an in-depth discussion on the benefits of multi-echo data, see `this OHBM podcast <https://www.youtube.com/watch?v=B6SY6UHAucs>`__.
 
 In order to take advantage of these properties, the CBIG2016 pipeline allows for the integration of tedana (see DuPre et al., 2021). tedana creates a weighted sum of individual echoes and then denoises the data using a multi-echo ICA-based denoising method. In addition to incorporating Tedana, consider altering your CBIG2016 preproc configuration to remove steps rendered unnecessary by multi-echo acquisition, such as bandpass filtering (as suggested by Kundu et al., 2017).
 
@@ -52,11 +52,43 @@ Or, install and activate the `CBIG python environment <https://github.com/Thomas
     #CBIG_preproc_FC_metrics -Pearson_r
     #CBIG_preproc_native2mni_ants -sm_mask ${CBIG_CODE_DIR}/data/templates/volume/FSL_MNI152_masks/SubcorticalLooseMask_MNI1mm_sm6_MNI2mm_bin0.2.nii.gz -final_mask ${FSL_DIR}/data/standard/MNI152_T1_2mm_brain_mask_dil.nii.gz
 
-2. Set up your job and wrapper scripts per usual (see `Step 2 <https://neurodocs.readthedocs.io/en/latest/cprep/cprep_2.html>`__).
+2. Get fmrinii.txt files for each subject. This step is slightly different in that a separate line for each echo must be included.
 
-.. note:: Theoretically, the only differences resulting from using tedana should be limited to the configuration file. However, we found that the preproc jobs randomly failed on the tedana step for some subjects. This was easily fixed by restarting the pipeline on that step (see step 3).
+.. code-block:: bash
 
-3. In the case where you need to restart your multi-echo job, use the following wrapper and job scripts to just restart the tedana step.
+    #!/bin/bash
+    # Set your paths here
+    HOME=/fslgroup/fslg_spec_networks/compute
+    code_DIR=${HOME}/code/Utah_analysis/CBIG2016_preproc_ALL
+    data_DIR=/fslgroup/grp_proc/compute/Utah_analysis/Utah_BIDS
+
+    # Create that special CBIG subjids text file for each subject (data must be in BIDS format)
+    # CBIG example format: 001 /fslhome/NETID/Downloads/CBIG_Data/Sub0001/func/Sub0001_Ses1.nii
+    # Ideal for running subjects parallel
+    # Change the path of the first for loop to be your code_DIR
+
+    counter=0
+    for subj in `cat $code_DIR/subjids/ids.txt`; do 	
+        for run in {1..2}; do
+            path=${data_DIR}/${subj}/func
+            file1=${path}/${subj}_ses-1_task-rest_run-${run}_echo-1_bold.nii.gz
+            if [ -f "$file1" ]; then
+                counter=$((counter+1))
+                file2=${path}/${subj}_ses-1_task-rest_run-${run}_echo-2_bold.nii.gz
+                file3=${path}/${subj}_ses-1_task-rest_run-${run}_echo-3_bold.nii.gz
+                (echo 00$counter ${file1} ${file2} ${file3}) >> ${data_DIR}/${subj}/${subj}_fmrinii.txt
+            else
+                echo ${file1}
+            fi	
+        done
+    counter=0
+    done
+
+3. Set up your job and wrapper scripts per usual (see `Step 2 <https://neurodocs.readthedocs.io/en/latest/cprep/cprep_2.html>`__).
+
+.. note:: Theoretically, the only differences resulting from using tedana should be limited to the configuration files. However, we found that the preproc jobs randomly failed on the tedana step for some subjects. This was easily fixed by restarting the pipeline on that step (see step 4).
+
+4. In the case where you need to restart your multi-echo job, use the following wrapper and job scripts to just restart the tedana step.
 
 The tedana restart wrapper script is first. 
 
@@ -83,7 +115,7 @@ The tedana restart wrapper script is first.
 This is followed by the job script.
 
 .. code-block:: bash
-    
+
     #!/bin/bash
 
     #Purpose Run CBIG2016 preprocessing for multi-echo data. Restarts the Tedana command and remainder of the preproc.
