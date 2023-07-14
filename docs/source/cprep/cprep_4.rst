@@ -28,6 +28,7 @@ Or, install and activate the `CBIG python environment <https://github.com/Thomas
 1. Set up your config file. The biggest change is the addition of CBIG_preproc_multiecho_denoise and the removal of bandpass filtering. Note that echo time must be in milliseconds, separated by commas in ascending order.
 
 .. code-block:: bash
+
     ###CBIG fMRI preprocessing configuration file
     ###The order of preprocess steps is listed below
     ###Change: swap bandpass and regress order, regress_new (use BOLD_stem as MASK_stem), per_run, detrend (not trendout), censor
@@ -60,6 +61,7 @@ Or, install and activate the `CBIG python environment <https://github.com/Thomas
 The tedana restart wrapper script is first. 
 
 .. code-block:: bash
+
     #!/bin/bash
 
     #Purpose Submit tedana restart script for each subject
@@ -81,6 +83,7 @@ The tedana restart wrapper script is first.
 This is followed by the job script.
 
 .. code-block:: bash
+    
     #!/bin/bash
 
     #Purpose Run CBIG2016 preprocessing for multi-echo data. Restarts the Tedana command and remainder of the preproc.
