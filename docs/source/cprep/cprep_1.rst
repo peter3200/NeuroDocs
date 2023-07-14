@@ -145,3 +145,14 @@ A Note About Filestructure
 **************************
 
 Not completely unexpected, CBIG scripts are strict about maintaining an *implied* filestructure. For the preprocessing pipeline, BIDS structure for input /anat and /func files is required. If you run into errors, this is also a good place to start--chances are that your filestructure is not organized according the scripts' implied requirements.
+
+Addendum for Spatial Distortion Correction
+******************************************
+
+Just a quick note about how to perform spatial distortion correction using this pipeline.
+
+1. Edit the config file to include fieldmaps, TRT, EES, and TE values. Fieldmaps need to be mag+phasediff or oppPED (j, j-). 
+
+.. note:: Use sidecar .json files to identify a fieldmap's phase-encoding direction. 
+    
+Fieldmaps that aren’t a single volume each will result in a "datain.txt error". The function `topup` requires that the datain.txt file contains one line per volume. So, if your fieldmap has more than one volume, you may need to run `topup`` by hand and then restart the job. 

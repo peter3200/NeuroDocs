@@ -54,10 +54,10 @@ To update the repo, use the following commands:
 Software Requirements 
 *********************
 
-To use the CBIG code successfully, we recommend installing the necessary versions of CBIG software. However, in some cases, these older versions resulted faulty parcelations (Kong2018 MSHBM pipeline). Using the example subjects included with the Kong2019 pipeline, we have verified that the use of some newer software versions can result in the same or very similar parcellations. As of July 2022, software versions are as follows:
+To use the CBIG code successfully, we recommend installing the necessary versions of CBIG software. However, in some cases, these older versions resulted faulty parcelations (Kong2019 MSHBM pipeline). Using the example subjects included with the Kong2019 pipeline, we have verified that the use of some newer software versions can result in the same or very similar parcellations. As of July 2022, software versions are as follows:
 
 * Freesurfer 7.1.1
 * FSL 6.0.4
 * Workbench 1.4.2
 * AFNI 20.2.18
-* ANTs 2.2.0 (old)
+* ANTs 2.2.0 (old) - Important to have this version! 
