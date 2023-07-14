@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Kong2019 Parcellation Overview" href="../kong2019/parc_ov.html" />
-    <link rel="prev" title="CBIG2016 Preproc Step 3" href="cprep_3.html" /> 
+    <link rel="next" title="Installing Freesurfer" href="../misc/freesurfer.html" />
+    <link rel="prev" title="CBIG2016 Preproc: Step 3" href="cprep_3.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -56,47 +56,24 @@
 <p class="caption" role="heading"><span class="caption-text">Preprocessing (CBIG2016)</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cprep_ov.html">CBIG2016 Preprocessing Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_0.html">CBIG2016 Preproc  Step 0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc Step 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_2.html">CBIG2016 Preproc Step 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cprep_3.html">CBIG2016 Preproc Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_0.html">CBIG2016 Preproc: Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_1.html">CBIG2016 Preproc: Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_2.html">CBIG2016 Preproc: Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cprep_3.html">CBIG2016 Preproc: Step 3</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CBIG2016 Preproc: Tedana Integration</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tedana-pipeline-overview">Tedana Pipeline Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuring-cbig2016-preproc-with-tedana">Configuring CBIG2016 Preproc with Tedana</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
 </ul>
 </li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Parcellation (Kong2019)</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_ov.html">Kong2019 Parcellation Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_0.html">Kong2019 Parc Step 0</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_1.html">Kong2019 Parc Step 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_2.html">Kong2019 Parc Step 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_3.html">Kong2019 Parc Step 3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_4.html">Kong2019 Parc Step 4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_5.html">Kong2019 Parc Step 5</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_6.html">Kong2019 Parc: Training Your Own Priors</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../seed/seed_ov.html">Seed-based rs-fMRI Analysis Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seed/seed_1.html">Seed-based Analysis Step 1</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seed/seed_2.html">Seed-based Analysis Step 2</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seed/seed_3.html">Seed-based Analysis Step 3</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seed/seed_4.html">Seed-based Analysis Step 4</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../seed/seed_5.html">Seed-based Analysis Step 5</a></li>
-</ul>
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../misc/aws.html">Implementing AWS CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/freesurfer.html">Installing Freesurfer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rclone.html">Rclone</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/reorient.html">Reorient a Nifti Image</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/rtd.html">Read The Docs Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../misc/split.html">Split A BOLD Run</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../misc/addresources.html">Additional Resources</a></li>
 </ul>
 
@@ -128,85 +105,16 @@
 <h1>CBIG2016 Preproc: Tedana Integration<a class="headerlink" href="#cbig2016-preproc-tedana-integration" title="Permalink to this heading"></a></h1>
 <section id="purpose">
 <h2>Purpose<a class="headerlink" href="#purpose" title="Permalink to this heading"></a></h2>
-<p>Multi-echo EPI data are different from their single-echo counterparts in a fundamental way: three or more images per volume are acquired at echo times spanning tens of milliseconds. This results in a couple of specific benefits: 1) Echoes can be integrated into a single time-series with improved BOLD contrast and less susceptibility artifact via weighted averaging, and 2) the way in which signals decay across echoes can be used to inform denoising (Lynch et al., 2021). Ultimately, through this multi-echo acquisiton process, you end up with a greater signal-to-noise ratio than with single-echo data.</p>
-<p>In order to take advantage of these properties, the CBIG2016 pipeline allows for the integration of tedana (see DuPre et al., 2021). tedana creates a weighted sum of individual echoes and then denoises the data using a multi-echo ICA-based denoising method. In addition to incorporating Tedana, consider altering your CBIG2016 preproc configuration to remove steps rendered unnecessary by multi-echo acquisition, such as bandpass filtering (as suggested by Kundu et al., 2017).</p>
+<ul class="simple">
+<li><p>Multi-echo EPI</p></li>
+<li><p>Increase SNR</p></li>
+</ul>
+</section>
+<section id="tedana-pipeline-overview">
+<h2>Tedana Pipeline Overview<a class="headerlink" href="#tedana-pipeline-overview" title="Permalink to this heading"></a></h2>
 </section>
 <section id="configuring-cbig2016-preproc-with-tedana">
 <h2>Configuring CBIG2016 Preproc with Tedana<a class="headerlink" href="#configuring-cbig2016-preproc-with-tedana" title="Permalink to this heading"></a></h2>
-<ol class="arabic simple" start="0">
-<li><p>Install the tedana python module and dependencies.</p></li>
-</ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ml python/3.6
-pip install --user nilearn
-pip install --user nibabel
-pip install --user numpy
-pip install --user scikit-learn
-pip install --user scipy
-pip install --user tedana
-</pre></div>
-</div>
-<p>Or, install and activate the <cite>CBIG python environment &lt;https://github.com/ThomasYeoLab/CBIG/tree/master/setup/python_env_setup#quick-installation-for-linux&gt;`__</cite></p>
-<ol class="arabic simple">
-<li><p>Set up your config file. The biggest change is the addition of CBIG_preproc_multiecho_denoise and the removal of bandpass filtering. Note that echo time must be in milliseconds, separated by commas in ascending order.</p></li>
-</ol>
-<ol class="arabic simple" start="2">
-<li><p>Set up your job and wrapper scripts per usual (see <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/cprep/cprep_2.html">Step 2</a>).</p></li>
-</ol>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Theoretically, the only differences resulting from using tedana should be limited to the configuration file. However, we found that the preproc jobs randomly failed on the tedana step for some subjects. This was easily fixed by restarting the pipeline on that step (see step 3).</p>
-</div>
-<ol class="arabic simple" start="3">
-<li><p>In the case where you need to restart your multi-echo job, use the following wrapper and job scripts to just restart the tedana step.</p></li>
-</ol>
-<dl class="simple">
-<dt>The tedana resetart wrapper script is first.</dt><dd></dd>
-</dl>
-<p>This is followed by the job script.
-.. code-block:: bash</p>
-<blockquote>
-<div><p>#!/bin/bash</p>
-<p>#Purpose Run CBIG2016 preprocessing for multi-echo data. Restarts the Tedana command and remainder of the preproc.
-#Written by M. Peterson, Nielsen Brain and Behavior Lab</p>
-<p>#PATHS
-HOME=/fslgroup/fslg_spec_networks/compute
-CODE_DIR=${HOME}/code/Utah_analysis/CBIG2016_preproc_ALL
-OUT_DIR=/fslgroup/grp_proc/compute/Utah_analysis/CBIG2016_preproc_FS6 #preproc output
-mkdir -p ${CODE_DIR}/subject_scripts/${subj}</p>
-<dl>
-<dt>#STEP 1 Tedana Processing</dt><dd><p>source ${CODE_DIR}/CBIG_preproc_tested_config_funconn.sh
-#grab tedana command from CBIG preproc log file
-sed -n ‘/CBIG_preproc_multiecho_denoise]/p’ ${OUT_DIR}/${subj}/${subj}/logs/CBIG_preproc_fMRI_preprocess.log &gt;&gt; ${CODE_DIR}/subject_scripts/${subj}/tedanacommand.txt</p>
-<p>#remove first three lines in order to isolate the command
-sed -i ‘1d’ ${CODE_DIR}/subject_scripts/${subj}/tedanacommand.txt
-sed -i ‘1d’ ${CODE_DIR}/subject_scripts/${subj}/tedanacommand.txt
-sed -i ‘1d’ ${CODE_DIR}/subject_scripts/${subj}/tedanacommand.txt</p>
-<p>#remove the last line of the file
-sed -i ‘2d’ ${CODE_DIR}/subject_scripts/${subj}/tedanacommand.txt</p>
-<p>#remove the first handful of characters that preceed the command
-sed -r ‘s/.{34}//’ ${CODE_DIR}/subject_scripts/${subj}/tedanacommand.txt &gt; ${CODE_DIR}/subject_scripts/${subj}/tedanacommand2.txt</p>
-<p>#run the command
-sh ${CODE_DIR}/subject_scripts/${subj}/tedanacommand2.txt</p>
-</dd>
-</dl>
-<p>#STEP 2 Restart the Preproc</p>
-<blockquote>
-<div><dl class="simple">
-<dt>#Submit the job script for the subject (as if this script is a wrapper)</dt><dd><p>mkdir -p ${CODE_DIR}/logfiles
-sbatch -o ${CODE_DIR}/logfiles/output_${subj}.txt -e ${CODE_DIR}/logfiles/error_${subj}.txt ${CODE_DIR}/preproc_job.sh ${subj}
-sleep 5</p>
-</dd>
-</dl>
-</div></blockquote>
-</div></blockquote>
-</section>
-<section id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this heading"></a></h2>
-<ul class="simple">
-<li><p>DuPre, E., Salo, T., Ahmed, Z., Bandettini, P. A., Bottenhorn, K. L., Caballero-Gaudes, C., Dowdle, L. T., Gonzalez-Castillo, J., Heunis, S., Kundu, P., Laird, A. R., Markello, R., Markiewicz, C. J., Moia, S., Staden, I., Teves, J. B., Uruñuela, E., Vaziri-Pashkam, M., Whitaker, K., &amp; Handwerker, D. A. (2021). TE-dependent analysis of multi-echo fMRI with tedana. Journal of Open Source Software, 6(66), 3669. <a class="reference external" href="https://doi.org/10.21105/joss.03669">https://doi.org/10.21105/joss.03669</a></p></li>
-<li><p>Kundu, P., Voon, V., Balchandani, P., Lombardo, M. V., Poser, B. A., &amp; Bandettini, P. A. (2017). Multi-echo fMRI: a review of applications in fMRI denoising and analysis of BOLD signals. Neuroimage, 154, 59–80.</p></li>
-<li><p>Lynch, C. J., Elbau, I., &amp; Liston, C. (2021). Improving precision functional mapping routines with multi-echo fMRI. Current Opinion in Behavioral Sciences, 40, 113–119. <a class="reference external" href="https://doi.org/10.1016/j.cobeha.2021.03.017">https://doi.org/10.1016/j.cobeha.2021.03.017</a></p></li>
-</ul>
 </section>
 </section>
 
@@ -214,8 +122,8 @@ sleep 5</p>
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cprep_3.html" class="btn btn-neutral float-left" title="CBIG2016 Preproc Step 3" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../kong2019/parc_ov.html" class="btn btn-neutral float-right" title="Kong2019 Parcellation Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="cprep_3.html" class="btn btn-neutral float-left" title="CBIG2016 Preproc: Step 3" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../misc/freesurfer.html" class="btn btn-neutral float-right" title="Installing Freesurfer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
