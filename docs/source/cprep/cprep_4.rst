@@ -23,7 +23,7 @@ Configuring CBIG2016 Preproc with Tedana
     pip install --user scipy
     pip install --user tedana
 
-Or, install and activate the `CBIG python environment <https://github.com/ThomasYeoLab/CBIG/tree/master/setup/python_env_setup#quick-installation-for-linux>`__`
+Or, install and activate the `CBIG python environment <https://github.com/ThomasYeoLab/CBIG/tree/master/setup/python_env_setup#quick-installation-for-linux>`__.
 
 1. Set up your config file. The biggest change is the addition of CBIG_preproc_multiecho_denoise and the removal of bandpass filtering. Note that echo time must be in milliseconds, separated by commas in ascending order.
 
