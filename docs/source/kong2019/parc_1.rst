@@ -155,3 +155,57 @@ Some common errors include the following.
 * CBIG_MSHBM_generate_ini_params function not found (or something like that)... You need to be in the step1 folder to run this script. If you are in a different directory, you will encounter this error.It may help to copy this script over to the script1 directory and then open matlab...
 
 If MATLAB has crashed unexpectedly, you most likely have not requested adequate memory or time. You can check your job stats to see if this is the case on your account at rc.byu.edu. 
+
+Addendum
+********
+
+For subjects with a single session, `CBIG documentation advises <https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2019_MSHBM>`__ splitting this session to create two sessions. This can be accomplished by changing the split flag from '0' to '1'. 
+
+Here is an example of detecting if more than one session is available and then splitting accordingly. 
+
+.. code-block:: matlab
+
+    seslist = [1 2 3 4];
+    preproc_dir= '/fslgroup/fslg_HBN_preproc/compute/HCP_analysis/CBIG2016_preproc_FS6';
+    project_dir = '/fslgroup/fslg_HBN_preproc/compute/HCP_analysis/parc_output_fs6_HCP_REPLICATION/generate_profiles_and_ini_params'
+    for subid = 1:length(sublist)
+        sub=sublist(subid);
+        sub = strtrim(sub);
+        ses1=strcat('lh.sub-', sub, '_bld001_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz');
+        str1 = fullfile(preproc_dir,strcat('sub-', sub), strcat('sub-', sub), 'surf', ses1);
+        ses2=strcat('lh.sub-', sub, '_bld002_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz');
+            str2 = fullfile(preproc_dir,strcat('sub-', sub), strcat('sub-', sub), 'surf', ses2);
+        ses3=strcat('lh.sub-', sub, '_bld003_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz');
+        str3 = fullfile(preproc_dir, strcat('sub-', sub), strcat('sub-', sub), 'surf', ses3);
+        ses4=strcat('lh.sub-', sub, '_bld004_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz');
+        str4=fullfile(preproc_dir, strcat('sub-', sub), strcat('sub-', sub), 'surf', ses4);
+
+
+        %Count number of sessions available
+        file_variables = {str1, str2, str3, str4};  % Store file variables in a cell array
+        file_count=0;
+        for i = 1:length(file_variables)
+            file = file_variables{i};
+            if isfile(file)
+                file_count = file_count + 1;
+            end
+        end
+
+
+        %Generate profiles
+        if file_count > 1
+                for sess = seslist
+                    try CBIG_MSHBM_generate_profiles('fsaverage3','fsaverage6',char(project_dir),num2str(sub),num2str(sess),'0');
+                    continue
+                    end
+                end
+        else
+                for sess = seslist
+                    try CBIG_MSHBM_generate_profiles('fsaverage3','fsaverage6',char(project_dir),num2str(sub),num2str(sess),'1');
+                    continue
+                    end
+                end
+        end
+    end
+
+
