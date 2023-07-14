@@ -57,8 +57,9 @@ Or, install and activate the `CBIG python environment <https://github.com/Thomas
 
 3. In the case where you need to restart your multi-echo job, use the following wrapper and job scripts to just restart the tedana step.
 
-The tedana resetart wrapper script is first. 
- .. code-block:: bash
+The tedana restart wrapper script is first. 
+
+.. code-block:: bash
     #!/bin/bash
 
     #Purpose Submit tedana restart script for each subject
@@ -77,7 +78,8 @@ The tedana resetart wrapper script is first.
         source ${CODE_DIR}/subject_scripts/${subj}/tedana_preproc.sh
     done
 
-This is followed by the job script. 
+This is followed by the job script.
+
 .. code-block:: bash
     #!/bin/bash
 
