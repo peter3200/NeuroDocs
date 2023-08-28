@@ -58,6 +58,17 @@ Welcome to NeuroDocs!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Parcellation (Kong2022)
+
+   kong2022/parc_ov
+   kong2022/parc_0
+   kong2022/parc_1
+   kong2022/parc_2
+   kong2022/parc_3
+   kong2022/parc_4
+
+.. toctree::
+   :maxdepth: 1
    :caption: Seed-based rsfMRI Analysis
 
    seed/seed_ov
