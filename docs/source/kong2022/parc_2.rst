@@ -1,3 +1,3 @@
-Step 2 Group Priors
-===================
+Kong2022 Step 2: Group Priors
+=============================
 
