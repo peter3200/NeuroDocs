@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Step 0 Generate Gradients" href="parc_0.html" />
+    <link rel="next" title="Kong2022 Step 0: Generate Gradients" href="parc_0.html" />
     <link rel="prev" title="Kong2019 Parc: Training Your Own Priors" href="../kong2019/parc_6.html" /> 
 </head>
 
@@ -82,11 +82,11 @@
 <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="parc_0.html">Step 0 Generate Gradients</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_1.html">Step 1 Generate Profiles</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_2.html">Step 2 Group Priors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_3.html">Step 3 Generate Individual Parcellations</a></li>
-<li class="toctree-l1"><a class="reference internal" href="parc_4.html">Step 4 Hungarian Matching and Visualization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2022 Step 0: Generate Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2022 Step 1: Generate Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2022 Step 2: Group Priors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2022 Step 3: Generate Individual Parcellations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2022 Step 4: Hungarian Matching and Visualization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
 <ul>
@@ -139,18 +139,41 @@
 <h1>Kong2022 Parcellation Overview<a class="headerlink" href="#kong2022-parcellation-overview" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
-<p>-Purpose
--Differences from Kong2019
--Example output</p>
+<p>This areal-level MS-HBM pipeline is designed to generate parcellations for individuals with multiple sessions of rs-fMRI data. As an overview, this model uses a variational Bayes expectation maximization algorithm to estimate the following paramters: group-level parcel connectivity profiles, inter-subject functional connectivity variability, intra-subject functional connectivity variability, a spatial smoothness prior, and an inter-subject spatial variability prior. Beyond these parameters, three additional priors are available for inclusion in the model (all three are recommended as per Kong et al., 2021). These priors are as follows: a spatial localization prior constraining each individual-specific parcel to be within 30 mm of the group-level parcellation boundaries (derived from the 400-parcel Schaefer 2018 group parcellation), a contiguity prior encouraging vertices comprising a parcel to be near to the parcel center, and a gradient prior which encourages adjacent brain areas with gradual changes in functional connectivity to be grouped into the same parcel. In comparison with the distributed (dMS-HBM) and contiguous (cMS-HBM) model variants, the gMS-HBM variant was found to be the most anatomically plausible, had fewer spatially disconnected components than dMS-HBM, intermediate levels of parcel roundness between dMS-HBM and cMS-HBM, and the best behavioral prediction performance when the resulting parcellation data were included in a kernel ridge regression model (Kong et al., 2021).</p>
+<p>While both the Kong et al. 2019 MS-HBM and 2021 areal MS-HBM parcellation pipelines utilize a variational Bayes expectation-maximization algorithm to best generate individual parcellations, the resulting parcellations and algorithms differ in a few key ways. First, the areal MS-HBM pipeline includes three additional priors not included in the 2019 version. Additionally, the 2021 version incorporates the 2018 Schaefer parcellation as part of spatial localization prior, resulting in potentially more parcels of smaller sizes. However, the 2021 version does require more time and computational power (used to estimate the individual gradients as part of the gradient prior). See the following group parcellations for a visual comparison (N=232 HCP subjects).</p>
+<p>Kong et al. 2019 HCP Group Parcellation</p>
+<img alt="../_images/ov_11.png" src="../_images/ov_11.png" />
+<p>Kong et al. 2021 HCP Group Parcellation</p>
+<img alt="../_images/ov_21.png" src="../_images/ov_21.png" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As noted on the CBIG documentation, the paper describing the areal-level MS-HBM pipeline was published earlier than expected (2021), so while the repo names the pipeline “Kong2022”, the publication year was 2021. These years may be accidentally exhanged in the present documentation.</p>
+</div>
 </section>
 <section id="prerequisite-software">
 <h2>Prerequisite Software<a class="headerlink" href="#prerequisite-software" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>CBIG Github repo (see <a class="reference external" href="https://neurodocs.readthedocs.io/en/latest/cprep/cprep_0.html">https://neurodocs.readthedocs.io/en/latest/cprep/cprep_0.html</a> for details)</p></li>
+<li><p>MATLAB (version r2018b preferred)</p></li>
+<li><p>HCP Workbench (see <a class="reference external" href="https://humanconnectome.org/software/get-connectome-workbench">https://humanconnectome.org/software/get-connectome-workbench</a>). This is a download and unzip kind of installation.</p></li>
+<li><p>Freesurfer</p></li>
+</ul>
 </section>
 <section id="prerequisite-preprocessing">
 <h2>Prerequisite Preprocessing<a class="headerlink" href="#prerequisite-preprocessing" title="Permalink to this heading"></a></h2>
+<p>It is assumed that the following steps have been completed prior to beginning this pipeline.</p>
+<ul class="simple">
+<li><p>BIDS organization of raw data</p></li>
+<li><p>Freesurfer surface reconstruction within the BIDS-formatted raw data structure</p></li>
+<li><p>CBIG2016 preprocessing output (requires the above) for each participant. This could be substituted for preprocessing completed by a different pipeline (such as fMRIprep) followed by surface projection of the preprocessed data.</p></li>
+</ul>
 </section>
 <section id="additional-resources">
 <h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>CBIG GitHub repo (<a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2022_ArealMSHBM">https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2022_ArealMSHBM</a>). For more techinical details and a replication example (to verify your pipeline will compute the same results).</p></li>
+<li><p>CBIG Google group (<a class="reference external" href="https://groups.google.com/forum/#!forum/cbig_users/join">https://groups.google.com/forum/#!forum/cbig_users/join</a>). For updates and bugs.</p></li>
+</ul>
 </section>
 </section>
 
@@ -159,7 +182,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../kong2019/parc_6.html" class="btn btn-neutral float-left" title="Kong2019 Parc: Training Your Own Priors" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="parc_0.html" class="btn btn-neutral float-right" title="Step 0 Generate Gradients" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="parc_0.html" class="btn btn-neutral float-right" title="Kong2022 Step 0: Generate Gradients" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
