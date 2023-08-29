@@ -79,6 +79,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisite-software">Prerequisite Software</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#prerequisite-preprocessing">Prerequisite Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-overview">Workflow Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a></li>
 </ul>
 </li>
@@ -147,7 +148,7 @@
 <img alt="../_images/ov_21.png" src="../_images/ov_21.png" />
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>As noted on the CBIG documentation, the paper describing the areal-level MS-HBM pipeline was published earlier than expected (2021), so while the repo names the pipeline “Kong2022”, the publication year was 2021. These years may be accidentally exhanged in the present documentation.</p>
+<p>As noted on the CBIG documentation, the paper describing the areal-level MS-HBM pipeline was published earlier than expected (2021), so while the repo names the pipeline “Kong2022”, the publication year was 2021. These years may be used interchangably in the present documentation.</p>
 </div>
 </section>
 <section id="prerequisite-software">
@@ -167,6 +168,15 @@
 <li><p>Freesurfer surface reconstruction within the BIDS-formatted raw data structure</p></li>
 <li><p>CBIG2016 preprocessing output (requires the above) for each participant. This could be substituted for preprocessing completed by a different pipeline (such as fMRIprep) followed by surface projection of the preprocessed data.</p></li>
 </ul>
+</section>
+<section id="workflow-overview">
+<h2>Workflow Overview<a class="headerlink" href="#workflow-overview" title="Permalink to this heading"></a></h2>
+<p>This tutorial has been organized in the following steps.
+0. Generate gradients (for each individual)
+1. Generate connectivity profiles (for each individual and the group if desired)
+2. Copy over or generate group priors
+3. Generate individual parcellations
+4. Hungarian matching and HCP Workbench visualization</p>
 </section>
 <section id="additional-resources">
 <h2>Additional Resources<a class="headerlink" href="#additional-resources" title="Permalink to this heading"></a></h2>

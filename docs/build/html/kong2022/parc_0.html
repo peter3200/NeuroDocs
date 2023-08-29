@@ -76,7 +76,13 @@
 <p class="caption" role="heading"><span class="caption-text">Parcellation (Kong2022)</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="parc_ov.html">Kong2022 Parcellation Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 0: Generate Gradients</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 0: Generate Gradients</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#part-1-generate-text-files">Part 1 Generate Text Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#part-2-generate-gradients">Part 2 Generate Gradients</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-0-output">Step 0 Output</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2022 Step 1: Generate Profiles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2022 Step 2: Group Priors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2022 Step 3: Generate Individual Parcellations</a></li>
@@ -131,6 +137,241 @@
              
   <section id="kong2022-step-0-generate-gradients">
 <h1>Kong2022 Step 0: Generate Gradients<a class="headerlink" href="#kong2022-step-0-generate-gradients" title="Permalink to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>Unlike the Kong2019 pipeline, the 2022 pipeline begins with the generation of gradients before generating individual connectivity profiles. These gradients (specifically diffusion embedding matrices of gradients) are used to inform the gradient prior.</p>
+<p>To generate these gradients, we will first create the text files used as input for steps 0 and 1. Then, we will go to MATLAB and implement the generate gradients function.</p>
+</section>
+<section id="part-1-generate-text-files">
+<h2>Part 1 Generate Text Files<a class="headerlink" href="#part-1-generate-text-files" title="Permalink to this heading"></a></h2>
+<p>The following bash shell script generates text files to be used as input for steps 0 and 1. It is assumed that your code directory contains an ids.txt file.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1"># This is Step 0: Generate Input Data and setup file folder structures.</span>
+<span class="c1"># Run this before CBIG Parc Step 0 and 1.</span>
+<span class="c1"># Additionally, the preproc data was formatted sub-0#. Adjust the script as necessary to fit your naming conventions.</span>
+
+<span class="c1">##########################</span>
+<span class="c1"># Specify output directory</span>
+<span class="c1">##########################</span>
+
+<span class="nv">code_dir</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/HCP_analysis/Kong2022_parc_fs6 <span class="c1">#location of present script</span>
+<span class="nv">out_dir</span><span class="o">=</span>/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL <span class="c1">#output directory</span>
+<span class="nv">preproc_output</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute/HCP_analysis/CBIG2016_preproc_FS6_ALL <span class="c1">#preprocessing output directory</span>
+
+<span class="nv">gradient_dir</span><span class="o">=</span><span class="si">${</span><span class="nv">out_dir</span><span class="si">}</span>/generate_gradients
+mkdir -p <span class="nv">$out_dir</span>/estimate_group_priors
+mkdir -p <span class="nv">$out_dir</span>/generate_individual_parcellations
+mkdir -p <span class="nv">$gradient_dir</span>
+
+<span class="c1"># Add the $CBIG_CODE_DIR to your environment</span>
+<span class="nb">source</span> <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/CBIG_preproc_tested_config_funconn.sh
+
+<span class="c1">#########################################</span>
+<span class="c1"># Create data lists for /generate_profiles (step 1)</span>
+<span class="c1">#########################################</span>
+
+mkdir -p <span class="nv">$gradient_dir</span>/data_list/fMRI_list <span class="nv">$gradient_dir</span>/data_list/censor_list
+mkdir -p <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list
+mkdir -p <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/censor_list
+
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids/ids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#assumes that you have a text file containing subject IDs</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..4<span class="o">}</span><span class="p">;</span> <span class="k">do</span>  <span class="c1">#assumes a maximum of four runs per subjects. Edit this to reflect the maximum number of runs</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nv">$sess</span> -ne <span class="m">10</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+    <span class="c1"># fMRI data</span>
+        <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">lh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list/lh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">rh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list/rh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="c1"># censor list</span>
+        <span class="nv">censor_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">preproc_output</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/qc/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_FDRMS0.2_DVARS50_motion_outliers.txt&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$censor_file</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/censor_list/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>.txt
+
+    <span class="k">else</span>
+
+    <span class="c1"># fMRI data</span>
+        <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">lh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list/lh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">rh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/fMRI_list/rh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>.txt
+
+        <span class="c1"># censor list</span>
+        <span class="nv">censor_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">preproc_output</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/qc/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_FDRMS0.2_DVARS50_motion_outliers.txt&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$censor_file</span> &gt;&gt; <span class="nv">$out_dir</span>/generate_profiles_and_ini_params/data_list/censor_list/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>.txt
+
+    <span class="k">fi</span>
+    <span class="k">done</span>
+<span class="k">done</span>
+
+<span class="c1">##########################################</span>
+<span class="c1">#Create Data Lists for /generate_gradients (step 0)</span>
+<span class="c1">##########################################</span>
+
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">code_dir</span><span class="si">}</span>/subjids/ids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span>
+    <span class="nv">count</span><span class="o">=</span><span class="m">0</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..4<span class="o">}</span><span class="p">;</span> <span class="k">do</span>
+    <span class="k">if</span> <span class="o">[</span> <span class="nv">$sess</span> -ne <span class="m">10</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$preproc_output</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/surf/lh.sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_bld00<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz
+        <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+        <span class="c1"># fMRI data</span>
+        <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">lh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$gradient_dir</span>/data_list/fMRI_list/lh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">count</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">rh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$gradient_dir</span>/data_list/fMRI_list/rh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">count</span><span class="si">}</span>.txt
+
+        <span class="c1"># censor list</span>
+        <span class="nv">censor_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">preproc_output</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/qc/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_FDRMS0.2_DVARS50_motion_outliers.txt&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$censor_file</span> &gt;&gt; <span class="nv">$gradient_dir</span>/data_list/censor_list/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">count</span><span class="si">}</span>.txt
+
+        <span class="k">else</span>
+        <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">fi</span>
+    <span class="k">else</span>
+
+        <span class="nv">FILE</span><span class="o">=</span><span class="nv">$preproc_output</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>/surf/lh.sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_bld0<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz
+        <span class="k">if</span> <span class="o">[</span> -f <span class="s2">&quot;</span><span class="nv">$FILE</span><span class="s2">&quot;</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span>
+        <span class="nv">count</span><span class="o">=</span><span class="k">$((</span>count+1<span class="k">))</span>
+        <span class="c1"># fMRI data</span>
+        <span class="nv">lh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">lh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$lh_fmri</span> &gt;&gt; <span class="nv">$gradient_dir</span>/data_list/fMRI_list/lh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">count</span><span class="si">}</span>.txt
+
+        <span class="nv">rh_fmri</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$preproc_output</span><span class="s2">/\</span>
+<span class="s2">sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/surf/\</span>
+<span class="s2">rh.sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$rh_fmri</span> &gt;&gt; <span class="nv">$gradient_dir</span>/data_list/fMRI_list/rh_sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">count</span><span class="si">}</span>.txt
+
+        <span class="c1"># censor list</span>
+        <span class="nv">censor_file</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">preproc_output</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/qc/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">\</span>
+<span class="s2">_bld0</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_FDRMS0.2_DVARS50_motion_outliers.txt&quot;</span>
+
+        <span class="nb">echo</span> <span class="nv">$censor_file</span> &gt;&gt; <span class="nv">$gradient_dir</span>/data_list/censor_list/sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess<span class="si">${</span><span class="nv">count</span><span class="si">}</span>.txt
+        <span class="k">else</span>
+        <span class="nb">echo</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">fi</span>
+
+    <span class="k">fi</span>
+    <span class="k">done</span>
+<span class="k">done</span>
+
+<span class="nb">echo</span> <span class="s2">&quot;Step 0 was successful!&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="part-2-generate-gradients">
+<h2>Part 2 Generate Gradients<a class="headerlink" href="#part-2-generate-gradients" title="Permalink to this heading"></a></h2>
+<p>After the input text files have been generated, we can go to MATLAB and run the CBIG function CBIG_ArealMSHBM_generate_gradient. After setting the project directory variable, we read in the ids.txt file used previously. Next, we loop through each subject, determine how many runs are available for a given subject, and generate the gradient matrix based on the number of available runs. This is computationally intensive and may require multiple days to complete serially.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Step 0 of CBIG Kong2022 Brain Parc Pipeline</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 200G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. source your config file containing the $CBIG_CODE_DIR variable</span><span class="w"></span>
+<span class="c">%           -It might be helpful to `cd` to the $CBIG_CODE_DIR/stable_projects/brain_parcellation/Kong2019_MSHBM/step1... folder</span><span class="w"></span>
+<span class="c">%    3. Enter the command `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%    5. In Matlab: pull up this script and choose &quot;Run&quot;</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%FYI, the data_list/fMRI_list lists should be formatted sub01_sess1, etc (such that there are no dashes or spaces between &quot;sub&quot; and &quot;01&quot; or &quot;sess&quot; and &quot;1&quot;</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Previously, recon-all and the CBIG preproc pipeline were run on these subjects.</span><span class="w"></span>
+<span class="c">%Additionally, you must have the folder structure and text files with paths to your preproc output set up</span><span class="w"></span>
+<span class="c">%See the CBIG example script CBIG_MSHBM_create_example_input_data.sh for details on formatting.</span><span class="w"></span>
+<span class="c">%The script &quot;Create_parc_data.sh&quot; has taken care of this.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%For questions, contact M. Peterson, Nielsen Brain and Behavior Lab</span><span class="w"></span>
+
+<span class="c">%Set tmpdir</span><span class="w"></span>
+<span class="w">    </span><span class="nb">clear</span><span class="w"> </span><span class="nb">all</span><span class="w"></span>
+<span class="w">    </span><span class="nb">setenv</span><span class="p">(</span><span class="s">&#39;TMPDIR&#39;</span><span class="p">,</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/tmp&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">%Part 1: Generate gradients</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_gradients&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">%Read in the subjids text file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HCP_analysis/Kong2022_parc_fs6/subjids/230413_ids.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Format for each line of text:</span><span class="w"></span>
+<span class="w">    </span><span class="c">%   column1: text (%s)</span><span class="w"></span>
+<span class="w">    </span><span class="c">% For more information, see the TEXTSCAN documentation.</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Open the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="w">    </span><span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Close the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub</span><span class="p">=</span><span class="n">sublist</span><span class="p">(</span><span class="n">subid</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">%Count number of text files that start with sub string</span><span class="w"></span>
+<span class="w">    </span><span class="n">filedir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;/data_list/fMRI_list&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">code_dir</span><span class="p">=</span><span class="nb">pwd</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">filedir</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">dir</span><span class="p">(</span><span class="s">&#39;*.txt&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">filenames</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">file</span><span class="p">.</span><span class="n">name</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="n">sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">sum</span><span class="p">(</span><span class="w"> </span><span class="o">~</span><span class="nb">cellfun</span><span class="p">(@</span><span class="nb">isempty</span><span class="p">,</span><span class="w"> </span><span class="nb">strfind</span><span class="p">(</span><span class="n">filenames</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">))</span><span class="w"> </span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">cd</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">code_dir</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c">%Generate gradients on that number of sessions</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_ArealMSHBM_generate_gradient</span><span class="p">(</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">sess</span><span class="p">));</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="c">%Troubleshooting help</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Error: fscanf cannot open...</span><span class="w"></span>
+<span class="c">%   In this case, your paths somewhere are incorrect. Doublecheck your paths in the generate_profiles_and_ini_params/data_list/fMRI. Also, your project_dir could be incorrect</span><span class="w"></span>
+<span class="c">%   Also, the format of the data_list/fMRI_list text files names may be</span><span class="w"></span>
+<span class="c">%   incorrect</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Error: CBIG_MSHBM_generate_gradients function not found (or something like that)</span><span class="w"></span>
+<span class="c">%   You need to be in the step0 folder to run this script. If you are in a different directory, you will encounter this error.It may help to copy this script over to the script1 directory and then open matlab...</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="step-0-output">
+<h2>Step 0 Output<a class="headerlink" href="#step-0-output" title="Permalink to this heading"></a></h2>
+<p>The resulting output can be found in $project_dir/generate_gradients/gradients/$SUBJID. The files that will be used further in the pipeline are the lh_emb_100_distance_matrix.mat and rh_emb_100_distance_matrix.mat files.</p>
+</section>
 </section>
 
 

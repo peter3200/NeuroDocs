@@ -77,7 +77,13 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="parc_ov.html">Kong2022 Parcellation Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2022 Step 0: Generate Gradients</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 1: Generate Profiles</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 1: Generate Profiles</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-overview">Step 1 Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#part-1-generate-individual-profiles">Part 1 Generate Individual Profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#part-2-group-profile-and-radius-mask">Part 2 Group Profile and Radius Mask</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-output">Step 1 Output</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2022 Step 2: Group Priors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2022 Step 3: Generate Individual Parcellations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2022 Step 4: Hungarian Matching and Visualization</a></li>
@@ -131,6 +137,95 @@
              
   <section id="kong2022-step-1-generate-profiles">
 <h1>Kong2022 Step 1: Generate Profiles<a class="headerlink" href="#kong2022-step-1-generate-profiles" title="Permalink to this heading"></a></h1>
+<section id="step-1-overview">
+<h2>Step 1 Overview<a class="headerlink" href="#step-1-overview" title="Permalink to this heading"></a></h2>
+<p>Similar to the Kong2019 generate profiles and initialization parameters step, we will be generating individual connectivity profiles, a group-averaged profile, and a group parcellation. Unlike the Kong2019 pipeline, however, we will also generate a spatial mask based on the Schaefer 2018 parcellation. This spatial mask will be used to guide the spatial prior when generating the individual parcellations.</p>
+</section>
+<section id="part-1-generate-individual-profiles">
+<h2>Part 1 Generate Individual Profiles<a class="headerlink" href="#part-1-generate-individual-profiles" title="Permalink to this heading"></a></h2>
+<p>The following MATLAB script is used to implement the CBIG function CBIG_ArealMSHBM_generate_profiles for each individual. These profiles are computed in a similar manner to those from the Kong2019 pipeline.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Step 1 of CBIG Kong2022 Brain Parc Pipeline</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 200G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. source your config file containing the $CBIG_CODE_DIR variable</span><span class="w"></span>
+<span class="c">%           -It might be helpful to `cd` to the $CBIG_CODE_DIR/stable_projects/brain_parcellation/Kong2019_MSHBM/step1... folder</span><span class="w"></span>
+<span class="c">%    3. Enter the command `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%    5. In Matlab: pull up this script and choose &quot;Run&quot;</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%FYI, the data_list/fMRI_list lists should be formatted sub01_sess1, etc (such that there are no dashes or spaces between &quot;sub&quot; and &quot;01&quot; or &quot;sess&quot; and &quot;1&quot;</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Previously, recon-all and the CBIG preproc pipeline were run on these subjects.</span><span class="w"></span>
+<span class="c">%Additionally, you must have the folder structure and text files with paths to your preproc output set up</span><span class="w"></span>
+<span class="c">%See the CBIG example script CBIG_MSHBM_create_example_input_data.sh for details on formatting.</span><span class="w"></span>
+<span class="c">%The script &quot;Generate_data_step_0.sh&quot; has taken care of this.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%For questions, contact M. Peterson, Nielsen Brain and Behavior Lab</span><span class="w"></span>
+
+<span class="c">%Part 1: Generate Profiles for all Subjs</span><span class="w"></span>
+
+<span class="c">%Read in the subjids text file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HCP_analysis/Kong2022_parc_fs6/subjids/ids.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Format for each line of text:</span><span class="w"></span>
+<span class="w">    </span><span class="c">%   column1: text (%s)</span><span class="w"></span>
+<span class="w">    </span><span class="c">% For more information, see the TEXTSCAN documentation.</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Open the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="w">    </span><span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Close the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">seslist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="mi">4</span><span class="p">];</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_profiles_and_ini_params&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub</span><span class="p">=</span><span class="n">sublist</span><span class="p">(</span><span class="n">subid</span><span class="p">);</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seslist</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_ArealMSHBM_generate_profiles</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">project_dir</span><span class="p">,</span><span class="nb">num2str</span><span class="p">(</span><span class="n">sub</span><span class="p">),</span><span class="nb">num2str</span><span class="p">(</span><span class="n">sess</span><span class="p">),</span><span class="s">&#39;0&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="c">%Troubleshooting help</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Error: fscanf cannot open...</span><span class="w"></span>
+<span class="c">%   In this case, your paths somewhere are incorrect. Doublecheck your paths in the generate_profiles_and_ini_params/data_list/fMRI. Also, your project_dir could be incorrect</span><span class="w"></span>
+<span class="c">%   Also, the format of the data_list/fMRI_list text files names may be</span><span class="w"></span>
+<span class="c">%   incorrect</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%Error: CBIG_MSHBM_generate_ini_params function not found (or something like that)</span><span class="w"></span>
+<span class="c">%   You need to be in the step1 folder to run this script. If you are in a different directory, you will encounter this error.It may help to copy this script over to the script1 directory and then open matlab...</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="part-2-group-profile-and-radius-mask">
+<h2>Part 2 Group Profile and Radius Mask<a class="headerlink" href="#part-2-group-profile-and-radius-mask" title="Permalink to this heading"></a></h2>
+<p>After generating the individual profiles, we can go ahead and generate a group-averaged profile and group parcellation. We will alos generate a spatial radius mask based on the Schaefer 2018 parcellation, which will be used to guide the spatial prior.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Part 2: Create group avg profile</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_profiles_and_ini_params&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;232&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_sess</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;4&#39;</span><span class="p">;</span><span class="w"> </span><span class="c">%max number of sessions</span><span class="w"></span>
+<span class="n">CBIG_ArealMSHBM_avg_profiles</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">project_dir</span><span class="p">,</span><span class="n">num_sub</span><span class="p">,</span><span class="n">num_sess</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">%Part 3: Create group.mat with group parc</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_profiles_and_ini_params&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_parcels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;400&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">CBIG_ArealMSHBM_generate_ini_params_Schaefer</span><span class="p">(</span><span class="s">&#39;fsaverage3&#39;</span><span class="p">,</span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="n">num_parcels</span><span class="p">,</span><span class="w"> </span><span class="n">project_dir</span><span class="p">)</span><span class="w"></span>
+
+<span class="c">%Part 4: Generate spatial radius mask (30mm in Kong2022 paper)</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_profiles_and_ini_params&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">num_parcels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;400&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">CBIG_ArealMSHBM_generate_radius_mask_Schaefer</span><span class="p">(</span><span class="n">num_parcels</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">project_dir</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-output">
+<h2>Step 1 Output<a class="headerlink" href="#step-1-output" title="Permalink to this heading"></a></h2>
+<p>The output from the generate profiles step can be found in $project_dir/generate_profiles_and_ini_params/profiles. The group parcellation will be a group.mat file in the $project_dir/generate_profiles_and_ini_params/group directory. The spatial mask can be found in $project_dir/generate_profiles_and_ini_params/spatial_mask/spatial_mask_*.mat (* will be fsaverage6 if the above code was used).</p>
+</section>
 </section>
 
 
