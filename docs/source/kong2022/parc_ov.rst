@@ -15,7 +15,7 @@ Kong et al. 2021 HCP Group Parcellation
 
 .. image:: ov_2.png 
 
-.. note:: As noted on the CBIG documentation, the paper describing the areal-level MS-HBM pipeline was published earlier than expected (2021), so while the repo names the pipeline "Kong2022", the publication year was 2021. These years may be accidentally exhanged in the present documentation.
+.. note:: As noted on the CBIG documentation, the paper describing the areal-level MS-HBM pipeline was published earlier than expected (2021), so while the repo names the pipeline "Kong2022", the publication year was 2021. These years may be used interchangably in the present documentation.
 
 Prerequisite Software
 *********************
@@ -38,6 +38,17 @@ It is assumed that the following steps have been completed prior to beginning th
 * Freesurfer surface reconstruction within the BIDS-formatted raw data structure
 
 * CBIG2016 preprocessing output (requires the above) for each participant. This could be substituted for preprocessing completed by a different pipeline (such as fMRIprep) followed by surface projection of the preprocessed data.
+
+Workflow Overview
+*****************
+
+This tutorial has been organized in the following steps. 
+0. Generate gradients (for each individual)
+1. Generate connectivity profiles (for each individual and the group if desired)
+2. Copy over or generate group priors 
+3. Generate individual parcellations
+4. Hungarian matching and HCP Workbench visualization
+
 
 Additional Resources
 ********************
