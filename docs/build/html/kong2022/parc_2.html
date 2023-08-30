@@ -78,7 +78,11 @@
 <li class="toctree-l1"><a class="reference internal" href="parc_ov.html">Kong2022 Parcellation Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_0.html">Kong2022 Step 0: Generate Gradients</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2022 Step 1: Generate Profiles</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 2: Group Priors</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 2: Group Priors</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-overview">Step 2 Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#copy-priors-and-spatial-mask">Copy Priors (and Spatial Mask)</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2022 Step 3: Generate Individual Parcellations</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_4.html">Kong2022 Step 4: Hungarian Matching and Visualization</a></li>
 </ul>
@@ -131,6 +135,39 @@
              
   <section id="kong2022-step-2-group-priors">
 <h1>Kong2022 Step 2: Group Priors<a class="headerlink" href="#kong2022-step-2-group-priors" title="Permalink to this heading"></a></h1>
+<section id="step-2-overview">
+<h2>Step 2 Overview<a class="headerlink" href="#step-2-overview" title="Permalink to this heading"></a></h2>
+<p>As in the Kong2019 pipeline, group priors are incorporated into the algorithm to shape network boundaries. To avoid circularity, these priors should be generated using a separate set of subjects than those for whom individual parcellations are being generated.</p>
+<p>In the Kong et al. 2021 article introducing Areal MS-HBM, the authors note that priors can be effectively applied to data with different acquisition parameters. As such, it is recommended that users implement the group priors pre-calculated by CBIG, which are available in the fs_LR 32K and fsaverage6 resolutions (generated on 40 HCP subjects).</p>
+<p>For the purposes of this tutorial, the fsaverage6 400 parcel priors will be used (<a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Kong2022_ArealMSHBM/lib/group_priors/HCP_fs_LR_32k_40sub/400/gMSHBM/beta50/Params_Final.mat">https://github.com/ThomasYeoLab/CBIG/blob/master/stable_projects/brain_parcellation/Kong2022_ArealMSHBM/lib/group_priors/HCP_fs_LR_32k_40sub/400/gMSHBM/beta50/Params_Final.mat</a>).</p>
+<p>If you desire to generate your own priors, please see the CBIG instructions on GitHub (<a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2022_ArealMSHBM/examples">https://github.com/ThomasYeoLab/CBIG/tree/master/stable_projects/brain_parcellation/Kong2022_ArealMSHBM/examples</a>).</p>
+</section>
+<section id="copy-priors-and-spatial-mask">
+<h2>Copy Priors (and Spatial Mask)<a class="headerlink" href="#copy-priors-and-spatial-mask" title="Permalink to this heading"></a></h2>
+<p>In Step 1, a spatial mask based on the Schaefer 2018 parcellation was generated, which needs to be copied over to the $project_dir/generate_individual_parcellations folder. To copy the spatial mask and priors, see the following bash script.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#Purpose: Copy priors and spatial masks in preparation for Kong2022 parc step3</span>
+<span class="c1">#Inputs: Spatial masks from step1</span>
+<span class="c1">#Outputs: Priors and spatial masks ready</span>
+
+<span class="c1">#PATHS</span>
+<span class="nv">PARC</span><span class="o">=</span>/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL <span class="c1">#project_dir</span>
+<span class="nv">CBIG_DIR</span><span class="o">=</span>/fslgroup/fslg_rdoc/compute/CBIG <span class="c1">#CBIG repo directory</span>
+
+<span class="c1">#COPY SPATIAL MASKS</span>
+cp -r <span class="si">${</span><span class="nv">PARC</span><span class="si">}</span>/generate_profiles_and_ini_params/spatial_mask <span class="si">${</span><span class="nv">PARC</span><span class="si">}</span>/generate_individual_parcellations
+
+<span class="c1">#COPY PRIORS</span>
+<span class="nv">CBIG_PRIORS</span><span class="o">=</span><span class="si">${</span><span class="nv">CBIG_DIR</span><span class="si">}</span>/stable_projects/brain_parcellation/Kong2022_ArealMSHBM/examples/ref_results/estimate_group_priors/priors/gMSHBM/beta5/Params_Final.mat
+mkdir -p <span class="si">${</span><span class="nv">PARC</span><span class="si">}</span>/generate_individual_parcellations/priors/gMSHBM/beta5
+cp <span class="si">${</span><span class="nv">CBIG_PRIORS</span><span class="si">}</span> <span class="si">${</span><span class="nv">PARC</span><span class="si">}</span>/generate_individual_parcellations/priors/gMSHBM/beta5
+
+<span class="c1">#MESSAGE</span>
+<span class="nb">echo</span> <span class="s2">&quot;Ready for Step3&quot;</span>
+</pre></div>
+</div>
+</section>
 </section>
 
 
