@@ -195,7 +195,7 @@ Two bash scripts are used to generate and sort the input text files for Step 3.
 Part 2 Generate Individual Parcellations 
 ****************************************
 
-Now we can go ahead and implement the CBIG function to generate individual parcellations. First, a list of IDs with 4 runs available is loading. Then, we loop through each subject and generate the individual parcellation for that subject. Note that this will take longer than the Kong2019 pipeline on account of integrating the gradient matrices (generated in Step 0).
+Now we can go ahead and implement the CBIG function to generate individual parcellations. First, a list of IDs with 4 runs available is loaded. Then, we loop through each subject and generate the individual parcellation for that subject. Note that this will take longer than the Kong2019 pipeline on account of integrating the gradient matrices (generated in Step 0).
 
 .. code-block:: matlab 
 
