@@ -324,7 +324,7 @@ lh.sub<span class="si">${</span><span class="nv">sub</span><span class="si">}</s
 </section>
 <section id="part-2-generate-individual-parcellations">
 <h2>Part 2 Generate Individual Parcellations<a class="headerlink" href="#part-2-generate-individual-parcellations" title="Permalink to this heading"></a></h2>
-<p>Now we can go ahead and implement the CBIG function to generate individual parcellations. First, a list of IDs with 4 runs available is loading. Then, we loop through each subject and generate the individual parcellation for that subject. Note that this will take longer than the Kong2019 pipeline on account of integrating the gradient matrices (generated in Step 0).</p>
+<p>Now we can go ahead and implement the CBIG function to generate individual parcellations. First, a list of IDs with 4 runs available is loaded. Then, we loop through each subject and generate the individual parcellation for that subject. Note that this will take longer than the Kong2019 pipeline on account of integrating the gradient matrices (generated in Step 0).</p>
 <div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Step 3 of CBIG Kong2019 Brain Parc Pipeline</span><span class="w"></span>
 <span class="c">%</span><span class="w"></span>
 <span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 100G --time 2:00:00 --x11`)</span><span class="w"></span>

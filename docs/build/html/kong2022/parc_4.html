@@ -80,7 +80,14 @@
 <li class="toctree-l1"><a class="reference internal" href="parc_1.html">Kong2022 Step 1: Generate Profiles</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_2.html">Kong2022 Step 2: Group Priors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="parc_3.html">Kong2022 Step 3: Generate Individual Parcellations</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 4: Hungarian Matching and Visualization</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Kong2022 Step 4: Hungarian Matching and Visualization</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-overview">Step 4 Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hungarian-matching">Hungarian Matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parcellation-to-annotation-file">Parcellation to Annotation File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annotation-to-gifti-file">Annotation to GIFTI File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#hcp-workbench-visualization">HCP Workbench Visualization</a></li>
+</ul>
+</li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
 <ul>
@@ -131,6 +138,194 @@
              
   <section id="kong2022-step-4-hungarian-matching-and-visualization">
 <h1>Kong2022 Step 4: Hungarian Matching and Visualization<a class="headerlink" href="#kong2022-step-4-hungarian-matching-and-visualization" title="Permalink to this heading"></a></h1>
+<section id="step-4-overview">
+<h2>Step 4 Overview<a class="headerlink" href="#step-4-overview" title="Permalink to this heading"></a></h2>
+<p>Once you have generated the individual parcellations, a few steps remain before you can visualize the output. These include Hungarian matching (particularly if you generated your own priors and desire to use the same labels as previously published research), parc2annot, annot2gii, and then visualization in Workbench.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following scripts were implemented on a group parcellation, but can be adapted to individual parcellations using a simple for loop.</p>
+</div>
+</section>
+<section id="hungarian-matching">
+<h2>Hungarian Matching<a class="headerlink" href="#hungarian-matching" title="Permalink to this heading"></a></h2>
+<p>Hungarian matching is important if you desire to maintain continuity in labels between publications and datasets.</p>
+<p>First, we must generate the reference .mat file to match our individual parcellations to. This can be accomplished by taking the Schaefer2018 group parcellation (17N, 400 parcels, fsaverage6 resolution) and converting the annotation file to a .mat file.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Purpose: Convert freesurfer fs6 17 network .annot file to .mat labels for use as a reference in Hungarian matching algorithm.</span><span class="w"></span>
+<span class="c">%Inputs: 17Network .annot file (found in $CBIG_CODE_DIR)</span><span class="w"></span>
+<span class="c">%Outputs: .mat file containing rh_labels and lh_labels in fsaverage6</span><span class="w"></span>
+<span class="c">%resolution</span><span class="w"></span>
+
+<span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 6G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%        2. source your config file containing the $CBIG_CODE_DIR variable</span><span class="w"></span>
+<span class="c">%        3. `cd` to the $CBIG_CODE_DIR/stable_projects/brain_parcellation/Kong2019_MSHBM/step3... folder</span><span class="w"></span>
+<span class="c">%        4. `cp` this script over to the step3 folder in the CBIG repo</span><span class="w"></span>
+<span class="c">%        5. Enter the command `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%        6. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%        7. In Matlab: Pull up this script and choose &quot;Run&quot; (green button)</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022.</span><span class="w"></span>
+
+<span class="c">%Set paths</span><span class="w"></span>
+<span class="n">annot_dir</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_rdoc/compute/CBIG/stable_projects/brain_parcellation/Schaefer2018_LocalGlobal/Parcellations/FreeSurfer5.3/fsaverage6/label&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">out_dir</span><span class="p">=</span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces&#39;</span><span class="p">;</span><span class="w"></span>
+
+
+<span class="c">%Load in .annot file</span><span class="w"></span>
+<span class="n">rh_annot_file</span><span class="p">=</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">annot_dir</span><span class="p">,</span><span class="s">&#39;rh.Schaefer2018_400Parcels_17Networks_order.annot&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">lh_annot_file</span><span class="p">=</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">annot_dir</span><span class="p">,</span><span class="s">&#39;lh.Schaefer2018_400Parcels_17Networks_order.annot&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="p">[</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_annotation</span><span class="p">(</span><span class="n">rh_annot_file</span><span class="p">);</span><span class="w"></span>
+<span class="n">rh_colist</span><span class="p">=</span><span class="n">ct</span><span class="p">.</span><span class="n">table</span><span class="p">(:,</span><span class="mi">5</span><span class="p">)</span><span class="o">&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="p">[</span><span class="n">v</span><span class="p">,</span><span class="w"> </span><span class="n">lh_labels</span><span class="p">,</span><span class="w"> </span><span class="n">ct</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">read_annotation</span><span class="p">(</span><span class="n">lh_annot_file</span><span class="p">);</span><span class="w"></span>
+<span class="n">lh_colist</span><span class="p">=</span><span class="n">ct</span><span class="p">.</span><span class="n">table</span><span class="p">(:,</span><span class="mi">5</span><span class="p">)</span><span class="o">&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">%Convert labels to 1-17 label (based on color LUT table in these .annot</span><span class="w"></span>
+<span class="c">%files and the group.colors struct)</span><span class="w"></span>
+<span class="nb">count</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">col</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rh_colist</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_labels</span><span class="p">(</span><span class="n">rh_labels</span><span class="o">==</span><span class="n">col</span><span class="p">)=</span><span class="nb">count</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">count</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="nb">count</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">col</span><span class="p">=</span><span class="w"> </span><span class="n">lh_colist</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_labels</span><span class="p">(</span><span class="n">lh_labels</span><span class="o">==</span><span class="n">col</span><span class="p">)=</span><span class="nb">count</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">count</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">(</span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+
+<span class="c">%Write out labels</span><span class="w"></span>
+<span class="n">out_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;400Parcel_Yeo17Network_Reference_FS6_Labels_220927.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="nb">save</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">out_name</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;lh_labels&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rh_labels&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">%Draw parc &amp; visually verify</span><span class="w"></span>
+<span class="n">CBIG_DrawSurfaceMaps</span><span class="p">(</span><span class="n">lh_labels</span><span class="p">,</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;fsaverage6&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;inflated&#39;</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">201</span><span class="p">,</span><span class="n">ct</span><span class="p">.</span><span class="n">table</span><span class="p">(:,</span><span class="mi">1</span><span class="p">:</span><span class="mi">3</span><span class="p">));</span><span class="w"></span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The reference file for matching only needs to be generated once.</p>
+</div>
+<p>Next, we can go ahead and implement the matching algorithm on our newly generated parcellations.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">%Purpose: Implement Hungarian Matching Algorithm for MSHBM and k-means parcellations</span><span class="w"></span>
+<span class="c">%parcellations.</span><span class="w"></span>
+<span class="c">%Inputs: MSHBM and k-means parcellations (run directly following</span><span class="w"></span>
+<span class="c">%parcellation BEFORE visualization)</span><span class="w"></span>
+<span class="c">%Outputs: Individual parcellations with matched values (e.g., network 1 is the same across parcellation methods.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">%To run: 1. Open Matlab using salloc (ex: `salloc --mem-per-cpu 6G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. source your config file containing the $CBIG_CODE_DIR variable</span><span class="w"></span>
+<span class="c">%    3. `cd` to the $CBIG_CODE_DIR/stable_projects/brain_parcellation/Kong2019_MSHBM/step3... folder</span><span class="w"></span>
+<span class="c">%    4. `cp` this script over to the step3 folder in the CBIG repo</span><span class="w"></span>
+<span class="c">%    5. Enter the command `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    6. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%    7. In Matlab: Pull up this script and choose &quot;Run&quot; (green button)</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License</span><span class="w"></span>
+<span class="c">% 2022.</span><span class="w"></span>
+
+
+<span class="c">%% Set paths and variables</span><span class="w"></span>
+<span class="w">    </span><span class="c">%mshbm project_dir</span><span class="w"></span>
+<span class="w">    </span><span class="n">project_dir_m</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_profiles_and_ini_params/group&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">%% HCP ALL Runs</span><span class="w"></span>
+<span class="w">    </span><span class="c">%load MSHBM parcellations</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub_filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;group.mat&quot;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">input_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir_m</span><span class="p">,</span><span class="n">sub_filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">input_labels</span><span class="p">=</span><span class="nb">load</span><span class="p">(</span><span class="n">input_file</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%Adjust RH labels before matching</span><span class="w"></span>
+<span class="w">    </span><span class="n">input_labels</span><span class="p">.</span><span class="n">rh_labels</span><span class="p">=</span><span class="n">input_labels</span><span class="p">.</span><span class="n">rh_labels</span><span class="o">-</span><span class="mi">200</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">input_labels</span><span class="p">.</span><span class="n">rh_labels</span><span class="p">(</span><span class="n">input_labels</span><span class="p">.</span><span class="n">rh_labels</span><span class="o">==-</span><span class="mi">200</span><span class="p">)=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_labels</span><span class="p">=</span><span class="n">input_labels</span><span class="p">.</span><span class="n">lh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_labels</span><span class="p">=</span><span class="n">input_labels</span><span class="p">.</span><span class="n">rh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="nb">save</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">input_file</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;lh_labels&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rh_labels&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%load reference</span><span class="w"></span>
+<span class="w">    </span><span class="n">ref_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces/400Parcel_Yeo17Network_Reference_FS6_Labels_220927.mat&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">ref_labels</span><span class="p">=</span><span class="nb">load</span><span class="p">(</span><span class="n">ref_file</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%output file name</span><span class="w"></span>
+<span class="w">    </span><span class="n">output_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir_m</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;group_matched.mat&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">% Implement CBIG Hungarian Cluster Match Surf Wrapper Script</span><span class="w"></span>
+<span class="w">    </span><span class="n">CBIG_HungarianClusterMatchSurfWrapper</span><span class="p">(</span><span class="n">ref_file</span><span class="p">,</span><span class="w"> </span><span class="n">input_file</span><span class="p">,</span><span class="w"> </span><span class="n">output_file</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="parcellation-to-annotation-file">
+<h2>Parcellation to Annotation File<a class="headerlink" href="#parcellation-to-annotation-file" title="Permalink to this heading"></a></h2>
+<p>Next, we will use a CBIG function in MATLAB to convert the .mat individual parcellations into annotation files.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Wrapper script to turn parcellation files into FreeSurfer annotation</span><span class="w"></span>
+<span class="c">% files.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Assumes ind_parcellation output from Kong2019 CBIG pipeline.</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab</span><span class="w"></span>
+
+<span class="c">%To run:</span><span class="w"></span>
+<span class="c">%        1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 6G --time 2:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Source your CBIG config file to set up CBIG environment.</span><span class="w"></span>
+<span class="c">%    3. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%        4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+<span class="c">%% HCP ALL</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/generate_profiles_and_ini_params/group&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">out_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/quant_metrics/MSHBM_GROUP_vis&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+<span class="n">group_filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;group_matched.mat&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="n">group_filename</span><span class="p">);</span><span class="w"></span>
+<span class="n">lh_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-GROUP&#39;</span><span class="p">,</span><span class="s">&#39;_Kong2022_lh.annot&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">rh_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-GROUP&#39;</span><span class="p">,</span><span class="s">&#39;_Kong2022_rh.annot&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">lh_output_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="n">lh_name</span><span class="p">);</span><span class="w"></span>
+<span class="n">rh_output_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="n">rh_name</span><span class="p">);</span><span class="w"></span>
+<span class="n">CBIG_SaveParcellationToFreesurferAnnotation</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">lh_output_file</span><span class="p">,</span><span class="w"> </span><span class="n">rh_output_file</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="annotation-to-gifti-file">
+<h2>Annotation to GIFTI File<a class="headerlink" href="#annotation-to-gifti-file" title="Permalink to this heading"></a></h2>
+<p>Once the parcellation is in the FreeSurfer annotation file format, we can readily convert it to GIFTI format for visualization. This will be implemented in bash using the FreeSurfer functions mri_surf2surf and mris_convert. The output will be in fsaverage6 resolution.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+
+<span class="c1">#Purpose: Create label files in fs6 space - from GROUP parcellation files</span>
+<span class="c1">#Inputs: parc2annot annotation files</span>
+<span class="c1">#Outputs: .label.gii parcellation files</span>
+<span class="c1">#Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022</span>
+
+<span class="c1">#SET PATHS</span>
+<span class="nv">OUTDIR</span><span class="o">=</span>/fslgroup/grp_hcp/compute/HCP_analysis/Kong2022_parc_output_fs6_HCP_ALL/quant_metrics/MSHBM_GROUP_vis
+
+<span class="c1">#Create .label.gii parcellation files</span>
+<span class="k">for</span> SUB <span class="k">in</span> GROUP<span class="p">;</span> <span class="k">do</span>
+    <span class="c1">#Resample LH annot</span>
+    mri_surf2surf --srcsubject fsaverage --sval-annot <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_Kong2022_lh.annot --trgsubject fsaverage6 --hemi lh --trgsurfval <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_fs6_lh --trg_type annot
+    <span class="c1">#Resample RH annot</span>
+    mri_surf2surf --srcsubject fsaverage --sval-annot <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_Kong2022_rh.annot --trgsubject fsaverage6 --hemi rh --trgsurfval <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_fs6_rh --trg_type annot
+
+    <span class="c1">#LH label file</span>
+    mris_convert --annot <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_fs6_lh.annot <span class="si">${</span><span class="nv">FREESURFER_HOME</span><span class="si">}</span>/subjects/fsaverage6/surf/lh.white <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_lh.label.gii
+    <span class="c1">#RH label file</span>
+    mris_convert --annot <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_fs6_rh.annot <span class="si">${</span><span class="nv">FREESURFER_HOME</span><span class="si">}</span>/subjects/fsaverage6/surf/rh.white <span class="si">${</span><span class="nv">OUTDIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUB</span><span class="si">}</span>_rh.label.gii
+<span class="k">done</span>
+</pre></div>
+</div>
+</section>
+<section id="hcp-workbench-visualization">
+<h2>HCP Workbench Visualization<a class="headerlink" href="#hcp-workbench-visualization" title="Permalink to this heading"></a></h2>
+<p>The GIFTI parcellations are simple to load in HCP Workbench. First, load your surface underlays (fsaverage6 surface files are available on GitHub <a class="reference external" href="https://github.com/peter3200/NeuroDocs/tree/main/example_data">https://github.com/peter3200/NeuroDocs/tree/main/example_data</a>). Next, load your GIFTI parcellation files.</p>
+<p>Parcellations may be displayed with and without parcel outlines.</p>
+<img alt="../_images/4_1.png" src="../_images/4_1.png" />
+<img alt="../_images/4_2.png" src="../_images/4_2.png" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Prior scripts used to calculate network surface area for the Kong2019 parcellation can be adapted for use with this parcellation. Note, however, that each parcel is given its own label (1-200 LH and RH) rather than a network label (1-17).</p>
+</div>
+</section>
 </section>
 
 
