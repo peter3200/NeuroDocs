@@ -238,6 +238,8 @@ After the input text files have been generated, we can go to MATLAB and run the 
     %Error: CBIG_MSHBM_generate_gradients function not found (or something like that)
     %	You need to be in the step0 folder to run this script. If you are in a different directory, you will encounter this error.It may help to copy this script over to the script1 directory and then open matlab...
 
+.. note:: As an alternative to this serial computing MATLAB script, consider using the set of batch scripts found on GitHub at https://github.com/peter3200/NeuroDocs/tree/main/example_data/Kong2022/parc_step_0. This will greatly reduce the amount of time needed for this step (since gradients will be generated in parallel). For a single subject witih four 15-minute runs of data, Step 0 takes approximately 23 minutes.
+
 Step 0 Output 
 *************
 
