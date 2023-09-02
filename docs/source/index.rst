@@ -70,6 +70,16 @@ Welcome to NeuroDocs!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Parcellation (K-means)
+
+   kmeans/kmeans_ov
+   kmeans/kmeans_1
+   kmeans/kmeans_2
+   kmeans/kmeans_3
+
+
+.. toctree::
+   :maxdepth: 1
    :caption: Seed-based rsfMRI Analysis
 
    seed/seed_ov
