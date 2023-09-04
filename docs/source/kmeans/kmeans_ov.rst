@@ -5,6 +5,7 @@ What is "k-means"?
 ******************
 
 The K-means algorithm is a clustering function that assigns each observation to exactly one of k clusters, resulting in a forced winner-takes-all parcellation, over the course of five steps.
+
 1. A k-means ++ algorithm finds the initial cluster centers (cewntroids) for each initialization
 2. Point-to-cluster-centroid distances are computed between each observation and each centroid
 3. The algorithm proceeds to either batch update (assign each observation to the cluster with the closest centroid) or online update (individually assign observations to a different centroid if the reassignment decreases the sum of the within-cluster, sum-of-squares point-to-cluster-centroid distances)
@@ -28,6 +29,10 @@ Examples of the k-means Parcellation in the Literature
 ******************************************************
 
 The k-means method has been used previously in the literature to successfully identify the canonical language network and default networks A and B (Braga et al., 2020; Braga & Buckner, 2017; DiNicola et al., 2020). 
+
+Braga, R. M., & Buckner, R. L. (2017). Parallel interdigitated distributed networks within the individual estimated by intrinsic functional connectivity. Neuron, 95(2), 457-471.e5. https://doi.org/10.1016/j.neuron.2017.06.038
+Braga, R. M., DiNicola, L. M., Becker, H. C., & Buckner, R. L. (2020). Situating the left-lateralized language network in the broader organization of multiple specialized large-scale distributed networks. Journal of Neurophysiology, 124(5), Art. 5. https://doi.org/10.1152/jn.00753.2019
+DiNicola, L. M., Braga, R. M., & Buckner, R. L. (2020). Parallel distributed networks dissociate episodic and social functions within the individual. Journal of Neurophysiology, 123(3), Art. 3. https://doi.org/10.1152/jn.00529.2019
 
 Expected Output 
 ***************
@@ -64,6 +69,7 @@ Workflow Steps
 **************
 
 Once preprocessing is completed, we can begin the parcellation pipeline. The workflow consists of the following steps. 
+
 1. Concatenate timeseries 
 2. k-means function 
 3. Hungarian matching and visualization 
