@@ -149,12 +149,14 @@
 <h1>K-means Parcellation Overview<a class="headerlink" href="#k-means-parcellation-overview" title="Permalink to this heading"></a></h1>
 <section id="what-is-k-means">
 <h2>What is “k-means”?<a class="headerlink" href="#what-is-k-means" title="Permalink to this heading"></a></h2>
-<p>The K-means algorithm is a clustering function that assigns each observation to exactly one of k clusters, resulting in a forced winner-takes-all parcellation, over the course of five steps.
-1. A k-means ++ algorithm finds the initial cluster centers (cewntroids) for each initialization
-2. Point-to-cluster-centroid distances are computed between each observation and each centroid
-3. The algorithm proceeds to either batch update (assign each observation to the cluster with the closest centroid) or online update (individually assign observations to a different centroid if the reassignment decreases the sum of the within-cluster, sum-of-squares point-to-cluster-centroid distances)
-4. The average of the observations in each cluster is computed to obtain k new centroid locations
-5. Steps 2-4 are repeated until cluster assignments fail to change or the maximum number of iterations is reached</p>
+<p>The K-means algorithm is a clustering function that assigns each observation to exactly one of k clusters, resulting in a forced winner-takes-all parcellation, over the course of five steps.</p>
+<ol class="arabic simple">
+<li><p>A k-means ++ algorithm finds the initial cluster centers (cewntroids) for each initialization</p></li>
+<li><p>Point-to-cluster-centroid distances are computed between each observation and each centroid</p></li>
+<li><p>The algorithm proceeds to either batch update (assign each observation to the cluster with the closest centroid) or online update (individually assign observations to a different centroid if the reassignment decreases the sum of the within-cluster, sum-of-squares point-to-cluster-centroid distances)</p></li>
+<li><p>The average of the observations in each cluster is computed to obtain k new centroid locations</p></li>
+<li><p>Steps 2-4 are repeated until cluster assignments fail to change or the maximum number of iterations is reached</p></li>
+</ol>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The k-means algorithm is used for much more than network parcellations. See the MATLAB MathWorks documentation for more details on uses and parameters: <a class="reference external" href="https://www.mathworks.com/help/stats/kmeans.html">https://www.mathworks.com/help/stats/kmeans.html</a></p>
@@ -170,6 +172,9 @@
 <section id="examples-of-the-k-means-parcellation-in-the-literature">
 <h2>Examples of the k-means Parcellation in the Literature<a class="headerlink" href="#examples-of-the-k-means-parcellation-in-the-literature" title="Permalink to this heading"></a></h2>
 <p>The k-means method has been used previously in the literature to successfully identify the canonical language network and default networks A and B (Braga et al., 2020; Braga &amp; Buckner, 2017; DiNicola et al., 2020).</p>
+<p>Braga, R. M., &amp; Buckner, R. L. (2017). Parallel interdigitated distributed networks within the individual estimated by intrinsic functional connectivity. Neuron, 95(2), 457-471.e5. <a class="reference external" href="https://doi.org/10.1016/j.neuron.2017.06.038">https://doi.org/10.1016/j.neuron.2017.06.038</a>
+Braga, R. M., DiNicola, L. M., Becker, H. C., &amp; Buckner, R. L. (2020). Situating the left-lateralized language network in the broader organization of multiple specialized large-scale distributed networks. Journal of Neurophysiology, 124(5), Art. 5. <a class="reference external" href="https://doi.org/10.1152/jn.00753.2019">https://doi.org/10.1152/jn.00753.2019</a>
+DiNicola, L. M., Braga, R. M., &amp; Buckner, R. L. (2020). Parallel distributed networks dissociate episodic and social functions within the individual. Journal of Neurophysiology, 123(3), Art. 3. <a class="reference external" href="https://doi.org/10.1152/jn.00529.2019">https://doi.org/10.1152/jn.00529.2019</a></p>
 </section>
 <section id="expected-output">
 <h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
@@ -199,10 +204,12 @@
 </section>
 <section id="workflow-steps">
 <h2>Workflow Steps<a class="headerlink" href="#workflow-steps" title="Permalink to this heading"></a></h2>
-<p>Once preprocessing is completed, we can begin the parcellation pipeline. The workflow consists of the following steps.
-1. Concatenate timeseries
-2. k-means function
-3. Hungarian matching and visualization</p>
+<p>Once preprocessing is completed, we can begin the parcellation pipeline. The workflow consists of the following steps.</p>
+<ol class="arabic simple">
+<li><p>Concatenate timeseries</p></li>
+<li><p>k-means function</p></li>
+<li><p>Hungarian matching and visualization</p></li>
+</ol>
 </section>
 </section>
 
