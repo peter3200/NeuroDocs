@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Parcellations: K-means Overview &mdash; NeuroDocs 0.0.1 documentation</title>
+  <title>K-means Parcellation Overview &mdash; NeuroDocs 0.0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -84,7 +84,16 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parcellation (K-means)</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Parcellations: K-means Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">K-means Parcellation Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-k-means">What is “k-means”?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pros-and-cons">Pros and Cons</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples-of-the-k-means-parcellation-in-the-literature">Examples of the k-means Parcellation in the Literature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expected-output">Expected Output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisite-software">Prerequisite Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisite-processing">Prerequisite Processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-steps">Workflow Steps</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_1.html">K-means Parc Step 1: Concatenate Timeseries</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_2.html">K-means Parc Step 2: K-means Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_3.html">K-means Parc Step 3: Hungarian Matching and Visualization</a></li>
@@ -126,7 +135,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Parcellations: K-means Overview</li>
+      <li>K-means Parcellation Overview</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/kmeans/kmeans_ov.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -136,8 +145,65 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="parcellations-k-means-overview">
-<h1>Parcellations: K-means Overview<a class="headerlink" href="#parcellations-k-means-overview" title="Permalink to this heading"></a></h1>
+  <section id="k-means-parcellation-overview">
+<h1>K-means Parcellation Overview<a class="headerlink" href="#k-means-parcellation-overview" title="Permalink to this heading"></a></h1>
+<section id="what-is-k-means">
+<h2>What is “k-means”?<a class="headerlink" href="#what-is-k-means" title="Permalink to this heading"></a></h2>
+<p>The K-means algorithm is a clustering function that assigns each observation to exactly one of k clusters, resulting in a forced winner-takes-all parcellation, over the course of five steps.
+1. A k-means ++ algorithm finds the initial cluster centers (cewntroids) for each initialization
+2. Point-to-cluster-centroid distances are computed between each observation and each centroid
+3. The algorithm proceeds to either batch update (assign each observation to the cluster with the closest centroid) or online update (individually assign observations to a different centroid if the reassignment decreases the sum of the within-cluster, sum-of-squares point-to-cluster-centroid distances)
+4. The average of the observations in each cluster is computed to obtain k new centroid locations
+5. Steps 2-4 are repeated until cluster assignments fail to change or the maximum number of iterations is reached</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The k-means algorithm is used for much more than network parcellations. See the MATLAB MathWorks documentation for more details on uses and parameters: <a class="reference external" href="https://www.mathworks.com/help/stats/kmeans.html">https://www.mathworks.com/help/stats/kmeans.html</a></p>
+</div>
+</section>
+<section id="pros-and-cons">
+<h2>Pros and Cons<a class="headerlink" href="#pros-and-cons" title="Permalink to this heading"></a></h2>
+<p>Why use k-means for individual parcellations? There are several pros and cons to consider.</p>
+<p>On the upshot, the k-means algorithm is completely data-driven, meaning that there are no constraints placed on the data other than the number of clusters. This is important since other parcellation algorithms (such as the MS-HBM approach) utilize group-based parameters to shape the parcellations, which means that the resulting parcellations won’t necessarily be reflective of an individual’s data. Additionally, as will be demonstrated in this tutorial, the k-means function is relatively easy to implement and may not require as many processing resources as other approaches.</p>
+<p>However, according to our analyses using the Midnight Scan Club dataset, the k-means approach appears to be much less reliable than the MS-HBM parcellation approach. To arrive at this conclusion, we created separate individual parcellations (k-means and Kong2019 MS-HBM) using the odd- and even-numbered runs from MSC participants. Then, we calculated a dice coefficient for each network for each participant to compare the overlap between the parcellations. A higher dice coefficient indicates greater overlap and reliability. As shown below, the difference in reliability between the two parcellation methods is stark!</p>
+<img alt="../_images/ov_12.png" src="../_images/ov_12.png" />
+</section>
+<section id="examples-of-the-k-means-parcellation-in-the-literature">
+<h2>Examples of the k-means Parcellation in the Literature<a class="headerlink" href="#examples-of-the-k-means-parcellation-in-the-literature" title="Permalink to this heading"></a></h2>
+<p>The k-means method has been used previously in the literature to successfully identify the canonical language network and default networks A and B (Braga et al., 2020; Braga &amp; Buckner, 2017; DiNicola et al., 2020).</p>
+</section>
+<section id="expected-output">
+<h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<p>To give the reader an idea as to what to expect, below are individual parcellations for the same individual (MSC-01, odd runs).</p>
+<p>Kong2019 MS-HBM</p>
+<img alt="../_images/ov_22.png" src="../_images/ov_22.png" />
+<p>K-means</p>
+<img alt="../_images/ov_31.png" src="../_images/ov_31.png" />
+</section>
+<section id="prerequisite-software">
+<h2>Prerequisite Software<a class="headerlink" href="#prerequisite-software" title="Permalink to this heading"></a></h2>
+<p>We will be using the MATLAB kmeans function, so MATLAB is the main prerequisite. All other softwares are used for preprocessing or visualization.</p>
+<ul class="simple">
+<li><p>MATLAB version r2018b</p></li>
+<li><p>CBIG repository (visualization)</p></li>
+<li><p>FreeSurfer (visualization)</p></li>
+<li><p>HCP Workbench wb_view (visualization)</p></li>
+</ul>
+</section>
+<section id="prerequisite-processing">
+<h2>Prerequisite Processing<a class="headerlink" href="#prerequisite-processing" title="Permalink to this heading"></a></h2>
+<p>Prior to generating the individual parcellations, we recommend generating surface reconstructions and performing any desired preprocessing steps.</p>
+<ul class="simple">
+<li><p>FreeSurfer recon-all</p></li>
+<li><p>CBIG2016 preprocessing (or any other pipeline with projection to fsaverage6 surface)</p></li>
+</ul>
+</section>
+<section id="workflow-steps">
+<h2>Workflow Steps<a class="headerlink" href="#workflow-steps" title="Permalink to this heading"></a></h2>
+<p>Once preprocessing is completed, we can begin the parcellation pipeline. The workflow consists of the following steps.
+1. Concatenate timeseries
+2. k-means function
+3. Hungarian matching and visualization</p>
+</section>
 </section>
 
 
