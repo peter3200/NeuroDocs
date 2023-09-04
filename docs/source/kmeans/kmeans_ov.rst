@@ -1,8 +1,8 @@
 K-means Parcellation Overview
 =============================
 
-What is "k-means"?
-******************
+Introduction to k-means
+***********************
 
 The K-means algorithm is a clustering function that assigns each observation to exactly one of k clusters, resulting in a forced winner-takes-all parcellation, over the course of five steps.
 
