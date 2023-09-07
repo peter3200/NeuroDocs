@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="K-means Parc Step 2: K-means Algorithm" href="kmeans_2.html" />
-    <link rel="prev" title="Parcellations: K-means Overview" href="kmeans_ov.html" /> 
+    <link rel="prev" title="K-means Parcellation Overview" href="kmeans_ov.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -84,8 +84,13 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parcellation (K-means)</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="kmeans_ov.html">Parcellations: K-means Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">K-means Parc Step 1: Concatenate Timeseries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kmeans_ov.html">K-means Parcellation Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">K-means Parc Step 1: Concatenate Timeseries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-overview">Step 1 Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-script">Step 1 Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expected-output">Expected Output</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_2.html">K-means Parc Step 2: K-means Algorithm</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_3.html">K-means Parc Step 3: Hungarian Matching and Visualization</a></li>
 </ul>
@@ -138,13 +143,103 @@
              
   <section id="k-means-parc-step-1-concatenate-timeseries">
 <h1>K-means Parc Step 1: Concatenate Timeseries<a class="headerlink" href="#k-means-parc-step-1-concatenate-timeseries" title="Permalink to this heading"></a></h1>
+<section id="step-1-overview">
+<h2>Step 1 Overview<a class="headerlink" href="#step-1-overview" title="Permalink to this heading"></a></h2>
+<p>In the case where participants have multiple runs of rs-fMRI data, we are going to concatenate those runs so that each participant has one file. The concatenated run will then be fed into the kmeans algorithm in Step 2.</p>
+</section>
+<section id="step-1-script">
+<h2>Step 1 Script<a class="headerlink" href="#step-1-script" title="Permalink to this heading"></a></h2>
+<p>This script assumes that preprocessing and surface projection of the data has already taken place.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The more runs a participant has, the more memory and time this script will require.</p>
+</div>
+<p>This script is implemented in MATLAB/r2018b. Also, this script was written for MSC dataset, which only has 10 participants. It could easily be adapted for parallel processing.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Concatenate timeseries within individuals</span><span class="w"></span>
+<span class="c">% Input: CBIG2016 preproc.</span><span class="w"></span>
+<span class="c">% Output: Concatenated timeseries for each participant</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022.</span><span class="w"></span>
+
+<span class="c">%To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 300G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+
+<span class="c">% Step  1: Concatenate runs within an individual to create a single timeseries</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_EVEN_GROUP/quant_metrics/kmeans&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">prep_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/CBIG2016_preproc_FS6&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;MSC01&quot;</span><span class="w"> </span><span class="s">&quot;MSC02&quot;</span><span class="w"> </span><span class="s">&quot;MSC03&quot;</span><span class="w"> </span><span class="s">&quot;MSC04&quot;</span><span class="w"> </span><span class="s">&quot;MSC05&quot;</span><span class="w"> </span><span class="s">&quot;MSC06&quot;</span><span class="w"> </span><span class="s">&quot;MSC07&quot;</span><span class="w"> </span><span class="s">&quot;MSC08&quot;</span><span class="w"> </span><span class="s">&quot;MSC09&quot;</span><span class="w"> </span><span class="s">&quot;MSC10&quot;</span><span class="p">];</span><span class="w"></span>
+<span class="n">seslist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="s">&quot;6&quot;</span><span class="w"> </span><span class="s">&quot;8&quot;</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p">];</span><span class="w"></span>
+
+<span class="c">% Create output directory</span><span class="w"></span>
+<span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">project_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">project_dir</span><span class="p">);</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+
+
+<span class="c">% Loop through each subj and each session (run) -- concatenate each surface-projected run over time</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist</span><span class="w"></span>
+<span class="w">    </span><span class="nb">count</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">ses</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seslist</span><span class="w"></span>
+<span class="w">        </span><span class="c">%vars for file names num2str(num,&#39;%03.f&#39;)</span><span class="w"></span>
+<span class="w">        </span><span class="c">%lh</span><span class="w"></span>
+<span class="w">        </span><span class="n">lh_filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;lh.sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">,</span><span class="s">&#39;_bld&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="nb">str2num</span><span class="p">(</span><span class="n">ses</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;%03.f&#39;</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">lh_fullfile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">prep_dir</span><span class="p">,</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">),</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">),</span><span class="s">&#39;surf&#39;</span><span class="p">,</span><span class="n">lh_filename</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="c">%rh</span><span class="w"></span>
+<span class="w">        </span><span class="n">rh_filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;rh.sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">,</span><span class="s">&#39;_bld&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="nb">str2num</span><span class="p">(</span><span class="n">ses</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;%03.f&#39;</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_rest_skip4_mc_resid_bp_0.009_0.08_fs6_sm6_fs6.nii.gz&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">rh_fullfile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">prep_dir</span><span class="p">,</span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">),</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">),</span><span class="s">&#39;surf&#39;</span><span class="p">,</span><span class="n">rh_filename</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%if file exists</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">isfile</span><span class="p">(</span><span class="n">lh_fullfile</span><span class="p">)</span><span class="w"></span>
+<span class="w">                </span><span class="nb">count</span><span class="p">=(</span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">                </span><span class="c">%read in files (RH and LH)</span><span class="w"></span>
+<span class="w">                </span><span class="n">input_series</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MRIread</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">rh_fullfile</span><span class="p">));</span><span class="w"></span>
+<span class="w">                </span><span class="n">t_series1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">single</span><span class="p">(</span><span class="nb">transpose</span><span class="p">(</span><span class="nb">reshape</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">))));</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">input_series</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">MRIread</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">lh_fullfile</span><span class="p">));</span><span class="w"></span>
+<span class="w">                </span><span class="n">t_series2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">single</span><span class="p">(</span><span class="nb">transpose</span><span class="p">(</span><span class="nb">reshape</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">),</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">vol</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">))));</span><span class="w"></span>
+
+<span class="w">                </span><span class="c">%concatenate RH and LH into one timeseries</span><span class="w"></span>
+<span class="w">                </span><span class="n">t_series</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">t_series1</span><span class="w"> </span><span class="n">t_series2</span><span class="p">];</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%concatenate runs within individual</span><span class="w"></span>
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="nb">count</span><span class="o">==</span><span class="mi">1</span><span class="w"></span>
+<span class="w">                    </span><span class="n">sub_series</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">t_series</span><span class="p">;</span><span class="w"></span>
+<span class="w">                </span><span class="k">else</span><span class="w"></span>
+<span class="w">                    </span><span class="c">%sub_series = append(sub_series,t_series);</span><span class="w"></span>
+<span class="w">                    </span><span class="n">sub_series</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">sub_series</span><span class="p">;</span><span class="w"> </span><span class="n">t_series</span><span class="p">];</span><span class="w"></span>
+<span class="w">                </span><span class="k">end</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%transpose matrix for kmeans input</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub_series2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">transpose</span><span class="p">(</span><span class="n">sub_series</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%write out sub_series</span><span class="w"></span>
+<span class="w">    </span><span class="n">out_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">,</span><span class="s">&#39;_concat_tseries.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">output_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="n">out_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nb">save</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;sub_series2&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;-v7.3&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="expected-output">
+<h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<p>You should expect the output of one concatenated timeseries per participant in the format of “sub-$SUB_concat_tseries.mat”.</p>
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="kmeans_ov.html" class="btn btn-neutral float-left" title="Parcellations: K-means Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="kmeans_ov.html" class="btn btn-neutral float-left" title="K-means Parcellation Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="kmeans_2.html" class="btn btn-neutral float-right" title="K-means Parc Step 2: K-means Algorithm" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

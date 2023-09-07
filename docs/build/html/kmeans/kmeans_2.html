@@ -84,9 +84,14 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Parcellation (K-means)</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="kmeans_ov.html">Parcellations: K-means Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kmeans_ov.html">K-means Parcellation Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_1.html">K-means Parc Step 1: Concatenate Timeseries</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">K-means Parc Step 2: K-means Algorithm</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">K-means Parc Step 2: K-means Algorithm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-overview">Step 2 Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-script">Step 2 Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expected-output">Expected Output</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="kmeans_3.html">K-means Parc Step 3: Hungarian Matching and Visualization</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
@@ -138,6 +143,67 @@
              
   <section id="k-means-parc-step-2-k-means-algorithm">
 <h1>K-means Parc Step 2: K-means Algorithm<a class="headerlink" href="#k-means-parc-step-2-k-means-algorithm" title="Permalink to this heading"></a></h1>
+<section id="step-2-overview">
+<h2>Step 2 Overview<a class="headerlink" href="#step-2-overview" title="Permalink to this heading"></a></h2>
+<p>Now that we have concatenated each participant’s timeseries, we can go ahead and generate the k-means parcellations. There are several parameters which one can alter, including the k (number of networks), the distance metric, maximum number of iterations, and number of replications. The following script has used the default parameters (following Braga et al., 2020), with the exception of the k, which was set at 17 for comparison against the Kong2019 17-network parcellations.</p>
+</section>
+<section id="step-2-script">
+<h2>Step 2 Script<a class="headerlink" href="#step-2-script" title="Permalink to this heading"></a></h2>
+<p>Once again, we will be using MATLAB to implement the kmeans algorithm. As before, the script was written with the MSC dataset in mind, but it could easily be adapted for parallel processing.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: K-means parcellations for rs-fMRI data for each subject</span><span class="w"></span>
+<span class="c">% Input: Single concatenated timeseries for each participant</span><span class="w"></span>
+<span class="c">% Output: K-means parcellations for k=17 networks</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022.</span><span class="w"></span>
+
+<span class="c">%To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 300G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+
+<span class="c">% Set initial vars</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/MSC_analysis/parc_output_fs6_MSC_EVEN_GROUP/quant_metrics/kmeans&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;MSC01&quot;</span><span class="w"> </span><span class="s">&quot;MSC02&quot;</span><span class="w"> </span><span class="s">&quot;MSC03&quot;</span><span class="w"> </span><span class="s">&quot;MSC04&quot;</span><span class="w"> </span><span class="s">&quot;MSC05&quot;</span><span class="w"> </span><span class="s">&quot;MSC06&quot;</span><span class="w"> </span><span class="s">&quot;MSC07&quot;</span><span class="w"> </span><span class="s">&quot;MSC08&quot;</span><span class="w"> </span><span class="s">&quot;MSC09&quot;</span><span class="w"> </span><span class="s">&quot;MSC10&quot;</span><span class="p">];</span><span class="w"></span>
+<span class="n">seslist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="s">&quot;6&quot;</span><span class="w"> </span><span class="s">&quot;8&quot;</span><span class="w"> </span><span class="s">&quot;10&quot;</span><span class="p">];</span><span class="w"></span>
+
+<span class="c">% Load timeseries for each participant and run kmeans</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">sub</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">sublist</span><span class="w"></span>
+<span class="w">    </span><span class="c">%read in timeseries</span><span class="w"></span>
+<span class="w">    </span><span class="n">input_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="n">sub</span><span class="p">,</span><span class="s">&#39;_concat_tseries.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">full_input</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="n">input_name</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">input_series</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">load</span><span class="p">(</span><span class="n">full_input</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%kmeans</span><span class="w"></span>
+<span class="w">    </span><span class="n">k</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">17</span><span class="p">;</span><span class="w"> </span><span class="c">%number of clusters (networks)</span><span class="w"></span>
+<span class="w">    </span><span class="n">distMet</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;sqeuclidean&#39;</span><span class="p">;</span><span class="w"> </span><span class="c">%distance metric = square Euclidean (default)</span><span class="w"></span>
+<span class="w">    </span><span class="n">maxIter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">100</span><span class="p">;</span><span class="w"> </span><span class="c">%maximum number of iterations</span><span class="w"></span>
+<span class="w">    </span><span class="n">replicates</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"> </span><span class="c">%number of replications</span><span class="w"></span>
+<span class="w">    </span><span class="p">[</span><span class="n">idx</span><span class="p">,</span><span class="w"> </span><span class="n">C</span><span class="p">,</span><span class="w"> </span><span class="n">sumD</span><span class="p">,</span><span class="w"> </span><span class="n">D</span><span class="p">]</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">kmeans</span><span class="p">(</span><span class="n">input_series</span><span class="p">.</span><span class="n">sub_series2</span><span class="p">,</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Distance&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">distMet</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;EmptyAction&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;singleton&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;MaxIter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">maxIter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;OnlinePhase&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;off&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Replicates&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">replicates</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%convert NaN labels to 0</span><span class="w"></span>
+<span class="w">        </span><span class="n">idx</span><span class="p">(</span><span class="nb">isnan</span><span class="p">(</span><span class="n">idx</span><span class="p">))</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%write out results</span><span class="w"></span>
+<span class="w">    </span><span class="n">file_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_kmeans_k&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_distMet&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">distMet</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_reps&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">replicates</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_maxIter&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">maxIter</span><span class="p">)));</span><span class="w"></span>
+<span class="w">    </span><span class="nb">save</span><span class="p">([</span><span class="nb">char</span><span class="p">(</span><span class="n">file_name</span><span class="p">)</span><span class="w"> </span><span class="s">&#39;.mat&#39;</span><span class="p">],</span><span class="w"> </span><span class="s">&#39;idx&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;C&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;sumD&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;D&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%save parc to lh_labels and rh_labels for parc2annot transform</span><span class="w"></span>
+<span class="w">    </span><span class="n">num_verts</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">81924</span><span class="p">;</span><span class="w"> </span><span class="c">%20484 vertices in fsaverage5 mesh, 81924 in fsaverage6</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">idx</span><span class="p">(</span><span class="mi">1</span><span class="p">:</span><span class="n">num_verts</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span><span class="w"> </span><span class="c">%rh is first loaded, then lh is concatenated in concat_tseries.m</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">idx</span><span class="p">((</span><span class="n">num_verts</span><span class="o">/</span><span class="mi">2</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">):</span><span class="k">end</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">out_name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_kmeans_k&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">k</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_labels.mat&#39;</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="nb">save</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">out_name</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;lh_labels&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;rh_labels&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="expected-output">
+<h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<p>The output will be saved in two vectors within a MATLAB file: rh_labels and lh_labels, just like the Kong2019 individual parcellation output. From here, we can go ahead and perform the steps necessary for visualization.</p>
+</section>
 </section>
 
 
