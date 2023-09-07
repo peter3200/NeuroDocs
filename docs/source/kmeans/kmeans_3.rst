@@ -14,7 +14,7 @@ Similar to the Kong2019 mataching step, we will match to the Yeo2011 17 network 
 The matching is implemented in MATLAB/r2018b. 
 
 .. code-block:: matlab 
-    
+
     %Purpose: Implement Hungarian Matching Algorithm for MSHBM and k-means parcellations 
     %parcellations.
     %Inputs: MSHBM and k-means parcellations (run directly following
@@ -130,8 +130,10 @@ After the parcellations are converted to GIFTI format, we can go ahead and visua
 The GIFTI parcellations are simple to load in HCP Workbench. First, load your surface underlays (fsaverage6 surface files are available on GitHub https://github.com/peter3200/NeuroDocs/tree/main/example_data). Next, load your GIFTI parcellation files.
 
 Here is an image of the loaded surface underlays. 
+
 .. image:: 3_1.png 
 
 And here is the individual parcellation!
+
 .. image:: 3_2.png 
 
