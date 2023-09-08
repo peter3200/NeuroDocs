@@ -90,6 +90,17 @@ Welcome to NeuroDocs!
    seed/seed_5
 
 
+.. toctree::
+   :maxdepth: 1
+   :caption: tSNR Maps
+
+   tsnr/tsnr_ov
+   tsnr/tsnr_1
+   tsnr/tsnr_2
+   tsnr/tsnr_3
+   tsnr/tsnr_4
+
+
 .. toctree:: 
    :maxdepth: 1
    :caption: Odds and Ends
