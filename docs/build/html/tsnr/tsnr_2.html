@@ -20,7 +20,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="tSNR Step 3: Wtihin-Network Averaging" href="tsnr_3.html" />
-    <link rel="prev" title="tSNR Step 1: fslmaths" href="tsnr_1.html" /> 
+    <link rel="prev" title="tSNR Step 1: tSNR Calculation" href="tsnr_1.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -101,7 +101,7 @@
 <p class="caption" role="heading"><span class="caption-text">tSNR Maps</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tsnr_ov.html">tSNR Maps Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tsnr_1.html">tSNR Step 1: fslmaths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsnr_1.html">tSNR Step 1: tSNR Calculation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">tSNR Step 2: Surface Projection</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-2-script">Step 2 Script</a></li>
@@ -153,12 +153,61 @@
 <h1>tSNR Step 2: Surface Projection<a class="headerlink" href="#tsnr-step-2-surface-projection" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>For this step, we will use FreeSurfer functions to project the run tSNR maps to the fsaverage6 surface. This could easily be adapted to the fsaverage or fsaverage5 resolutions, but the resolution does need to be compatible with your parcellation resolution if you wish to average within network boundaries (step 3).</p>
 </section>
 <section id="step-2-script">
 <h2>Step 2 Script<a class="headerlink" href="#step-2-script" title="Permalink to this heading"></a></h2>
+<p>To accomplish this, we will use a bash shell script.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#Purpose: Project tSNR maps to fsaverage6 surface.</span>
+<span class="c1">#Inputs: tSNR maps from Step1, freesurfer native output</span>
+<span class="c1">#Outputs: .shape.gii (HCP WB compatible) surface SNR maps</span>
+<span class="c1">#Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2022</span>
+
+<span class="c1">#SET PATHS</span>
+<span class="nv">CODE_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/HCP_analysis/tSNR/ALL <span class="c1">#code directory where this script is housed</span>
+<span class="nv">PREP_DIR</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute/HCP_analysis/CBIG2016_preproc_FS6_ALL <span class="c1">#preproc output directory</span>
+<span class="nv">T_DIR</span><span class="o">=</span>/fslgroup/grp_hcp/compute/HCP_analysis/parc_output_fs6_HCP_ALL/quant_metrics/tSNR <span class="c1">#tSNR output directory</span>
+<span class="nv">FS_DIR</span><span class="o">=</span>/fslgroup/grp_proc/compute/HCP_analysis/HCP_download <span class="c1">#FreeSurfer recon-all output directory</span>
+<span class="nv">SUBJECTS_DIR</span><span class="o">=</span><span class="si">${</span><span class="nv">FREESURFER_HOME</span><span class="si">}</span>/subjects <span class="c1">#Set to $FREESURFER_HOME in order to use template fsaverage6 surface</span>
+
+<span class="c1">#LOOP THROUGH EACH SUBJECT AND TASK</span>
+<span class="k">for</span> SUBJ <span class="k">in</span> <span class="sb">`</span>cat <span class="nv">$CODE_DIR</span>/ids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#IDs text file</span>
+    <span class="k">for</span> SESS <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..4<span class="o">}</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#maximum of four sessions per subject</span>
+        <span class="c1">#BBREGISTER (OBTAIN AFFINE.REG)</span>
+        bbregister <span class="se">\</span>
+        --bold <span class="se">\</span>
+        --s fsaverage6 <span class="se">\</span>
+        --init-fsl <span class="se">\</span>
+        --mov <span class="si">${</span><span class="nv">PREP_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>/bold/00<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_bld00<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_rest_skip4_mc.nii.gz <span class="se">\</span>
+        --reg <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_register.dat
+
+        <span class="c1">#MRI_VOL2SURF LH</span>
+        mri_vol2surf --mov <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_PREPROC_TSNR.nii.gz <span class="se">\</span>
+        --reg <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_register.dat <span class="se">\</span>
+        --hemi lh <span class="se">\</span>
+        --projfrac <span class="m">0</span>.5 <span class="se">\</span>
+        --o <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_lh.shape.gii <span class="se">\</span>
+        --noreshape <span class="se">\</span>
+        --interp trilinear
+
+        <span class="c1">#MRI_VOL2SURF RH</span>
+        mri_vol2surf --mov <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_PREPROC_TSNR.nii.gz <span class="se">\</span>
+        --reg <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_register.dat <span class="se">\</span>
+        --hemi rh <span class="se">\</span>
+        --projfrac <span class="m">0</span>.5 <span class="se">\</span>
+        --o <span class="si">${</span><span class="nv">T_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">SUBJ</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">SESS</span><span class="si">}</span>_rh.shape.gii <span class="se">\</span>
+        --noreshape <span class="se">\</span>
+        --interp trilinear
+
+    <span class="k">done</span>
+<span class="k">done</span>
+</pre></div>
+</div>
 </section>
 <section id="expected-output">
 <h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<p>Following the implementation of this script, there should be a LH and RH GIFTI file for each run per participant.</p>
 </section>
 </section>
 
@@ -166,7 +215,7 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="tsnr_1.html" class="btn btn-neutral float-left" title="tSNR Step 1: fslmaths" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tsnr_1.html" class="btn btn-neutral float-left" title="tSNR Step 1: tSNR Calculation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tsnr_3.html" class="btn btn-neutral float-right" title="tSNR Step 3: Wtihin-Network Averaging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

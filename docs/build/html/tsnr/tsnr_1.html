@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tSNR Step 1: fslmaths &mdash; NeuroDocs 0.0.1 documentation</title>
+  <title>tSNR Step 1: tSNR Calculation &mdash; NeuroDocs 0.0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -101,7 +101,7 @@
 <p class="caption" role="heading"><span class="caption-text">tSNR Maps</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tsnr_ov.html">tSNR Maps Overview</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">tSNR Step 1: fslmaths</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">tSNR Step 1: tSNR Calculation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-1-script">Step 1 Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#expected-output">Expected Output</a></li>
@@ -139,7 +139,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>tSNR Step 1: fslmaths</li>
+      <li>tSNR Step 1: tSNR Calculation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tsnr/tsnr_1.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -149,16 +149,47 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tsnr-step-1-fslmaths">
-<h1>tSNR Step 1: fslmaths<a class="headerlink" href="#tsnr-step-1-fslmaths" title="Permalink to this heading"></a></h1>
+  <section id="tsnr-step-1-tsnr-calculation">
+<h1>tSNR Step 1: tSNR Calculation<a class="headerlink" href="#tsnr-step-1-tsnr-calculation" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>For this step, we are going to use fslmaths from the FSL package to go ahead and calculate the tSNR for each run for each participant. So if a participant has four runs, you can expect a volumetric tSNR output file for each run. Again, the formula for calculating tSNR is the mean BOLD signal across the timeseries divided by the standard deviation of the BOLD signal across the timeseries.</p>
 </section>
 <section id="step-1-script">
 <h2>Step 1 Script<a class="headerlink" href="#step-1-script" title="Permalink to this heading"></a></h2>
+<p>To implement fslmaths, we will use a bash shell script.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#Purpose: Create SNR maps using fslmaths.</span>
+<span class="c1">#Input: CBIG2016 preproc output.</span>
+<span class="c1">#Output: SNR maps.</span>
+<span class="c1">#Written by M. Peterson, Nielsen Brain and Behavior Lab under MIT License 2023</span>
+
+<span class="c1">#PATHS:</span>
+<span class="nv">CODE_DIR</span><span class="o">=</span>/fslgroup/fslg_spec_networks/compute/code/HCP_analysis/tSNR/ALL <span class="c1">#code directory where this script is</span>
+<span class="nv">PREPROC_DIR</span><span class="o">=</span>/fslgroup/fslg_autism_networks/compute/HCP_analysis/CBIG2016_preproc_FS6_ALL <span class="c1">#location of preprocessing output</span>
+<span class="nv">OUT_DIR</span><span class="o">=</span>/fslgroup/grp_hcp/compute/HCP_analysis/parc_output_fs6_HCP_ALL/quant_metrics/tSNR <span class="c1">#tSNR output directory</span>
+mkdir -p <span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span>
+
+<span class="c1">#LOOP</span>
+<span class="k">for</span> sub <span class="k">in</span> <span class="sb">`</span>cat <span class="si">${</span><span class="nv">CODE_DIR</span><span class="si">}</span>/ids.txt<span class="sb">`</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#subject IDs text file</span>
+    <span class="k">for</span> sess <span class="k">in</span> <span class="o">{</span><span class="m">1</span>..4<span class="o">}</span><span class="p">;</span> <span class="k">do</span> <span class="c1">#assumes a maximum of four runs per participant; adjust to your data</span>
+            <span class="nv">BOLD_FILE</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PREPROC_DIR</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">/bold/00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_bld00</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_rest_skip4_mc.nii.gz&quot;</span>
+            <span class="nv">T_FILE</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span><span class="s2">/sub-</span><span class="si">${</span><span class="nv">sub</span><span class="si">}</span><span class="s2">_sess-</span><span class="si">${</span><span class="nv">sess</span><span class="si">}</span><span class="s2">_PREPROC_TSNR.nii.gz&quot;</span> <span class="c1">#name of output file</span>
+            <span class="nv">MEAN_FILE</span><span class="o">=</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_mean.nii.gz <span class="c1">#mean BOLD signal file name</span>
+            <span class="nv">STD_FILE</span><span class="o">=</span><span class="si">${</span><span class="nv">OUT_DIR</span><span class="si">}</span>/sub-<span class="si">${</span><span class="nv">sub</span><span class="si">}</span>_sess-<span class="si">${</span><span class="nv">sess</span><span class="si">}</span>_std.nii.gz <span class="c1">#st. dev. BOLD signal file name</span>
+            fslmaths <span class="si">${</span><span class="nv">BOLD_FILE</span><span class="si">}</span> -Tmean <span class="si">${</span><span class="nv">MEAN_FILE</span><span class="si">}</span>
+            fslmaths <span class="si">${</span><span class="nv">BOLD_FILE</span><span class="si">}</span> -Tstd <span class="si">${</span><span class="nv">STD_FILE</span><span class="si">}</span>
+            fslmaths <span class="si">${</span><span class="nv">MEAN_FILE</span><span class="si">}</span> -div <span class="si">${</span><span class="nv">STD_FILE</span><span class="si">}</span> <span class="si">${</span><span class="nv">T_FILE</span><span class="si">}</span>
+            rm <span class="si">${</span><span class="nv">MEAN_FILE</span><span class="si">}</span> <span class="c1">#remove intermediate files</span>
+            rm <span class="si">${</span><span class="nv">STD_FILE</span><span class="si">}</span>
+    <span class="k">done</span>
+<span class="k">done</span>
+</pre></div>
+</div>
 </section>
 <section id="expected-output">
 <h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<p>The output will consist of one tSNR file per run per participant. Intermediate files will be removed as part of the script.</p>
 </section>
 </section>
 
