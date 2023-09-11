@@ -131,7 +131,7 @@ The GIFTI parcellations are simple to load in HCP Workbench. First, load your su
 
 Here is an image of the loaded surface underlays. 
 
-.. image:: 3_1.png 
+.. image:: 3_1.png
 
 And here is the individual parcellation!
 
