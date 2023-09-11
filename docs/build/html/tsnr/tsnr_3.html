@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>tSNR Step 3: Wtihin-Network Averaging &mdash; NeuroDocs 0.0.1 documentation</title>
+  <title>tSNR Step 3: Within-Network Averaging &mdash; NeuroDocs 0.0.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -101,9 +101,9 @@
 <p class="caption" role="heading"><span class="caption-text">tSNR Maps</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tsnr_ov.html">tSNR Maps Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tsnr_1.html">tSNR Step 1: fslmaths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tsnr_1.html">tSNR Step 1: tSNR Calculation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tsnr_2.html">tSNR Step 2: Surface Projection</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">tSNR Step 3: Wtihin-Network Averaging</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">tSNR Step 3: Within-Network Averaging</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#step-3-script">Step 3 Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#expected-output">Expected Output</a></li>
@@ -139,7 +139,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>tSNR Step 3: Wtihin-Network Averaging</li>
+      <li>tSNR Step 3: Within-Network Averaging</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/tsnr/tsnr_3.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -149,16 +149,150 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="tsnr-step-3-wtihin-network-averaging">
-<h1>tSNR Step 3: Wtihin-Network Averaging<a class="headerlink" href="#tsnr-step-3-wtihin-network-averaging" title="Permalink to this heading"></a></h1>
+  <section id="tsnr-step-3-within-network-averaging">
+<h1>tSNR Step 3: Within-Network Averaging<a class="headerlink" href="#tsnr-step-3-within-network-averaging" title="Permalink to this heading"></a></h1>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>After generating tSNR maps for each session and projecting them to the fsaverage6 surface, we can go ahead and average tSNR across sessions within each subject and even average within network boundaries using individual parcellations. The following script takes as input Kong2019 Hungarian-matched individual parcellations and fsaverage6-projected tSNR maps. The script can be easily altered to accommodate different resolutions of tSNR maps or parcellations. Note, however, that the resolution of the parcellation and the tSNR maps should match.</p>
 </section>
 <section id="step-3-script">
 <h2>Step 3 Script<a class="headerlink" href="#step-3-script" title="Permalink to this heading"></a></h2>
+<p>To perform this step, we will use a MATLAB script.</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Convert fsaverage6 SNR maps to .mat matrices, avg over sessions</span><span class="w"></span>
+<span class="c">% and within networks</span><span class="w"></span>
+<span class="c">% Inputs: LH and RH step2 .shape.gii output, individual parc output</span><span class="w"></span>
+<span class="c">% (matched)</span><span class="w"></span>
+<span class="c">% Outputs: subject-avg SNR .mat, .csv file containing network-avg SNR for each subject</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Note: This requires the use of the gifti package (part of CBIG repo)</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab, under MIT License 2023</span><span class="w"></span>
+
+<span class="c">% To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 100G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Source your CBIG config script</span><span class="w"></span>
+<span class="c">%    4. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+
+<span class="c">% Set paths and variables</span><span class="w"></span>
+<span class="n">snr_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/parc_output_fs6_HCP_ALL/quant_metrics/tSNR&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">parc_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/parc_output_fs6_HCP_ALL/generate_individual_parcellations/ind_parcellation/test_set&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">out_dir</span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/code/HCP_analysis/tSNR/ALL&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">%Load text file</span><span class="w"></span>
+<span class="w">    </span><span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/nobackup/scratch/grp/fslg_spec_networks/code/HCP_analysis/tSNR/ALL/ids.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Format for each line of text:</span><span class="w"></span>
+<span class="w">    </span><span class="c">%   column1: text (%s)</span><span class="w"></span>
+<span class="w">    </span><span class="c">% For more information, see the TEXTSCAN documentation.</span><span class="w"></span>
+<span class="w">    </span><span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Open the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Read columns of data according to the format.</span><span class="w"></span>
+<span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Close the text file.</span><span class="w"></span>
+<span class="w">    </span><span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">sublist</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="w">    </span><span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+<span class="n">seslist</span><span class="p">=[</span><span class="s">&quot;1&quot;</span><span class="w"> </span><span class="s">&quot;2&quot;</span><span class="w"> </span><span class="s">&quot;3&quot;</span><span class="w"> </span><span class="s">&quot;4&quot;</span><span class="w"> </span><span class="p">];</span><span class="w"></span>
+<span class="nb">count</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="c">%Loop through each subject</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">subid</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">sublist</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub</span><span class="p">=</span><span class="n">sublist</span><span class="p">(</span><span class="n">subid</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="c">%Load subject&#39;s individual parcellation</span><span class="w"></span>
+<span class="w">        </span><span class="nb">count</span><span class="p">=</span><span class="nb">count</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">parc_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;Ind_parcellation_MSHBM_sub&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="nb">count</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_w200_MRF30_matched.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">parc_full</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">load</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">parc_dir</span><span class="p">,</span><span class="w"> </span><span class="n">parc_file</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">ses_count</span><span class="p">=</span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">ses</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">seslist</span><span class="w"></span>
+<span class="w">        </span><span class="c">%file names for tSNR maps in fs6</span><span class="w"></span>
+<span class="w">        </span><span class="n">lh_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_sess-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ses</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_lh.shape.gii&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">rh_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_sess-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">ses</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_rh.shape.gii&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">lh_inputfull</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">snr_dir</span><span class="p">,</span><span class="w"> </span><span class="n">lh_file</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">rh_inputfull</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">snr_dir</span><span class="p">,</span><span class="w"> </span><span class="n">rh_file</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%check if file exists before proceeding to load and avg</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nb">isfile</span><span class="p">(</span><span class="n">lh_inputfull</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="n">ses_count</span><span class="p">=</span><span class="n">ses_count</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="c">%load gifti files</span><span class="w"></span>
+<span class="w">            </span><span class="n">lh_gifti</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gifti</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">lh_inputfull</span><span class="p">));</span><span class="w"></span>
+<span class="w">            </span><span class="n">rh_gifti</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gifti</span><span class="p">(</span><span class="nb">char</span><span class="p">(</span><span class="n">rh_inputfull</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">            </span><span class="c">%save activation data in matrix format</span><span class="w"></span>
+<span class="w">            </span><span class="n">lh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">lh_gifti</span><span class="p">.</span><span class="n">cdata</span><span class="w"></span>
+<span class="w">            </span><span class="n">rh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rh_gifti</span><span class="p">.</span><span class="n">cdata</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">ses_count</span><span class="o">==</span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">comb_left</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">lh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">            </span><span class="n">comb_right</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">elseif</span><span class="w"> </span><span class="n">ses_count</span><span class="o">&gt;</span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">comb_left</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">cat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">comb_left</span><span class="p">,</span><span class="w"> </span><span class="n">lh_labels</span><span class="p">);</span><span class="w"></span>
+<span class="w">            </span><span class="n">comb_right</span><span class="p">=</span><span class="w"> </span><span class="nb">cat</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="n">comb_right</span><span class="p">,</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%Avg within subject</span><span class="w"></span>
+<span class="w">    </span><span class="n">avg_left</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">comb_left</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">avg_right</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">comb_right</span><span class="p">,</span><span class="mi">3</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%save ind avg output</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="nb">save</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">snr_dir</span><span class="p">,</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;sub-&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_AVG_SNR_FS6.mat&#39;</span><span class="p">)),</span><span class="w"> </span><span class="s">&#39;avg_left&#39;</span><span class="p">,</span><span class="s">&#39;avg_right&#39;</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="w">    </span><span class="c">%Avg. within-network SNR for each subject</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">17</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%Find indices for parc where Network = $network and take average in SNR (LH and RH</span><span class="w"></span>
+<span class="w">        </span><span class="c">%separately)</span><span class="w"></span>
+<span class="w">        </span><span class="n">lh_SNR_avg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">avg_left</span><span class="p">(</span><span class="n">parc_full</span><span class="p">.</span><span class="n">lh_labels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">network</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="n">rh_SNR_avg</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">mean</span><span class="p">(</span><span class="n">avg_right</span><span class="p">(</span><span class="n">parc_full</span><span class="p">.</span><span class="n">rh_labels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">network</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%Append subject and network avg SNR to array (LH and RH separately)</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">1</span><span class="w"></span>
+<span class="w">            </span><span class="n">subject_array</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="n">network</span><span class="p">,</span><span class="w"> </span><span class="n">lh_SNR_avg</span><span class="p">,</span><span class="w"> </span><span class="n">rh_SNR_avg</span><span class="p">};</span><span class="w"></span>
+<span class="w">        </span><span class="k">else</span><span class="w"></span>
+<span class="w">            </span><span class="n">added_array</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="n">network</span><span class="p">,</span><span class="w"> </span><span class="n">lh_SNR_avg</span><span class="p">,</span><span class="w"> </span><span class="n">rh_SNR_avg</span><span class="p">};</span><span class="w"></span>
+<span class="w">            </span><span class="n">subject_array</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">vertcat</span><span class="p">(</span><span class="n">subject_array</span><span class="p">,</span><span class="w"> </span><span class="n">added_array</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="k">end</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%Append subject array of network-avg SNR to group array</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">count</span><span class="w"> </span><span class="o">==</span><span class="mi">1</span><span class="w"></span>
+<span class="w">        </span><span class="n">group_array</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">subject_array</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span><span class="w"></span>
+<span class="w">        </span><span class="n">group_array</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">vertcat</span><span class="p">(</span><span class="n">group_array</span><span class="p">,</span><span class="w"> </span><span class="n">subject_array</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+<span class="k">end</span><span class="w"></span>
+
+<span class="c">%Save out group array of network avg SNR to .csv</span><span class="w"></span>
+<span class="c">% Create a table from the array</span><span class="w"></span>
+<span class="n">table_data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">array2table</span><span class="p">(</span><span class="n">group_array</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;VariableNames&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;SUBJID&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Network&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;LH_AVG_SNR&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;RH_AVG_SNR&#39;</span><span class="p">});</span><span class="w"></span>
+
+<span class="c">% Define the filename for the .csv file</span><span class="w"></span>
+<span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;HCP_Network_AVG_SNR_230614.csv&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="c">% Write the table to a .csv file</span><span class="w"></span>
+<span class="nb">writetable</span><span class="p">(</span><span class="n">table_data</span><span class="p">,</span><span class="w"> </span><span class="n">filename</span><span class="p">);</span><span class="w"></span>
+</pre></div>
+</div>
 </section>
 <section id="expected-output">
 <h2>Expected Output<a class="headerlink" href="#expected-output" title="Permalink to this heading"></a></h2>
+<ul class="simple">
+<li><p>A .csv file containing network-averaged tSNR values for each subject for 17 networks</p></li>
+<li><p>A .mat file for each subject with the averaged tSNR values (averaged across sessions)</p></li>
+</ul>
 </section>
 </section>
 
