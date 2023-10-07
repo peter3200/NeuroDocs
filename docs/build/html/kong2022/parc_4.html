@@ -19,7 +19,7 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Seed-based rs-fMRI Analysis Overview" href="../seed/seed_ov.html" />
+    <link rel="next" title="K-means Parcellation Overview" href="../kmeans/kmeans_ov.html" />
     <link rel="prev" title="Kong2022 Step 3: Generate Individual Parcellations" href="parc_3.html" /> 
 </head>
 
@@ -89,6 +89,13 @@
 </ul>
 </li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Parcellation (K-means)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_ov.html">K-means Parcellation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_1.html">K-means Parc Step 1: Concatenate Timeseries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_2.html">K-means Parc Step 2: K-means Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_3.html">K-means Parc Step 3: Hungarian Matching and Visualization</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../seed/seed_ov.html">Seed-based rs-fMRI Analysis Overview</a></li>
@@ -97,6 +104,14 @@
 <li class="toctree-l1"><a class="reference internal" href="../seed/seed_3.html">Seed-based Analysis Step 3</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seed/seed_4.html">Seed-based Analysis Step 4</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../seed/seed_5.html">Seed-based Analysis Step 5</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">tSNR Maps</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_ov.html">tSNR Maps Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_1.html">tSNR Step 1: tSNR Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_2.html">tSNR Step 2: Surface Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_3.html">tSNR Step 3: Within-Network Averaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_4.html">tSNR Step 4: Group-Averaged tSNR Map</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
 <ul>
@@ -286,6 +301,10 @@
 <span class="n">CBIG_SaveParcellationToFreesurferAnnotation</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="w"> </span><span class="n">lh_output_file</span><span class="p">,</span><span class="w"> </span><span class="n">rh_output_file</span><span class="p">);</span><span class="w"></span>
 </pre></div>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Resources for this step, including an edited version of the CBIG function CBIG_SaveParcellationToFreesurferAnnotation as well as correct reference colors are available on GitHub: <a class="reference external" href="https://github.com/peter3200/NeuroDocs/tree/main/example_data/parc2annot">https://github.com/peter3200/NeuroDocs/tree/main/example_data/parc2annot</a>.</p>
+</div>
 </section>
 <section id="annotation-to-gifti-file">
 <h2>Annotation to GIFTI File<a class="headerlink" href="#annotation-to-gifti-file" title="Permalink to this heading"></a></h2>
@@ -333,7 +352,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="parc_3.html" class="btn btn-neutral float-left" title="Kong2022 Step 3: Generate Individual Parcellations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../seed/seed_ov.html" class="btn btn-neutral float-right" title="Seed-based rs-fMRI Analysis Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../kmeans/kmeans_ov.html" class="btn btn-neutral float-right" title="K-means Parcellation Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
