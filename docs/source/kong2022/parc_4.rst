@@ -154,6 +154,8 @@ Next, we will use a CBIG function in MATLAB to convert the .mat individual parce
         rh_output_file = fullfile(out_dir,rh_name);
         CBIG_SaveParcellationToFreesurferAnnotation(file, lh_output_file, rh_output_file);
 
+.. note:: Resources for this step, including an edited version of the CBIG function CBIG_SaveParcellationToFreesurferAnnotation as well as correct reference colors are available on GitHub: https://github.com/peter3200/NeuroDocs/tree/main/example_data/parc2annot.
+
 
 Annotation to GIFTI File 
 ************************
