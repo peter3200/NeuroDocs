@@ -1,0 +1,1 @@
+#Files in this folder are used to convert individual parcellations to FreeSurfer annotation file format. Original script from CBIG repo and edited to accommodate different numbers of networks and their reference colors.
