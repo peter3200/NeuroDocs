@@ -20,13 +20,13 @@ sys.path.insert(0, os.path.abspath('../../simpleble/'))
 # -- Project information -----------------------------------------------------
 
 project = 'NeuroDocs'
-copyright = '2022, M. Peterson'
+copyright = '2023, M. Peterson'
 author = 'Peterson'
 
 # The short X.Y version
-version = ''
+version = '1.1'
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+release = '0.1.1'
 
 
 # -- General configuration ---------------------------------------------------
