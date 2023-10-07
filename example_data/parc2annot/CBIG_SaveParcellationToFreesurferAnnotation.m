@@ -21,7 +21,7 @@ if contains(lh_output_file, '_7N')
 elseif contains(lh_output_file, '_Kong2022')
     group=load('/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces/17Network_Reference_FS6/17Network_400Parcel_Colors.mat');
 elseif contains(lh_output_file, '_15N')
-    group=load('/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces/15Network_Reference_FS6/15Network_Colors.mat');
+    group=load('/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces/15Network_Reference_FS6/15Network_Colors.mat'); %this is handmade and not recommended. Request actual 15N group ref from Du et al. 2023
 else
     group=load('/fslgroup/fslg_rdoc/compute/CBIG/stable_projects/brain_parcellation/Kong2019_MSHBM/examples/input/group/group.mat');
 end
