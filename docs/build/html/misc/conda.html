@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Using MATLAB in a Supercomputing Environment &mdash; NeuroDocs 0.1.1 documentation</title>
+  <title>Installing Conda &mdash; NeuroDocs 0.1.1 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -19,8 +19,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Download a Dataset from OpenNeuro" href="openneuro.html" />
-    <link rel="prev" title="Installing Conda" href="conda.html" /> 
+    <link rel="next" title="Using MATLAB in a Supercomputing Environment" href="matlab.html" />
+    <link rel="prev" title="Installing Freesurfer" href="freesurfer.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -113,8 +113,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="aws.html">Implementing AWS CLI</a></li>
 <li class="toctree-l1"><a class="reference internal" href="freesurfer.html">Installing Freesurfer</a></li>
-<li class="toctree-l1"><a class="reference internal" href="conda.html">Installing Conda</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Using MATLAB in a Supercomputing Environment</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installing Conda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
 <li class="toctree-l1"><a class="reference internal" href="openneuro.html">Download a Dataset from OpenNeuro</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overlapmap.html">Overlap Map Figure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rclone.html">Rclone</a></li>
@@ -138,9 +138,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Using MATLAB in a Supercomputing Environment</li>
+      <li>Installing Conda</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/misc/matlab.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/misc/conda.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -148,42 +148,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="using-matlab-in-a-supercomputing-environment">
-<h1>Using MATLAB in a Supercomputing Environment<a class="headerlink" href="#using-matlab-in-a-supercomputing-environment" title="Permalink to this heading"></a></h1>
-<p>This tutorial will walk through how to use the MATLAB GUI (graphical user interface) in a RHEL 8 Linux OS environment.</p>
+  <section id="installing-conda">
+<h1>Installing Conda<a class="headerlink" href="#installing-conda" title="Permalink to this heading"></a></h1>
+<p>Conda is package manager for python and can be helpful in setting up reproducible environments. The <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/setup/python_env_setup#quick-installation-for-linux">CBIG repo</a> uses conda to setup their python environment. The following instructions are for Linux setup.</p>
 <ol class="arabic simple">
-<li><p>Load MATLAB. Version r2018b is recommended for CBIG scripts.</p></li>
+<li><p>Download the setup file</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>module load matlab/r2018b
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>wget <span class="s2">&quot;https://repo.anaconda.com/archive/Anaconda3-2022.10-Linux-x86_64.sh&quot;</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>Request an <cite>salloc</cite> job. This is where you request an amount of RAM in gigabytes, the amount of time you expect the job to take in hours, and indicate that you would like x11 forwarding (graphical capabilities).</p></li>
+<li><p>Run the set up file</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>salloc --mem-per-cpu 50G --time <span class="m">4</span>:00:00 --x11
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sh Anaconda3-2022.10-Linux-x86_64.sh
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>If using CBIG scripts, source your configuration file</p></li>
+<li><p>Setup the conda environment folling <a class="reference external" href="https://github.com/ThomasYeoLab/CBIG/tree/master/setup/python_env_setup#quick-installation-for-linux">CBIG instructions</a> for Linux.</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> /fslgroup/fslg_rdoc/compute/test_scripts/parc_scripts/CBIG_preproc_tested_config_funconn.sh
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$CBIG_CODE_DIR</span>/setup/python_env_setup
+bash CBIG_python_env_generic_setup.sh
 </pre></div>
 </div>
 <ol class="arabic simple" start="4">
-<li><p>Set $LD_PRELOAD. Note the space between “=” and “matlab”.</p></li>
+<li><p>Test the installation. First logout of the shell and then log back in before testing.</p></li>
 </ol>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">LD_PRELOAD</span><span class="o">=</span> matlab
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> activate CBIG_py3
+python -m pytest <span class="nv">$CBIG_CODE_DIR</span>/setup/python_env_setup/tests/CBIG_python_env_setup_unit_test.py
 </pre></div>
 </div>
-<p>The MATLAB GUI will now launch. You can expect the initialization to take ~4 minutes.</p>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="conda.html" class="btn btn-neutral float-left" title="Installing Conda" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="openneuro.html" class="btn btn-neutral float-right" title="Download a Dataset from OpenNeuro" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="freesurfer.html" class="btn btn-neutral float-left" title="Installing Freesurfer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="matlab.html" class="btn btn-neutral float-right" title="Using MATLAB in a Supercomputing Environment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Overlap Map Figure &mdash; NeuroDocs 0.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Rclone" href="rclone.html" />
+    <link rel="prev" title="Download a Dataset from OpenNeuro" href="openneuro.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> NeuroDocs
+          </a>
+              <div class="version">
+                1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../intro/intro.html">Introduction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (fMRIprep)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep_ov.html">Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep1.html">Preproc Step 1: Data Organization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep2.html">Preproc Step 2: fMRIprep</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../preproc/prep3.html">Preproc Step 3: Brain Extraction</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Task Analysis (FSL)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../task/task1.html">Task Analysis Step 1: Timing Files</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Preprocessing (CBIG2016)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_ov.html">CBIG2016 Preprocessing Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_0.html">CBIG2016 Preproc  Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_1.html">CBIG2016 Preproc Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_2.html">CBIG2016 Preproc Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_3.html">CBIG2016 Preproc Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cprep/cprep_4.html">CBIG2016 Preproc: Tedana Integration</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parcellation (Kong2019)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_ov.html">Kong2019 Parcellation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_0.html">Kong2019 Parc Step 0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_1.html">Kong2019 Parc Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_2.html">Kong2019 Parc Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_3.html">Kong2019 Parc Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_4.html">Kong2019 Parc Step 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_5.html">Kong2019 Parc Step 5</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2019/parc_6.html">Kong2019 Parc: Training Your Own Priors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parcellation (Kong2022)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../kong2022/parc_ov.html">Kong2022 Parcellation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2022/parc_0.html">Kong2022 Step 0: Generate Gradients</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2022/parc_1.html">Kong2022 Step 1: Generate Profiles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2022/parc_2.html">Kong2022 Step 2: Group Priors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2022/parc_3.html">Kong2022 Step 3: Generate Individual Parcellations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kong2022/parc_4.html">Kong2022 Step 4: Hungarian Matching and Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Parcellation (K-means)</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_ov.html">K-means Parcellation Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_1.html">K-means Parc Step 1: Concatenate Timeseries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_2.html">K-means Parc Step 2: K-means Algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../kmeans/kmeans_3.html">K-means Parc Step 3: Hungarian Matching and Visualization</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Seed-based rsfMRI Analysis</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_ov.html">Seed-based rs-fMRI Analysis Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_1.html">Seed-based Analysis Step 1</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_2.html">Seed-based Analysis Step 2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_3.html">Seed-based Analysis Step 3</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_4.html">Seed-based Analysis Step 4</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../seed/seed_5.html">Seed-based Analysis Step 5</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">tSNR Maps</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_ov.html">tSNR Maps Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_1.html">tSNR Step 1: tSNR Calculation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_2.html">tSNR Step 2: Surface Projection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_3.html">tSNR Step 3: Within-Network Averaging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tsnr/tsnr_4.html">tSNR Step 4: Group-Averaged tSNR Map</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Odds and Ends</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="aws.html">Implementing AWS CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="freesurfer.html">Installing Freesurfer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="conda.html">Installing Conda</a></li>
+<li class="toctree-l1"><a class="reference internal" href="matlab.html">Using MATLAB in a Supercomputing Environment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="openneuro.html">Download a Dataset from OpenNeuro</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overlap Map Figure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-generate-network-overlap">Step 1 Generate Network Overlap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-convert-overlap-to-gifti">Step 2 Convert Overlap to GIFTI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#expected-outputs">Expected Outputs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rclone.html">Rclone</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reorient.html">Reorient a Nifti Image</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rtd.html">Read The Docs Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="split.html">Split A BOLD Run</a></li>
+<li class="toctree-l1"><a class="reference internal" href="addresources.html">Additional Resources</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">NeuroDocs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Overlap Map Figure</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/misc/overlapmap.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="overlap-map-figure">
+<h1>Overlap Map Figure<a class="headerlink" href="#overlap-map-figure" title="Permalink to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this heading"></a></h2>
+<p>Hypothetically if you have generated network parcellations and you are interested in identifying the probability that a given vertex has been assigned a specific network label across a group of participants, how might you visually display these data? If you want to maintain the idiosyncrasies inherent to individual parcellations, then simply displaying a group parcellation is sub-optimal. However, a simple yet visually compelling solution is to display the overlap across subjects for a given network. This visual display is common in neuroimaging papers displaying network parcellations (for a recent example, see Jingnan Du et al. (2024) Figure 14).</p>
+<p>The following two scripts have been developed to first calculate the network overlap for 17 networks (although they could easily be edited for any number of networks), and next play those data within a surface file framework (namely, GIFTI files). From here, the user could easily display these GIFTI files overlaid on an fsaverage6 midthickness surface template in HCP Workbench.</p>
+<p>For a use case (and to download the scripts), please see <a class="reference external" href="https://github.com/Nielsen-Brain-and-Behavior-Lab/NSAR2023/tree/main/ind_parc/network_overlap_fig/HCP">GitHub</a>.</p>
+</section>
+<section id="step-1-generate-network-overlap">
+<h2>Step 1 Generate Network Overlap<a class="headerlink" href="#step-1-generate-network-overlap" title="Permalink to this heading"></a></h2>
+<p>This first step, where we are calculating the network overlap for individual parcellations, is optimized for MATLAB r2018b.</p>
+<p>This script will require the following Inputs
+* Hungarian-matched .mat individual parcellation files
+* A subject IDs text file
+* An output directory that will be referenced in Step 2</p>
+<p>File name: step1_generate_network_overlap.m</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Calculate network overlap for each MS-HBM network</span><span class="w"></span>
+<span class="c">% Inputs: Hungarian-matched individual network parcellations</span><span class="w"></span>
+<span class="c">% Outputs: rh_labels and lh_labels containing overlap values for</span><span class="w"></span>
+<span class="c">% each network</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab, under MIT License</span><span class="w"></span>
+<span class="c">% 2024</span><span class="w"></span>
+
+<span class="c">% To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 30G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%%</span><span class="w"></span>
+
+<span class="c">%GROUP</span><span class="w"></span>
+<span class="n">group</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;HCP_DISC&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">% Set paths</span><span class="w"></span>
+<span class="n">project_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/DISC_AND_REP/ind_parcellation&#39;</span><span class="p">;</span><span class="w">  </span><span class="c">%Input folder for Hungarian-matched individual parcellations</span><span class="w"></span>
+<span class="n">out_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/DISC_AND_REP/network_overlap_output/&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="p">);</span><span class="w"> </span><span class="c">%This is the same in Step 2</span><span class="w"></span>
+
+<span class="c">%HCP- DISC (Load subject IDS text file)</span><span class="w"></span>
+<span class="n">filename</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/code/HCP_analysis/network_overlap_fig/hcp_disc/study3_HCPDISC_IDS_230911.txt&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">delimiter</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">&#39;&#39;</span><span class="p">};</span><span class="w"></span>
+<span class="n">formatSpec</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;%s%[^\n\r]&#39;</span><span class="p">;</span><span class="w"></span>
+<span class="n">fileID</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fopen</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span><span class="s">&#39;r&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="n">dataArray</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">textscan</span><span class="p">(</span><span class="n">fileID</span><span class="p">,</span><span class="w"> </span><span class="n">formatSpec</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;Delimiter&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">delimiter</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;TextType&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;string&#39;</span><span class="p">,</span><span class="w">  </span><span class="s">&#39;ReturnOnError&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span>
+<span class="nb">fclose</span><span class="p">(</span><span class="n">fileID</span><span class="p">);</span><span class="w"></span>
+<span class="n">subjids</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">[</span><span class="n">dataArray</span><span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="k">end</span><span class="o">-</span><span class="mi">1</span><span class="p">}];</span><span class="w"></span>
+<span class="n">clearvars</span><span class="w"> </span><span class="s">filename</span><span class="w"> </span><span class="s">delimiter</span><span class="w"> </span><span class="s">formatSpec</span><span class="w"> </span><span class="s">fileID</span><span class="w"> </span><span class="s">dataArray</span><span class="w"> </span><span class="s">ans</span><span class="p">;</span><span class="w"></span>
+
+
+<span class="c">% Loop through each network</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">17</span><span class="w">  </span><span class="c">%specify number of networks</span><span class="w"></span>
+<span class="w">    </span><span class="c">% Initialize vectors to store aggregated labels for each network</span><span class="w"></span>
+<span class="w">    </span><span class="n">overlap_lh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">40962</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"> </span><span class="c">%vector size is based on the number of LH or RH vertices in fsaverage6 space</span><span class="w"></span>
+<span class="w">    </span><span class="n">overlap_rh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">zeros</span><span class="p">(</span><span class="mi">40962</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="w">    </span><span class="c">%Loop through each subject in group list</span><span class="w"></span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nb">i</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="nb">length</span><span class="p">(</span><span class="n">subjids</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="n">sub</span><span class="p">=</span><span class="n">subjids</span><span class="p">(</span><span class="nb">i</span><span class="p">);</span><span class="w"></span>
+
+
+<span class="w">    </span><span class="c">%load individual parc</span><span class="w"></span>
+<span class="w">    </span><span class="n">parc_file</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;Ind_parcellation_MSHBM_sub&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">sub</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_w200_MRF30_matched.mat&#39;</span><span class="p">);</span><span class="w">  </span><span class="c">%File name for individual parcellation</span><span class="w"></span>
+<span class="w">    </span><span class="n">parc_full</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span><span class="w"> </span><span class="n">parc_file</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="nb">load</span><span class="p">(</span><span class="n">parc_full</span><span class="p">)</span><span class="w"></span>
+
+
+<span class="w">    </span><span class="c">% Set all elements in the vector to 0 except those that match network</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_labels</span><span class="p">(</span><span class="n">lh_labels</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="n">network</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_labels</span><span class="p">(</span><span class="n">rh_labels</span><span class="w"> </span><span class="o">~=</span><span class="w"> </span><span class="n">network</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">% Turn just the elements that match network N to 1</span><span class="w"></span>
+<span class="w">    </span><span class="n">lh_labels</span><span class="p">(</span><span class="n">lh_labels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">network</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">rh_labels</span><span class="p">(</span><span class="n">rh_labels</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">network</span><span class="p">)</span><span class="w"> </span><span class="p">=</span><span class="mi">1</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">% Update aggregated labels for network N (so if S subjects have network N on vertex X, X will have the value of S)</span><span class="w"></span>
+<span class="w">    </span><span class="n">overlap_lh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">overlap_lh_labels</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">lh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">overlap_rh_labels</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">overlap_rh_labels</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%Clear out variable that changes on a subject basis</span><span class="w"></span>
+<span class="w">    </span><span class="nb">clear</span><span class="w"> </span><span class="n">rh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">    </span><span class="n">clear</span><span class="w"> </span><span class="s">lh_labels</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+
+<span class="c">%write overlap output as overlap_rh_labels and overlap_lh_labels in a .mat file</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="o">~</span><span class="nb">exist</span><span class="p">(</span><span class="n">out_dir</span><span class="p">))</span><span class="w"></span>
+<span class="w">        </span><span class="nb">mkdir</span><span class="p">(</span><span class="n">out_dir</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+
+<span class="nb">save</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_NETWORK_&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">network</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_FS6_OVERLAP.mat&#39;</span><span class="p">)),</span><span class="w"> </span><span class="s">&#39;overlap_lh_labels&#39;</span><span class="p">,</span><span class="s">&#39;overlap_rh_labels&#39;</span><span class="p">);</span><span class="w"></span>
+
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-convert-overlap-to-gifti">
+<h2>Step 2 Convert Overlap to GIFTI<a class="headerlink" href="#step-2-convert-overlap-to-gifti" title="Permalink to this heading"></a></h2>
+<p>For Step 2, we will take the .mat output from Step 1 and convert it into GIFTI file format, so it can be visualized in HCP Workbench.</p>
+<p>Required inputs for this step include
+* .mat files from Step 1 containing overlap_lh_labels and overlap_rh_labels
+* GIFTI shape template files (downloadable from GitHub; <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/main/example_data/FS6_lh.shape.gii">LH Shape File</a> and <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/main/example_data/FS6_rh.shape.gii">RH Shape File</a>).</p>
+<p>File name: step2_overlap2gii.m</p>
+<div class="highlight-matlab notranslate"><div class="highlight"><pre><span></span><span class="c">% Purpose: Convert lh_labels and rh_labels to gifti shape files for later WB</span><span class="w"></span>
+<span class="c">% visualization</span><span class="w"></span>
+<span class="c">% Inputs: lh_labels and rh_labels from generate_network_overlap.m and template gifti</span><span class="w"></span>
+<span class="c">% files in appropriate resolution.</span><span class="w"></span>
+<span class="c">% Outputs: .shape.gii files containing AI values.</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Note: Template .shape.gii files can be created using mris_vol2surf in</span><span class="w"></span>
+<span class="c">% combination with bbregister. See the following script: project_surface_FS_AVG_FS6.sh</span><span class="w"></span>
+<span class="c">%</span><span class="w"></span>
+<span class="c">% Written by M. Peterson, Nielsen Brain and Behavior Lab, under MIT License 2022</span><span class="w"></span>
+
+<span class="c">% To run:</span><span class="w"></span>
+<span class="c">%    1. Claim computing resources using salloc (ex: `salloc --mem-per-cpu 20G --time 48:00:00 --x11`)</span><span class="w"></span>
+<span class="c">%    2. Load matlab module: `ml matlab/r2018b`</span><span class="w"></span>
+<span class="c">%    3. Enter the command `LD_PRELOAD= matlab`</span><span class="w"></span>
+<span class="c">%%</span><span class="w"></span>
+
+<span class="c">%GROUP</span><span class="w"></span>
+<span class="n">group</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;HCP_DISC&#39;</span><span class="p">;</span><span class="w"></span>
+
+<span class="c">% Set paths and variables</span><span class="w"></span>
+<span class="n">out_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="s">&#39;/fslgroup/grp_hcp/compute/HCP_analysis/DISC_AND_REP/network_overlap_output/&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">group</span><span class="p">);</span><span class="w"> </span><span class="c">%This is the same as Step 1</span><span class="w"></span>
+<span class="n">gifti_template_dir</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&#39;/fslgroup/fslg_spec_networks/compute/results/fsaverage_surfaces&#39;</span><span class="p">;</span><span class="w"> </span><span class="c">%Folder containing GIFTI template files (.shape.gii)</span><span class="w"></span>
+
+<span class="c">% Loop through each network</span><span class="w"></span>
+<span class="k">for</span><span class="w"> </span><span class="n">network</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="mi">1</span><span class="p">:</span><span class="mi">17</span><span class="w"></span>
+
+<span class="w">    </span><span class="c">%load overlap data</span><span class="w"></span>
+<span class="w">    </span><span class="n">infile</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_NETWORK_&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">network</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_FS6_OVERLAP.mat&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="n">inputfull</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="w"> </span><span class="n">infile</span><span class="p">);</span><span class="w"></span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">isfile</span><span class="p">(</span><span class="n">inputfull</span><span class="p">)</span><span class="w"></span>
+<span class="w">        </span><span class="nb">load</span><span class="p">(</span><span class="n">inputfull</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%grab resolution</span><span class="w"></span>
+<span class="w">        </span><span class="n">resolution</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">size</span><span class="p">(</span><span class="n">overlap_lh_labels</span><span class="p">,</span><span class="mi">1</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%output filenames</span><span class="w"></span>
+<span class="w">        </span><span class="n">fname_lh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_NETWORK_&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">network</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_FS6_OVERLAP_lh.shape.gii&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">fname_rh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">strcat</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;_NETWORK_&#39;</span><span class="p">,</span><span class="w"> </span><span class="nb">num2str</span><span class="p">(</span><span class="n">network</span><span class="p">),</span><span class="w"> </span><span class="s">&#39;_FS6_OVERLAP_rh.shape.gii&#39;</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">full_lh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="w"> </span><span class="n">fname_lh</span><span class="p">);</span><span class="w"></span>
+<span class="w">        </span><span class="n">full_rh</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">fullfile</span><span class="p">(</span><span class="n">out_dir</span><span class="p">,</span><span class="w"> </span><span class="n">fname_rh</span><span class="p">);</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%load in template .shape.gii file</span><span class="w"></span>
+<span class="w">        </span><span class="n">g_left</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gifti</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">gifti_template_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FS6_lh.shape.gii&#39;</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="n">g_right</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">gifti</span><span class="p">(</span><span class="nb">fullfile</span><span class="p">(</span><span class="n">gifti_template_dir</span><span class="p">,</span><span class="w"> </span><span class="s">&#39;FS6_rh.shape.gii&#39;</span><span class="p">));</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%replace vertex values in templates with AI values</span><span class="w"></span>
+<span class="w">        </span><span class="n">metric</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">single</span><span class="p">(</span><span class="nb">ones</span><span class="p">(</span><span class="n">resolution</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="n">g_left</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">metric</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">g_right</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">metric</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">g_left</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">overlap_lh_labels</span><span class="p">;</span><span class="w"></span>
+<span class="w">        </span><span class="n">g_right</span><span class="p">.</span><span class="n">cdata</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">overlap_rh_labels</span><span class="p">;</span><span class="w"></span>
+
+<span class="w">        </span><span class="c">%save output</span><span class="w"></span>
+<span class="w">        </span><span class="nb">save</span><span class="p">(</span><span class="n">g_left</span><span class="p">,</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="n">full_lh</span><span class="p">));</span><span class="w"></span>
+<span class="w">        </span><span class="nb">save</span><span class="p">(</span><span class="n">g_right</span><span class="p">,</span><span class="w"> </span><span class="nb">char</span><span class="p">(</span><span class="n">full_rh</span><span class="p">));</span><span class="w"></span>
+<span class="w">    </span><span class="k">else</span><span class="w"></span>
+<span class="w">    </span><span class="k">end</span><span class="w"></span>
+<span class="k">end</span><span class="w"></span>
+</pre></div>
+</div>
+</section>
+<section id="expected-outputs">
+<h2>Expected Outputs<a class="headerlink" href="#expected-outputs" title="Permalink to this heading"></a></h2>
+<p>For networks N, you can expect N right hemisphere and N left hemisphere .shape.gii GIFTI files containing the network overlap data.</p>
+<p>From here, the next step is to visualize these GIFTI files in HCP Workbench. To do this will require overlaying our newly produced .shape.gii files over surface GIFTI files. These .surf.gii files can be downloaded from GitHub.
+* <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/main/example_data/lh.pial_infl2.surf.gii">LH Inflated Surface Template</a>
+* <a class="reference external" href="https://github.com/peter3200/NeuroDocs/blob/main/example_data/rh.pial_infl2.surf.gii">RH Inflated Surface Template</a></p>
+<p>Here is an example of output produced using these scripts and HCP Workbench. This is an overlap map for a language network using a subset of HCP subjects (N=276).
+.. image:: overlap_LANG.png</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="openneuro.html" class="btn btn-neutral float-left" title="Download a Dataset from OpenNeuro" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rclone.html" class="btn btn-neutral float-right" title="Rclone" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, M. Peterson.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
