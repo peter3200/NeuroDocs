@@ -110,9 +110,9 @@ Welcome to NeuroDocs!
    misc/conda
    misc/matlab
    misc/openneuro
+   misc/overlapmap
    misc/rclone
    misc/reorient
    misc/rtd
    misc/split
    misc/addresources
-   
