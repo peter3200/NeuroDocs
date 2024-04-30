@@ -4,7 +4,7 @@ Overlap Map Figure
 Overview
 ********
 
-Hypothetically if you have generated network parcellations and you are interested in identifying the probability that a given vertex has been assigned a specific network label across a group of participants, how might you visually display these data? If you want to maintain the idiosyncrasies inherent to individual parcellations, then simply displaying a group parcellation is sub-optimal. However, a simple yet visually compelling solution is to display the overlap across subjects for a given network. This visual display is common in neuroimaging papers displaying network parcellations (for a recent example, see Jingnan Du et al. (2024) Figure 14). 
+Hypothetically, if you have generated network parcellations and you are interested in identifying the probability that a given vertex has been assigned a specific network label across a group of participants, how might you visually display these data? If you want to maintain the idiosyncrasies inherent to individual parcellations, then simply displaying a group parcellation is sub-optimal. However, a simple yet visually compelling solution is to display the overlap across subjects for a given network. This visual display is common in neuroimaging papers displaying network parcellations (for a recent example, see `Du et al. (2024) Figure 14 <https://journals.physiology.org/doi/abs/10.1152/jn.00308.2023>`_). 
 
 The following two scripts have been developed to first calculate the network overlap for 17 networks (although they could easily be edited for any number of networks), and next play those data within a surface file framework (namely, GIFTI files). From here, the user could easily display these GIFTI files overlaid on an fsaverage6 midthickness surface template in HCP Workbench. 
 
@@ -16,14 +16,15 @@ Step 1 Generate Network Overlap
 This first step, where we are calculating the network overlap for individual parcellations, is optimized for MATLAB r2018b. 
 
 This script will require the following Inputs
-* Hungarian-matched .mat individual parcellation files 
-* A subject IDs text file 
-* An output directory that will be referenced in Step 2
+
+- Hungarian-matched .mat individual parcellation files 
+- A subject IDs text file 
+- An output directory that will be referenced in Step 2
 
 File name: step1_generate_network_overlap.m
 
 .. code-block:: matlab 
-    
+
     % Purpose: Calculate network overlap for each MS-HBM network
     % Inputs: Hungarian-matched individual network parcellations
     % Outputs: rh_labels and lh_labels containing overlap values for
@@ -109,8 +110,9 @@ Step 2 Convert Overlap to GIFTI
 For Step 2, we will take the .mat output from Step 1 and convert it into GIFTI file format, so it can be visualized in HCP Workbench. 
 
 Required inputs for this step include
-* .mat files from Step 1 containing overlap_lh_labels and overlap_rh_labels
-* GIFTI shape template files (downloadable from GitHub; `LH Shape File <https://github.com/peter3200/NeuroDocs/blob/main/example_data/FS6_lh.shape.gii>`_ and `RH Shape File <https://github.com/peter3200/NeuroDocs/blob/main/example_data/FS6_rh.shape.gii>`_).
+
+- .mat files from Step 1 containing overlap_lh_labels and overlap_rh_labels
+- GIFTI shape template files (downloadable from GitHub; `LH Shape File <https://github.com/peter3200/NeuroDocs/blob/main/example_data/FS6_lh.shape.gii>`_ and `RH Shape File <https://github.com/peter3200/NeuroDocs/blob/main/example_data/FS6_rh.shape.gii>`_).
 
 File name: step2_overlap2gii.m
 
@@ -182,8 +184,11 @@ Expected Outputs
 For networks N, you can expect N right hemisphere and N left hemisphere .shape.gii GIFTI files containing the network overlap data. 
 
 From here, the next step is to visualize these GIFTI files in HCP Workbench. To do this will require overlaying our newly produced .shape.gii files over surface GIFTI files. These .surf.gii files can be downloaded from GitHub.
+
 * `LH Inflated Surface Template <https://github.com/peter3200/NeuroDocs/blob/main/example_data/lh.pial_infl2.surf.gii>`_
 * `RH Inflated Surface Template <https://github.com/peter3200/NeuroDocs/blob/main/example_data/rh.pial_infl2.surf.gii>`_
 
 Here is an example of output produced using these scripts and HCP Workbench. This is an overlap map for a language network using a subset of HCP subjects (N=276).
+
 .. image:: overlap_LANG.png 
+    
